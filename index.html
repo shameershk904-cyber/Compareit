@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Compare It - Find, Compare, Get the Best Phone</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <!-- Core Styles -->
+  <link rel="stylesheet" href="styles.css?v=17">
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="apple-touch-icon" href="favicon.png">
+</head>
+<body>
+
+  <!-- SITE HEADER -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <div class="logo-area">
+        <a href="#" class="brand-logo" onclick="navigateTo('catalog')">
+          <img src="images/logo.png?v=2" alt="Compare It - Find, Compare, Get The Best" class="main-logo-img">
+        </a>
+      </div>
+
+      <!-- MAIN SEARCH BAR -->
+      <div class="header-search">
+        <div class="search-input-wrapper">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="global-search" placeholder="Search phone name, brand (e.g. Note 40, S24 Ultra, Camon 30, Poco F6)..." autocomplete="off">
+          <button id="clear-search-btn" class="clear-btn hidden" title="Clear">✕</button>
+        </div>
+      </div>
+
+      <!-- HEADER ACTIONS -->
+      <div class="header-actions">
+        <button id="nav-finder-btn" class="action-btn advisor-btn" onclick="scrollToAdvisor()">
+          <span class="btn-icon">✨</span>
+          <span class="btn-label">Smart Phone Finder</span>
+        </button>
+        <button id="open-tax-calc-btn" class="action-btn tax-btn">
+          <span class="btn-icon">📋</span>
+          <span class="btn-label">PTA Tax Calculator</span>
+        </button>
+        <button id="open-compare-btn" class="action-btn compare-btn">
+          <span class="btn-icon">⚖️</span>
+          <span class="btn-label">Compare</span>
+          <span id="compare-badge" class="badge">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================================================================= -->
+  <!-- VIEW 1: CATALOG & SMART FINDER VIEW                               -->
+  <!-- ================================================================= -->
+  <div id="catalog-view" class="view-container">
+
+    <!-- SMART RECOMMENDATION ADVISOR WIDGET (MINIMAL & ELEGANT) -->
+    <section id="smart-advisor-section" class="advisor-section">
+      <div class="container advisor-layout-grid">
+        <div class="advisor-card-compact">
+          <!-- Compact Header Bar -->
+          <div class="advisor-top-bar">
+            <div class="advisor-headline">
+              <span class="advisor-badge-pill">⚡ AI Match</span>
+              <h2 class="advisor-title-compact">Find Your Ideal Phone</h2>
+              <span class="advisor-desc-inline">Select budget & focus to discover Pakistan's verified best value buy.</span>
+            </div>
+            <div class="advisor-top-actions">
+              <span class="step-tag hidden" id="selected-budget-tag">35k – 75k PKR</span>
+              <span class="step-tag hidden" id="selected-priority-tag">Best All-Rounder</span>
+              <button id="toggle-advisor-btn" class="advisor-toggle-btn" type="button" title="Minimize / Expand Finder">
+                <span id="toggle-advisor-text">Minimize</span>
+                <span id="toggle-advisor-icon">▴</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Compact Segmented Pill Form -->
+          <div id="advisor-form-container" class="advisor-form-compact">
+            <!-- Row 1: Budget Pills -->
+            <div class="adv-compact-row">
+              <span class="adv-row-label">Budget:</span>
+              <div class="advisor-pill-group" id="advisor-budget-cards">
+                <button type="button" class="adv-card-tile" data-min="0" data-max="35000" data-label="Under 35k PKR">
+                  <span class="adv-tile-icon">🪙</span>
+                  <span class="adv-tile-name">Under 35k</span>
+                </button>
+                <button type="button" class="adv-card-tile active" data-min="35000" data-max="75000" data-label="35k – 75k PKR">
+                  <span class="adv-tile-icon">💎</span>
+                  <span class="adv-tile-name">35k – 75k</span>
+                  <span class="adv-tile-badge-inline">Sweet Spot</span>
+                </button>
+                <button type="button" class="adv-card-tile" data-min="75000" data-max="130000" data-label="75k – 130k PKR">
+                  <span class="adv-tile-icon">⚡</span>
+                  <span class="adv-tile-name">75k – 130k</span>
+                </button>
+                <button type="button" class="adv-card-tile" data-min="130000" data-max="600000" data-label="130k+ Flagships">
+                  <span class="adv-tile-icon">👑</span>
+                  <span class="adv-tile-name">130k+ Flagship</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Row 2: Priority Pills -->
+            <div class="adv-compact-row">
+              <span class="adv-row-label">Focus:</span>
+              <div class="advisor-pill-group" id="advisor-priority-cards">
+                <button type="button" class="adv-card-tile active" data-priority="balanced" data-label="Best All-Rounder">
+                  <span class="adv-tile-icon">🌟</span>
+                  <span class="adv-tile-name">All-Rounder</span>
+                </button>
+                <button type="button" class="adv-card-tile" data-priority="camera" data-label="Camera & Content">
+                  <span class="adv-tile-icon">📸</span>
+                  <span class="adv-tile-name">Camera & Video</span>
+                </button>
+                <button type="button" class="adv-card-tile" data-priority="gaming" data-label="Gaming & PUBG 90fps">
+                  <span class="adv-tile-icon">🎮</span>
+                  <span class="adv-tile-name">Gaming 90fps</span>
+                </button>
+                <button type="button" class="adv-card-tile" data-priority="battery" data-label="Battery & Fast Charge">
+                  <span class="adv-tile-icon">🔋</span>
+                  <span class="adv-tile-name">Battery & Fast Charge</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Row 3: Action Strip -->
+            <div class="advisor-action-strip">
+              <div class="advisor-summary-badge">
+                <span class="summary-icon">🎯</span>
+                <span id="advisor-summary-text">Ready to Compare: <strong>35k – 75k PKR</strong> • <strong>Best All-Rounder</strong></span>
+              </div>
+              <button id="run-advisor-btn" class="advisor-cta-btn" type="button">
+                <span>Find My Best Phone & Rivals</span>
+                <span class="cta-arrow">→</span>
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- RIGHT SIDE BANNER PLACEHOLDER -->
+        <div class="advisor-banner-ad">
+          <div class="banner-placeholder">
+            <img src="images/banner.jpg?v=2" alt="Advertisement Banner" class="banner-image">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ADVISOR RECOMMENDATION RESULTS BOX (FULL WIDTH BELOW HERO) -->
+    <section class="container" style="margin-top: 1rem;">
+      <div id="advisor-results-box" class="advisor-results hidden">
+        <!-- Rendered dynamically -->
+      </div>
+    </section>
+
+    <!-- QUICK PRESETS BAR -->
+    <section class="quick-nav-bar">
+      <div class="container quick-nav-inner">
+        <div class="quick-title">Quick Budget:</div>
+        <div class="quick-pills">
+          <button class="quick-pill active" data-preset="all">All Phones</button>
+          <button class="quick-pill" data-preset="under-10k">Under 10k</button>
+          <button class="quick-pill" data-preset="10k-30k">10k - 30k</button>
+          <button class="quick-pill" data-preset="30k-60k">30k - 60k</button>
+          <button class="quick-pill" data-preset="60k-120k">60k - 120k</button>
+          <button class="quick-pill" data-preset="120k-200k">120k - 200k</button>
+          <button class="quick-pill" data-preset="flagship">Flagships (200k+)</button>
+        </div>
+        <div class="quick-pta-filter">
+          <label class="pta-toggle-label">
+            <input type="checkbox" id="pta-only-toggle">
+            <span class="pta-toggle-slider"></span>
+            <span class="toggle-text">PTA Approved Only</span>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <!-- MAIN 2-COLUMN CATALOG -->
+    <main class="container main-content">
+      <div class="app-layout">
+
+        <!-- LEFT SIDEBAR: FILTERS -->
+        <aside class="filters-sidebar">
+          <div class="filters-header">
+            <h3>Filters & Range</h3>
+            <button id="reset-filters-btn" class="btn-link">Reset All</button>
+          </div>
+
+          <!-- 1. BUDGET RANGE SLIDER -->
+          <div class="filter-group">
+            <label class="filter-label">
+              <span>Budget (PKR)</span>
+              <span id="budget-display" class="filter-val-badge">Max: Rs. 600,000</span>
+            </label>
+            <div class="slider-container">
+              <input type="range" id="budget-slider" min="2000" max="600000" step="1000" value="600000">
+              <div class="slider-ticks">
+                <span>2k</span>
+                <span>150k</span>
+                <span>300k</span>
+                <span>600k+</span>
+              </div>
+            </div>
+            <div class="price-inputs">
+              <div class="input-box">
+                <span class="input-prefix">Min</span>
+                <input type="number" id="min-price-input" placeholder="0" min="0" value="0">
+              </div>
+              <span class="price-dash">—</span>
+              <div class="input-box">
+                <span class="input-prefix">Max</span>
+                <input type="number" id="max-price-input" placeholder="600000" max="600000" value="600000">
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. PTA APPROVAL STATUS -->
+          <div class="filter-group">
+            <label class="filter-label">PTA Status</label>
+            <div class="radio-pill-group">
+              <label class="radio-pill">
+                <input type="radio" name="pta_status" value="all" checked>
+                <span>All</span>
+              </label>
+              <label class="radio-pill">
+                <input type="radio" name="pta_status" value="approved">
+                <span>PTA Approved</span>
+              </label>
+              <label class="radio-pill">
+                <input type="radio" name="pta_status" value="non_pta">
+                <span>Non-PTA / JV</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- 3. BRAND SELECTION -->
+          <div class="filter-group">
+            <label class="filter-label">Brand</label>
+            <div class="brand-checkbox-list" id="brand-list-container">
+              <!-- Populated dynamically -->
+            </div>
+          </div>
+
+          <!-- 4. RAM (MEMORY) -->
+          <div class="filter-group">
+            <label class="filter-label">RAM (GB)</label>
+            <div class="spec-pills" id="ram-pills-container">
+              <button class="spec-pill active" data-ram="all">Any</button>
+              <button class="spec-pill" data-ram="4">4GB</button>
+              <button class="spec-pill" data-ram="6">6GB</button>
+              <button class="spec-pill" data-ram="8">8GB</button>
+              <button class="spec-pill" data-ram="12">12GB+</button>
+            </div>
+          </div>
+
+          <!-- 5. BATTERY & CHARGING -->
+          <div class="filter-group">
+            <label class="filter-label">Battery Capacity</label>
+            <div class="spec-pills" id="battery-pills-container">
+              <button class="spec-pill active" data-battery="all">Any</button>
+              <button class="spec-pill" data-battery="4000">4,000+ mAh</button>
+              <button class="spec-pill" data-battery="5000">5,000+ mAh</button>
+            </div>
+          </div>
+
+          <div class="filter-group">
+            <label class="filter-label">Fast Charging Speed</label>
+            <div class="spec-pills" id="charging-pills-container">
+              <button class="spec-pill active" data-charging="all">Any</button>
+              <button class="spec-pill" data-charging="33">33W+</button>
+              <button class="spec-pill" data-charging="65">65W+ (SuperFast)</button>
+            </div>
+          </div>
+
+          <!-- 6. CONNECTIVITY & CAMERA -->
+          <div class="filter-group">
+            <label class="filter-label">Features & Camera</label>
+            <div class="checkbox-list">
+              <label class="checkbox-item">
+                <input type="checkbox" id="filter-5g">
+                <span class="custom-checkbox"></span>
+                <span>5G Ready</span>
+              </label>
+              <label class="checkbox-item">
+                <input type="checkbox" id="filter-cam-108">
+                <span class="custom-checkbox"></span>
+                <span>108MP+ Camera</span>
+              </label>
+              <label class="checkbox-item">
+                <input type="checkbox" id="filter-wireless">
+                <span class="custom-checkbox"></span>
+                <span>Wireless Charging</span>
+              </label>
+            </div>
+          </div>
+        </aside>
+
+        <!-- RIGHT PRODUCTS SECTION -->
+        <section class="products-section">
+          <!-- TOP TOOLBAR -->
+          <div class="products-toolbar">
+            <div class="toolbar-info">
+              <h2 id="results-count-title">Tracking Smartphones Across Pakistan</h2>
+              <div id="active-filter-chips" class="filter-chips"></div>
+            </div>
+            <div class="toolbar-sort">
+              <label for="sort-select">Sort By:</label>
+              <select id="sort-select" class="sort-dropdown">
+                <option value="popular">Popularity / Trending</option>
+                <option value="price-asc">Price: Low to High</option>
+                <option value="price-desc">Price: High to Low</option>
+                <option value="camera-desc">Camera: Highest MP</option>
+                <option value="ram-desc">RAM: Largest Memory</option>
+                <option value="charging-desc">Fastest Charging (Watts)</option>
+              </select>
+            </div>
+          </div>
+
+
+          <!-- PHONE CARDS GRID -->
+          <div id="phones-grid" class="phones-grid">
+            <!-- Dynamic cards injected via JS -->
+          </div>
+
+          <!-- PAGINATION / LOAD MORE CONTAINER -->
+          <div id="catalog-pagination-container" class="pagination-container">
+            <div class="pagination-info" id="pagination-info-text">Showing 16 of 57 Smartphones</div>
+            <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+              <button id="load-more-btn" class="primary-btn load-more-btn">Load More Phones (41 Remaining) ⬇</button>
+              <button id="show-all-btn" class="btn-ghost sm show-all-btn">Show All 57 Phones</button>
+            </div>
+          </div>
+
+          <!-- NO RESULTS FALLBACK -->
+          <div id="no-results-state" class="empty-state hidden">
+            <div class="empty-icon">🔍</div>
+            <h3>No smartphones match your exact filters</h3>
+            <p>Try widening your budget range or clearing specific filters like RAM or PTA status.</p>
+            <button id="empty-reset-btn" class="primary-btn">Reset All Filters</button>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- ================================================================= -->
+  <!-- VIEW 2: DEDICATED FULL PRODUCT SPECIFICATION PAGE                -->
+  <!-- ================================================================= -->
+  <div id="product-page-view" class="view-container hidden">
+    <div class="container product-page-inner">
+
+      <!-- BREADCRUMBS & BACK BUTTON -->
+      <div class="product-top-nav">
+        <button class="back-btn" onclick="navigateTo('catalog')">
+          <span>←</span> Back to All Phones
+        </button>
+        <div class="breadcrumbs" id="prod-breadcrumbs">
+          <span>Home</span> / <span>Smartphones</span> / <span id="bread-brand">Samsung</span> / <span id="bread-model">Galaxy S24 Ultra</span>
+        </div>
+      </div>
+
+      <!-- PRODUCT HERO BANNER -->
+      <div class="prod-hero-card">
+        <div class="prod-hero-gallery-wrapper">
+          <div class="prod-hero-gallery">
+            <span class="gallery-photo-badge" id="prod-gallery-view-tag">Official Studio Photo</span>
+            <img id="prod-hero-img" src="" alt="Phone Image">
+          </div>
+          
+          <!-- Color Variant Selector -->
+          <div class="prod-colors-container hidden" id="prod-colors-container">
+            <div class="colors-label">🎨 Official Colorways:</div>
+            <div class="color-swatches" id="prod-color-swatches"></div>
+          </div>
+
+          <!-- Thumbnail Strip -->
+          <div class="prod-thumbs-wrapper hidden" id="prod-thumbs-wrapper">
+            <div class="thumbs-label">📸 Multi-Angle Perspectives:</div>
+            <div class="prod-gallery-thumbs" id="prod-gallery-thumbs"></div>
+          </div>
+        </div>
+        <div class="prod-hero-info">
+          <div class="prod-badges-line">
+            <span id="prod-pta-badge" class="badge-pta-approved">✓ PTA Approved</span>
+            <span id="prod-warranty-badge" class="badge-warranty">Official Airlink Warranty</span>
+          </div>
+
+          <h1 id="prod-title" class="prod-title">Samsung Galaxy S24 Ultra</h1>
+          <p id="prod-release" class="prod-subtitle">Released 2024, January • Global MSRP: $1,299</p>
+
+          <!-- BEST PRICE ACROSS PAKISTAN BOX -->
+          <div class="prod-best-price-box">
+            <div class="best-price-label">Lowest Verified Market Price in Pakistan:</div>
+            <div class="best-price-amount" id="prod-lowest-price">Rs. 389,999</div>
+            <div class="best-price-stores">
+              <span>Official List: <del id="prod-official-price">Rs. 424,999</del></span>
+              <span class="price-saving-pill" id="prod-savings-pill">Save Rs. 35,000</span>
+            </div>
+            <p class="aggregator-disclaimer">ℹ️ Verified across registered stores (PriceOye, Daraz Mall, Telemart). Updated daily.</p>
+          </div>
+
+          <div class="prod-hero-actions">
+            <button class="primary-btn" onclick="scrollToRetailers()">View All Store Deals</button>
+            <button class="action-btn" id="prod-compare-btn" onclick="toggleCompareFromProduct()">+ Add to Compare</button>
+            <button class="action-btn tax-btn" onclick="openTaxCalcCurrentProduct()">Calculate PTA Tax</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 1. LIVE RETAILER PRICE COMPARISON TABLE (AUTHENTIC STORES) -->
+      <section id="retailers-section" class="prod-section">
+        <div class="section-title-wrap">
+          <h2 class="section-title">🇵🇰 Live Price Comparison Across Authentic Pakistani Stores</h2>
+          <span class="section-badge">Verified Authentic Sellers</span>
+        </div>
+        <p class="section-desc">We track and compare live listings from Pakistan's most trusted online stores and major physical markets. Click any store to view the live product page.</p>
+
+        <div class="retailer-table-container">
+          <table class="retailer-table" id="retailers-table">
+            <thead>
+              <tr>
+                <th>Store / Platform</th>
+                <th>Condition & Warranty</th>
+                <th>Delivery Time</th>
+                <th>Price (PKR)</th>
+                <th>Store Link</th>
+              </tr>
+            </thead>
+            <tbody id="retailers-table-body">
+              <!-- Populated dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- 2. DIRECT COMPETITORS IN THIS BUDGET RANGE -->
+      <section class="prod-section">
+        <div class="section-title-wrap">
+          <h2 class="section-title">⚖️ Direct Competitors in This Budget Range</h2>
+          <span class="section-badge">Market Rivals</span>
+        </div>
+        <p class="section-desc">Comparing this device against alternative smartphones available in Pakistan within the same price bracket.</p>
+
+        <div class="competitors-grid" id="competitors-grid">
+          <!-- Populated dynamically -->
+        </div>
+      </section>
+
+      <!-- 3. EXPERT VERDICT FOR PAKISTANI CONSUMERS -->
+      <section class="prod-section">
+        <div class="expert-verdict-card">
+          <div class="verdict-header">
+            <h3>PakMobiles Buyer's Verdict</h3>
+            <p id="prod-verdict-text"></p>
+          </div>
+          <div class="pros-cons-grid">
+            <div class="pros-box">
+              <h4>👍 Why Buy in Pakistan:</h4>
+              <ul id="prod-pros-list"></ul>
+            </div>
+            <div class="cons-box">
+              <h4>👎 Watch Out For:</h4>
+              <ul id="prod-cons-list"></ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. GSMARENA-STYLE SPECIFICATION TABLES -->
+      <section class="prod-section">
+        <div class="section-title-wrap">
+          <h2 class="section-title">Detailed Specifications (GSMArena Format)</h2>
+        </div>
+        <div id="prod-spec-tables" class="prod-spec-tables">
+          <!-- Tables rendered dynamically -->
+        </div>
+      </section>
+
+      <!-- 5. PTA TAX BREAKDOWN -->
+      <section class="prod-section">
+        <div class="pta-tax-detail-card">
+          <div class="pta-card-header">
+            <h3>PTA DIRBS Tax & Customs Duty Assessment</h3>
+            <p>Official customs duty slabs applicable if importing or registering an international un-approved variant.</p>
+          </div>
+          <div class="calc-results-box">
+            <div class="tax-card passport-card">
+              <div class="tax-card-header">
+                <h4>Registered on Passport</h4>
+                <span class="badge-discount">Discounted Rate</span>
+              </div>
+              <div class="tax-amount" id="prod-tax-passport">Rs. 0</div>
+              <p class="tax-note">Requires international travel stamp within 60 days.</p>
+            </div>
+            <div class="tax-card cnic-card">
+              <div class="tax-card-header">
+                <h4>Registered on CNIC</h4>
+                <span class="badge-standard">Standard Local Rate</span>
+              </div>
+              <div class="tax-amount" id="prod-tax-cnic">Rs. 0</div>
+              <p class="tax-note">Payable via 1Link PSID at any bank, ATM, or JazzCash.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6. OFFICIAL PRESENTATION & SHOWCASE BANNERS -->
+      <section id="official-gallery-section" class="prod-section hidden">
+        <div class="section-title-wrap">
+          <h2 class="section-title">🖼️ Official Product Showcase & Features</h2>
+          <span class="section-badge">Full Media Presentation</span>
+        </div>
+        <p class="section-desc">Authentic manufacturer hardware presentation, unboxing views, and feature highlights.</p>
+        <div class="official-banners-grid" id="prod-official-banners">
+          <!-- Populated dynamically -->
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- BOTTOM COMPARISON DOCK -->
+  <div id="compare-dock" class="compare-dock hidden">
+    <div class="container compare-dock-inner">
+      <div class="dock-info">
+        <span class="dock-title">⚖️ Compare Smartphones</span>
+        <span class="dock-hint">Selected <strong id="dock-count">0</strong> of 3</span>
+      </div>
+      <div class="dock-slots" id="dock-slots-container"></div>
+      <div class="dock-actions">
+        <button id="clear-dock-btn" class="btn-ghost">Clear</button>
+        <button id="trigger-compare-modal-btn" class="primary-btn">Compare Specifications</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: PTA TAX CALCULATOR -->
+  <div id="tax-calc-modal" class="modal-backdrop hidden">
+    <div class="modal-dialog tax-calc-dialog">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <h2>🇵🇰 PTA DIRBS Tax & Customs Duty Calculator</h2>
+          <p class="modal-subtitle">Official FBR duty rates for personal mobile imports (Passport vs. CNIC)</p>
+        </div>
+        <button id="close-tax-modal-btn" class="modal-close-btn">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="calc-tabs">
+          <button class="calc-tab active" data-tab="device">Select Phone</button>
+          <button class="calc-tab" data-tab="custom">Enter USD Value</button>
+        </div>
+
+        <div id="calc-device-view" class="calc-view">
+          <label class="filter-label">Choose Mobile Phone:</label>
+          <input type="text" id="calc-phone-input" list="calc-phone-list" class="calc-dropdown" placeholder="Type to search phones... (e.g. iPhone 15)">
+          <datalist id="calc-phone-list"></datalist>
+        </div>
+
+        <div id="calc-custom-view" class="calc-view hidden">
+          <label class="filter-label">Phone Invoice / C&F Value in USD ($):</label>
+          <div class="input-box-lg">
+            <span class="input-prefix-lg">$</span>
+            <input type="number" id="calc-usd-input" placeholder="e.g. 799" min="10" max="3000">
+            <button id="calc-custom-btn" class="primary-btn sm">Calculate</button>
+          </div>
+        </div>
+
+        <!-- CALCULATION RESULT BREAKDOWN -->
+        <div class="calc-results-box" id="calc-results-box">
+          <div class="tax-card passport-card">
+            <div class="tax-card-header">
+              <span class="card-icon">✈️</span>
+              <h4>Registered on Passport</h4>
+              <span class="badge-discount">Discounted Rate</span>
+            </div>
+            <div class="tax-amount" id="tax-passport-val">Rs. 137,000</div>
+            <p class="tax-note">Requires valid international travel entry stamp within 60 days.</p>
+          </div>
+
+          <div class="tax-card cnic-card">
+            <div class="tax-card-header">
+              <span class="card-icon">🪪</span>
+              <h4>Registered on CNIC</h4>
+              <span class="badge-standard">Standard Local Rate</span>
+            </div>
+            <div class="tax-amount" id="tax-cnic-val">Rs. 165,000</div>
+            <p class="tax-note">Payable directly via 1Link / JazzCash / EasyPaisa with DIRBS PSID.</p>
+          </div>
+        </div>
+
+        <div class="calc-info-footer">
+          <p>⚠️ <strong>Important</strong>: Under FBR regulations, unregistered SIM slots are blocked after 60 days of insertion in Pakistan. Always check IMEI dialing <code>*#06#</code> and sending to <code>8484</code>.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: SIDE BY SIDE COMPARISON -->
+  <div id="compare-modal" class="modal-backdrop hidden">
+    <div class="modal-dialog compare-dialog">
+      <div class="modal-header">
+        <h2>Side-by-Side Comparison</h2>
+        <button id="close-compare-modal-btn" class="modal-close-btn">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="compare-table-wrapper" id="compare-table-container"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-col">
+        <h3>PakMobiles</h3>
+        <p>A specialized mobile recommendation, specification, and price comparison engine for Pakistani smartphone buyers. We do not sell devices; we aggregate verified prices from PriceOye, Daraz Mall, and Telemart.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Popular Brands in Pakistan</h4>
+        <ul class="footer-links">
+          <li><a href="#" onclick="filterByBrand('Infinix')">Infinix Mobiles Pakistan</a></li>
+          <li><a href="#" onclick="filterByBrand('Tecno')">Tecno Spark & Camon</a></li>
+          <li><a href="#" onclick="filterByBrand('Xiaomi')">Xiaomi & Redmi Pakistan</a></li>
+          <li><a href="#" onclick="filterByBrand('Samsung')">Samsung Galaxy Series</a></li>
+          <li><a href="#" onclick="filterByBrand('Apple')">Apple iPhone PTA Approved</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Tracked Market Sources</h4>
+        <p class="footer-meta">PriceOye.pk, Daraz Mall Official Stores, Telemart.pk, WhatMobile.com.pk, Hafeez Centre (Lahore), Saddar (Karachi), Hall Road.</p>
+        <p class="copyright">© 2026 PakMobiles Advisor. All trademarks belong to respective brands.</p>
+  <script src="data/phones_data.js?v=4"></script>
+  <script src="app.js?v=10"></script>
+</body>
+</html>
+

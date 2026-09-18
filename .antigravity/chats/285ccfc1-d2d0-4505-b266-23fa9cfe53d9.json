@@ -1,0 +1,57 @@
+{
+  "sessionId": "285ccfc1-d2d0-4505-b266-23fa9cfe53d9",
+  "name": "Abc",
+  "createdAt": "2026-09-15T10:25:51.553Z",
+  "filename": "285ccfc1-d2d0-4505-b266-23fa9cfe53d9.json",
+  "geminiStarted": true,
+  "messages": [
+    {
+      "id": "0476c139-90f2-4f8f-8db9-f41285cc94ad",
+      "role": "user",
+      "content": "All the product images are over button u added ( for pta approved and trending ) and these are coutout images , and also u have added single image to every product ! Dont add cutout images, add full images.",
+      "status": "pending",
+      "model": "gemini-2.5-flash",
+      "client_type": "gemini-bridge",
+      "parent_message_id": null,
+      "created_at": "2026-09-15T10:29:00.618+00:00",
+      "sender": "ios",
+      "is_cancelled": false
+    },
+    {
+      "id": "39a66742-6601-4b8a-8e67-a0ff0d6644ff",
+      "role": "agent",
+      "content": "'\"npx\"' is not recognized as an internal or external command,\r\noperable program or batch file.",
+      "status": "error",
+      "model": "gemini-2.5-flash",
+      "client_type": "gemini-bridge",
+      "parent_message_id": "0476c139-90f2-4f8f-8db9-f41285cc94ad",
+      "created_at": "2026-09-15T10:29:02.379Z",
+      "sender": "macOS",
+      "is_cancelled": false
+    },
+    {
+      "id": "92b5ece7-a292-4d9f-a319-ba85e40a7df9",
+      "role": "user",
+      "content": "So ?",
+      "status": "pending",
+      "model": "gemini-2.5-flash",
+      "client_type": "gemini-bridge",
+      "parent_message_id": null,
+      "created_at": "2026-09-15T10:43:17.196+00:00",
+      "sender": "ios",
+      "is_cancelled": false
+    },
+    {
+      "id": "e236ed1c-29bc-416d-a9d9-7e9f75f74166",
+      "role": "agent",
+      "content": "'\"npx\"' is not recognized as an internal or external command,\r\noperable program or batch file.",
+      "status": "error",
+      "model": "gemini-2.5-flash",
+      "client_type": "gemini-bridge",
+      "parent_message_id": "92b5ece7-a292-4d9f-a319-ba85e40a7df9",
+      "created_at": "2026-09-15T10:43:18.756Z",
+      "sender": "macOS",
+      "is_cancelled": false
+    }
+  ]
+}
