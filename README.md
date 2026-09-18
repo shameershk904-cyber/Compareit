@@ -1,105 +1,36 @@
-# PakMobiles - Smart Phone Recommendation Engine & Price Aggregator (Pakistan)
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-> An independent mobile phone specification, recommendation, and price comparison platform tailored for the **Pakistani market**. 
-> **Important**: This platform is **NOT** a marketplace or store; we do not list our own inventory or sell phones. We aggregate verified live pricing from authentic Pakistani retailers (**PriceOye.pk**, **Daraz Mall Official**, **Telemart.pk**, **WhatMobile.com.pk**) and guide users to the best phone for their budget and requirements.
+## Getting Started
 
----
+First, run the development server:
 
-## 🎯 1. Core Purpose & Architectural Pivot
-
-1. **Dedicated Product Page (`?phone=<slug>`)**:
-   - Every smartphone has a full dedicated web page route.
-   - Includes high-res gallery, complete GSMArena-style specification sheet, PTA DIRBS tax breakdown, and expert Pakistani buyer verdict (pros & cons).
-2. **Authentic Pakistani Retailer Price Comparison**:
-   - Automatically tracks and compares verified prices from **PriceOye.pk**, **Daraz Mall (Official Stores)**, **Telemart.pk**, **WhatMobile**, and physical wholesale markets (**Hafeez Centre Lahore / Saddar Karachi**).
-   - Highlights the **Lowest Verified Market Price** and shows direct external links to purchase from authentic stores.
-3. **Smart Phone Recommendation Advisor ("Find My Best Phone")**:
-   - Takes user requirements:
-     - **Budget Range**: (e.g. Under 35k, 35k–75k, 75k–130k, 130k+ PKR)
-     - **Primary Priority**: Balanced All-Rounder, Camera & OIS, Gaming & PUBG 90fps, Battery & Fast Charging.
-   - Algorithms evaluate candidates and present:
-     - 🥇 **#1 Top Recommendation**: The best value buy with a tailored rationale.
-     - ⚖️ **Direct Competitors in this Budget**: Highlights 2-3 market rivals in that exact price bracket with side-by-side comparison buttons.
-
----
-
-## 🏗️ 2. System Architecture
-
-```
-                 ┌─────────────────────────────────────────────────────────┐
-                 │                DATA INGESTION PIPELINE                  │
-                 │  - GSMArena.com: Global hardware specs & images         │
-                 │  - PriceOye.pk: Lowest online retail benchmark          │
-                 │  - Daraz Mall: Official brand flagship store prices     │
-                 │  - Telemart.pk: Authorized distributor rates            │
-                 │  - FBR / PTA DIRBS: Customs duty slabs (Passport/CNIC)  │
-                 └────────────────────────────┬────────────────────────────┘
-                                              │
-                                              ▼
-                 ┌─────────────────────────────────────────────────────────┐
-                 │             PRICE AGGREGATOR & SYNC ENGINE              │
-                 │  - scraper/price_aggregator.py                          │
-                 │  - Computes lowest verified price                       │
-                 │  - Assigns savings badges vs official MSRP              │
-                 └────────────────────────────┬────────────────────────────┘
-                                              │
-                                              ▼
-                 ┌─────────────────────────────────────────────────────────┐
-                 │                CENTRAL CATALOG DATABASE                 │
-                 │  - data/phones.json                                     │
-                 │  - Multi-retailer quotes, expert verdicts & rivals      │
-                 └────────────────────────────┬────────────────────────────┘
-                                              │
-                                              ▼
-                 ┌─────────────────────────────────────────────────────────┐
-                 │                   FRONTEND INTERFACE                    │
-                 │  - Catalog View: Multi-facet filters, Budget slider     │
-                 │  - Smart Advisor: Priority-based recommendation engine  │
-                 │  - Dedicated Product Page: Live store comparison table  │
-                 │  - Comparison Dock: Side-by-side matrix (up to 3 phones)│
-                 └─────────────────────────────────────────────────────────┘
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
 ```
 
----
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-## 🇵🇰 3. Tracked Pakistani Retailers & Price Benchmarks
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-| Retailer | Specialization | Role in PakMobiles |
-|---|---|---|
-| **PriceOye.pk** | High-volume online tech retailer | Real-time competitive benchmark for lowest online prices |
-| **Daraz Mall (Official)** | Brand flagship stores (Samsung, Xiaomi, Infinix) | Official MSRP benchmark with brand warranty |
-| **Telemart.pk** | Major electronics store | Cross-reference quote for box-pack availability |
-| **WhatMobile.com.pk** | Pakistan's oldest specs & price database | Reference for official launch MSRPs |
-| **Hafeez Centre / Saddar** | Physical open mobile markets | Unofficial cash rates and used / non-PTA market prices |
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
----
+## Learn More
 
-## 🚀 4. How to Run the Project
+To learn more about Next.js, take a look at the following resources:
 
-### Running Live Locally
-The server is currently running at:
-👉 **[http://localhost:5500](http://localhost:5500)**
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-To run or restart the server manually via PowerShell:
-```powershell
-cd C:\Users\Shahmeer\.gemini\antigravity\scratch\gsmarena-pakistan-clone
-powershell -ExecutionPolicy Bypass -File .\server.ps1 -Port 5500
-```
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-### Syncing Retailer Prices via Python
-To run the automated price aggregator script:
-```powershell
-python scraper/price_aggregator.py --sync
-```
+## Deploy on Vercel
 
----
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-## 📁 5. Project File Map
-
-* **[`index.html`](file:///C:/Users/Shahmeer/.gemini/antigravity/scratch/gsmarena-pakistan-clone/index.html)**: Dual-view application (Catalog + Smart Advisor, and Dedicated Full Product Page view).
-* **[`styles.css`](file:///C:/Users/Shahmeer/.gemini/antigravity/scratch/gsmarena-pakistan-clone/styles.css)**: Responsive styling with retailer comparison tables, winner badges, and competitor grids.
-* **[`app.js`](file:///C:/Users/Shahmeer/.gemini/antigravity/scratch/gsmarena-pakistan-clone/app.js)**: State store, URL parameter router (`?phone=<id>`), recommendation scoring engine, and comparison matrix.
-* **[`data/phones.json`](file:///C:/Users/Shahmeer/.gemini/antigravity/scratch/gsmarena-pakistan-clone/data/phones.json)**: Localized catalog with live retailer quotes, pros/cons, and competitor IDs.
-* **[`scraper/price_aggregator.py`](file:///C:/Users/Shahmeer/.gemini/antigravity/scratch/gsmarena-pakistan-clone/scraper/price_aggregator.py)**: Multi-retailer price aggregator and sync engine.
-* **[`scraper/gsmarena_scraper.py`](file:///C:/Users/Shahmeer/.gemini/antigravity/scratch/gsmarena-pakistan-clone/scraper/gsmarena_scraper.py)**: Spec scraping pipeline for GSMArena.
-* **[`server.ps1`](file:///C:/Users/Shahmeer/.gemini/antigravity/scratch/gsmarena-pakistan-clone/server.ps1)**: Native PowerShell HTTP server.
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
