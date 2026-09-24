@@ -1,0 +1,136 @@
+// Prisma schema for CompareIt.pk Admin & Analytics Dashboard
+// Database: PostgreSQL on Supabase
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  ADMIN
+  EDITOR
+  VIEWER
+}
+
+enum BannerPlacement {
+  HERO
+  TOP_BAR
+  POPUP
+  SIDEBAR
+}
+
+// ----------------------------------------------------
+// 1. User & Authentication (Auth.js / NextAuth & Roles)
+// ----------------------------------------------------
+model User {
+  id                 String        @id @default(cuid())
+  name               String?
+  email              String        @unique
+  passwordHash       String
+  role               Role          @default(VIEWER)
+  mustChangePassword Boolean       @default(false)
+  avatarUrl          String?
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  activities         ActivityLog[]
+
+  @@map("users")
+}
+
+// ----------------------------------------------------
+// 2. Traffic Analytics & Page Views
+// ----------------------------------------------------
+model PageView {
+  id          String   @id @default(cuid())
+  path        String
+  referrer    String?
+  utmSource   String?
+  utmMedium   String?
+  utmCampaign String?
+  device      String?  // 'desktop', 'mobile', 'tablet'
+  browser     String?
+  os          String?
+  screenSize  String?
+  country     String?  @default("PK")
+  ipHash      String   // Daily salted hash, never raw IP
+  sessionId   String   // Generated client session ID
+  isBot       Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([path])
+  @@index([sessionId])
+  @@index([country])
+  @@index([device])
+  @@map("page_views")
+}
+
+// ----------------------------------------------------
+// 3. Search Monitoring & Analytics
+// ----------------------------------------------------
+model SearchLog {
+  id            String   @id @default(cuid())
+  query         String
+  normalized    String   // Lowercase trimmed for grouping
+  resultsCount  Int      @default(0)
+  clickedResult String?  // Slug or phone model if user clicked a result
+  sessionId     String?
+  createdAt     DateTime @default(now())
+
+  @@index([normalized])
+  @@index([createdAt])
+  @@index([resultsCount])
+  @@map("search_logs")
+}
+
+// ----------------------------------------------------
+// 4. Banners & Placement Management
+// ----------------------------------------------------
+model Banner {
+  id           String          @id @default(cuid())
+  title        String
+  desktopImage String          // Supabase storage URL / path
+  mobileImage  String?         // Optional mobile variant
+  altText      String?
+  linkUrl      String
+  placement    BannerPlacement @default(HERO)
+  priority     Int             @default(0) // Higher = displayed first
+  isActive     Boolean         @default(true)
+  startDate    DateTime?
+  endDate      DateTime?
+  impressions  Int             @default(0)
+  clicks       Int             @default(0)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  @@index([placement, isActive])
+  @@index([priority])
+  @@map("banners")
+}
+
+// ----------------------------------------------------
+// 5. Activity & Audit Log
+// ----------------------------------------------------
+model ActivityLog {
+  id         String   @id @default(cuid())
+  userId     String?
+  userEmail  String
+  action     String   // e.g. 'CREATE_BANNER', 'UPDATE_BANNER', 'CHANGE_PASSWORD'
+  entity     String   // 'BANNER', 'USER', 'SETTINGS'
+  entityId   String?
+  details    Json?    // Contextual payload
+  createdAt  DateTime @default(now())
+
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@index([userEmail])
+  @@index([entity])
+  @@map("activity_logs")
+}

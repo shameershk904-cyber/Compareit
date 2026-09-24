@@ -7,6 +7,13 @@ export interface Retailer {
   url: string;
 }
 
+export interface SpecItem {
+  label: string;
+  value: string;
+}
+
+export type WhatMobileSpecs = Record<string, SpecItem[]>;
+
 export interface Phone {
   id: string;
   brand: string;
@@ -78,4 +85,5 @@ export interface Phone {
   }[];
   banners?: string[];
   retailers?: Retailer[];
+  detailed_specs?: WhatMobileSpecs;
 }

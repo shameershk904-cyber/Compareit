@@ -35,13 +35,27 @@ export function Header() {
       const search = currentParams.toString();
       const url = search ? `/?${search}` : "/";
       
+      // Telemetry: Log search query to search monitoring
+      if (val.trim().length >= 2) {
+        try {
+          const sid = typeof window !== "undefined" ? window.sessionStorage?.getItem("compareit_session_id") : null;
+          fetch("/api/search/log", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ query: val.trim(), sessionId: sid }),
+            keepalive: true,
+          }).catch(() => {});
+        } catch {}
+      }
+
       if (pathname !== "/") {
         router.push(url);
       } else {
         router.replace(url, { scroll: false });
       }
-    }, 300);
+    }, 400);
   };
+
 
   const handleClear = () => {
     setQuery("");
@@ -108,11 +122,11 @@ export function Header() {
             <span className="btn-icon">📋</span>
             <span className="btn-label">PTA Tax Calculator</span>
           </button>
-          <button id="open-compare-btn" className="action-btn compare-btn">
+          <Link href={pathname === "/compare" ? "/compare" : `/compare?from=${encodeURIComponent(pathname)}`} id="open-compare-btn" className="action-btn compare-btn">
             <span className="btn-icon">⚖️</span>
             <span className="btn-label">Compare</span>
-            <span id="compare-badge" className="badge">0</span>
-          </button>
+            <span id="compare-badge" className="badge">3</span>
+          </Link>
         </div>
       </div>
     </header>

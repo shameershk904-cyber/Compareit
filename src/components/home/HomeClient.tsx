@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, Suspense } from "react";
+import Link from "next/link";
 import { type Phone } from "@/types";
 import { PhoneCard } from "./PhoneCard";
 import { formatPKR, getSupabaseImageUrl } from "@/lib/utils";
@@ -434,7 +435,14 @@ function HomeClientInner({ initialPhones }: HomeClientProps) {
             </div>
             <div className="dock-actions">
               <button id="clear-dock-btn" className="btn-ghost" onClick={() => setCompareList([])}>Clear</button>
-              <button id="trigger-compare-modal-btn" className="primary-btn" onClick={() => setIsCompareModalOpen(true)}>Compare Specifications</button>
+              <Link
+                href={`/compare?phones=${comparePhones.map((p) => p.slug).join(",")}&from=/`}
+                id="trigger-compare-modal-btn"
+                className="primary-btn"
+                style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center" }}
+              >
+                Compare Specifications ⚖️
+              </Link>
             </div>
           </div>
         </div>

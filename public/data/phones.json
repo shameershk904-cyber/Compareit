@@ -184,7 +184,175 @@
       "https://images.priceoye.pk/media/samsung-galaxy-s24-ultra/samsung-galaxy-s24-ultra-xnr3h.jpg",
       "https://images.priceoye.pk/media/samsung-galaxy-s24-ultra/samsung-galaxy-s24-ultra-vidnp.jpg",
       "https://images.priceoye.pk/media/samsung-galaxy-s24-ultra/samsung-galaxy-s24-ultra-2catt.jpg"
-    ]
+    ],
+    "detailed_specs": {
+      "Build": [
+        {
+          "label": "OS",
+          "value": "Android 14 OS"
+        },
+        {
+          "label": "UI",
+          "value": "OneUI 6.1"
+        },
+        {
+          "label": "Dimensions",
+          "value": "162.3 x 79 x 8.6 mm"
+        },
+        {
+          "label": "Weight",
+          "value": "232 g"
+        },
+        {
+          "label": "SIM",
+          "value": "Nano-SIM + eSIM or Dual SIM (2 Nano-SIMs + eSIM, dual stand-by)"
+        },
+        {
+          "label": "Colors",
+          "value": "Titanium Gray, Titanium Black, Titanium Violet, Titanium Yellow"
+        }
+      ],
+      "Frequency": [
+        {
+          "label": "2G Band",
+          "value": "SIM1: GSM 850 / 900 / 1800 / 1900SIM2: GSM 850 / 900 / 1800 / 1900"
+        },
+        {
+          "label": "3G Band",
+          "value": "HSDPA 850 / 900 / 1700(AWS) / 1900 / 2100"
+        },
+        {
+          "label": "4G Band",
+          "value": "LTE band 1(2100), 2(1900), 3(1800), 4(1700/2100), 5(850), 7(2600), 8(900), 12(700), 13(700), 17(700), 18(800), 19(800), 20(800), 25(1900), 26(850), 28(700), 32(1500), 38(2600), 39(1900), 40(2300), 41(2500), 66(1700/2100)"
+        },
+        {
+          "label": "5G Band",
+          "value": "SA/NSA/Sub6"
+        }
+      ],
+      "Processor": [
+        {
+          "label": "CPU",
+          "value": "Octa-core (1 x 3.39GHz Cortex-X4 & 3x3.1GHz Cortex-A720 + 2 x 2.9GHz Cortex-A720 + 2 x 2.2GHz Cortex-A520)"
+        },
+        {
+          "label": "Chipset",
+          "value": "Qualcomm SM8650-AC Snapdragon 8 Gen 3 (4 nm)"
+        },
+        {
+          "label": "GPU",
+          "value": "Adreno 750 (1 GHz)"
+        }
+      ],
+      "Display": [
+        {
+          "label": "Technology",
+          "value": "Dynamic LTPO AMOLED 2X Capacitive Touchscreen, Multitouch"
+        },
+        {
+          "label": "Size",
+          "value": "6.8 Inches"
+        },
+        {
+          "label": "Resolution",
+          "value": "1440 x 3120 Pixels (~505 PPI)"
+        },
+        {
+          "label": "Protection",
+          "value": "Corning Gorilla Glass Armor"
+        },
+        {
+          "label": "Extra Features",
+          "value": "Always-on display, 120Hz, HDR10+, 2600 nits (peak)"
+        }
+      ],
+      "Memory": [
+        {
+          "label": "Built-in",
+          "value": "256GB Built-in, 12GB RAM, UFS 4.0"
+        },
+        {
+          "label": "Card",
+          "value": "No"
+        }
+      ],
+      "Camera": [
+        {
+          "label": "Main",
+          "value": "Quad Camera: 200 MP, f/1.7, 24mm (wide), 1/1.3\", multi-directional PDAF, Laser AF, OIS + 50 MP, f/3.4, 111mm (periscope telephoto), PDAF, OIS, 5x optical zoom + 10 MP, f/2.4, 67mm (telephoto), 1/3.52\", Dual Pixel PDAF, OIS, 3x optical zoom + 12 MP, f/2.2, 13mm, (ultrawide), 1/2.55\", Dual Pixel PDAF, Super Steady video, LED Flash"
+        },
+        {
+          "label": "Features",
+          "value": "Auto HDR, panorama, Video (8K@24/30fps, 4K@30/60/120fps, 1080p@30/60/240fps, 1080p@960fps, HDR10+, stereo sound rec., gyro-EIS)"
+        },
+        {
+          "label": "Front",
+          "value": "12 MP, f/2.2, 26mm (wide), Dual Pixel PDAF, Dual video call, Auto-HDR, HDR10+, Video (4K@30/60fps, 1080p@30fps)"
+        }
+      ],
+      "Connectivity": [
+        {
+          "label": "WLAN",
+          "value": "Wi-Fi 802.11 a/b/g/n/ac/6e/7, tri-band, Wi-Fi Direct"
+        },
+        {
+          "label": "Bluetooth",
+          "value": "v5.3 with A2DP, LE"
+        },
+        {
+          "label": "GPS",
+          "value": "Yes + A-GPS support & Glonass, BDS, GALILEO"
+        },
+        {
+          "label": "USB",
+          "value": "USB Type-C 3.2, DisplayPort 1.2, OTG"
+        },
+        {
+          "label": "NFC",
+          "value": "Yes"
+        },
+        {
+          "label": "Data",
+          "value": "GPRS, Edge, 3G (HSPA 42.2/5.76 Mbps), 4G LTE-A (CA), 5G capable"
+        }
+      ],
+      "Features": [
+        {
+          "label": "Sensors",
+          "value": "Accelerometer, Barometer, Compass, Fingerprint (under display, ultrasonic), Gyro, Proximity"
+        },
+        {
+          "label": "Audio",
+          "value": "32-bit/384kHz audio Tuned by AKG, Speaker Phone"
+        },
+        {
+          "label": "Browser",
+          "value": "HTML5"
+        },
+        {
+          "label": "Messaging",
+          "value": "SMS(threaded view), MMS, Email, Push Mail, IM"
+        },
+        {
+          "label": "Games",
+          "value": "Built-in + Downloadable"
+        },
+        {
+          "label": "Torch",
+          "value": "Yes"
+        },
+        {
+          "label": "Extra",
+          "value": "Glass front + Corning Gorilla Armor), Glass back (Corning Gorilla Armor), titanium frame (grade 2), Samsung DeX, Samsung Wireless DeX (desktop experience support), Ultra Wideband (UWB) support, IP68 dust/water resistant (up to 1.5m for 30 min), Stylus (Bluetooth integration, accelerometer, gyro"
+        }
+      ],
+      "Battery": [
+        {
+          "label": "Capacity",
+          "value": "(Li-ion Non removable), 5000 mAh"
+        }
+      ]
+    }
   },
   {
     "retailers": [
@@ -298,7 +466,175 @@
       "https://images.priceoye.pk/samsung-galaxy-s24-plus-pakistan-priceoye-lbaex-500x500.webp"
     ],
     "color_variants": [],
-    "banners": []
+    "banners": [],
+    "detailed_specs": {
+      "Build": [
+        {
+          "label": "OS",
+          "value": "Android 14 OS"
+        },
+        {
+          "label": "UI",
+          "value": "OneUI 6.1"
+        },
+        {
+          "label": "Dimensions",
+          "value": "158.5 x 75.9 x 7.7 mm"
+        },
+        {
+          "label": "Weight",
+          "value": "196 g"
+        },
+        {
+          "label": "SIM",
+          "value": "Nano-SIM + eSIM or Dual SIM (2 Nano-SIMs + eSIM, dual stand-by)"
+        },
+        {
+          "label": "Colors",
+          "value": "Onyx Black, Marble Grey, Cobalt Violet, Amber Yellow, Jade Green, Sandstone Orange, Sapphire Blue"
+        }
+      ],
+      "Frequency": [
+        {
+          "label": "2G Band",
+          "value": "SIM1: GSM 850 / 900 / 1800 / 1900SIM2: GSM 850 / 900 / 1800 / 1900"
+        },
+        {
+          "label": "3G Band",
+          "value": "HSDPA 850 / 900 / 1700(AWS) / 1900 / 2100"
+        },
+        {
+          "label": "4G Band",
+          "value": "LTE band 1(2100), 2(1900), 3(1800), 4(1700/2100), 5(850), 7(2600), 8(900), 12(700), 13(700), 17(700), 18(800), 19(800), 20(800), 25(1900), 26(850), 28(700), 32(1500), 38(2600), 39(1900), 40(2300), 41(2500), 66(1700/2100)"
+        },
+        {
+          "label": "5G Band",
+          "value": "SA/NSA/Sub6"
+        }
+      ],
+      "Processor": [
+        {
+          "label": "CPU",
+          "value": "Deca-core (1 x 3.2 GHz Cortex-X4 + 2 x 2.90 GHz Cortex-A720 + 3 x 2.60 GHz Cortex-A720 + 4 x 2.0 GHz Cortex-A520)"
+        },
+        {
+          "label": "Chipset",
+          "value": "Exynos 2400 (4 nm)"
+        },
+        {
+          "label": "GPU",
+          "value": "Xclipse 940"
+        }
+      ],
+      "Display": [
+        {
+          "label": "Technology",
+          "value": "Dynamic LTPO AMOLED 2X Capacitive Touchscreen, Multitouch"
+        },
+        {
+          "label": "Size",
+          "value": "6.7 Inches"
+        },
+        {
+          "label": "Resolution",
+          "value": "1440 x 3088 Pixels (~509 PPI)"
+        },
+        {
+          "label": "Protection",
+          "value": "Corning Gorilla Glass Victus 2"
+        },
+        {
+          "label": "Extra Features",
+          "value": "Always-on display, 120Hz, HDR10+, 2600 nits (peak)"
+        }
+      ],
+      "Memory": [
+        {
+          "label": "Built-in",
+          "value": "256/512GB Built-in, 12GB RAM, UFS 4.0"
+        },
+        {
+          "label": "Card",
+          "value": "No"
+        }
+      ],
+      "Camera": [
+        {
+          "label": "Main",
+          "value": "Triple Camera: 50 MP, f/1.8, 24mm (wide), 1/1.56\", Dual Pixel PDAF, OIS + 10 MP, f/2.4, 67mm (telephoto), 1/3.94\", PDAF, OIS, 3x optical zoom + 12 MP, f/2.2, 13mm, (ultrawide), 1/2.55\", Super Steady video, LED Flash"
+        },
+        {
+          "label": "Features",
+          "value": "Auto HDR, panorama, Video (8K@24/30fps, 4K@30/60/120fps, 1080p@30/60/240fps, 1080p@960fps, HDR10+, stereo sound rec., gyro-EIS)"
+        },
+        {
+          "label": "Front",
+          "value": "12 MP, f/2.2, 26mm (wide), Dual Pixel PDAF, Dual video call, Auto-HDR, HDR10+, Video (4K@30/60fps, 1080p@30fps)"
+        }
+      ],
+      "Connectivity": [
+        {
+          "label": "WLAN",
+          "value": "Wi-Fi 802.11 a/b/g/n/ac/6e, tri-band, Wi-Fi Direct"
+        },
+        {
+          "label": "Bluetooth",
+          "value": "v5.3 with A2DP, LE"
+        },
+        {
+          "label": "GPS",
+          "value": "Yes + A-GPS support & Glonass, BDS, GALILEO"
+        },
+        {
+          "label": "USB",
+          "value": "USB Type-C 3.2, OTG"
+        },
+        {
+          "label": "NFC",
+          "value": "Yes"
+        },
+        {
+          "label": "Data",
+          "value": "GPRS, Edge, 3G (HSPA 42.2/5.76 Mbps), 4G LTE-A (CA), 5G capable"
+        }
+      ],
+      "Features": [
+        {
+          "label": "Sensors",
+          "value": "Accelerometer, Barometer, Compass, FingerPrint (under display, ultrasonic), Gyro, Proximity"
+        },
+        {
+          "label": "Audio",
+          "value": "32-bit/384kHz audio, Tuned by AKG, Speaker Phone"
+        },
+        {
+          "label": "Browser",
+          "value": "HTML5"
+        },
+        {
+          "label": "Messaging",
+          "value": "SMS(threaded view), MMS, Email, Push Mail, IM"
+        },
+        {
+          "label": "Games",
+          "value": "Built-in + Downloadable"
+        },
+        {
+          "label": "Torch",
+          "value": "Yes"
+        },
+        {
+          "label": "Extra",
+          "value": "Glass front + Gorilla Glass Victus 2), Glass back + Gorilla Glass Victus 2), Aluminum frame, IP68 dust/water resistant (up to 1.5m for 30 min) Armor aluminum 2 frame with tougher drop and scratch resistance (advertised), Samsung DeX, Samsung Wireless DeX (desktop experience support), Ultra Wideband (UWB) support, Document viewer, Photo/video editor"
+        }
+      ],
+      "Battery": [
+        {
+          "label": "Capacity",
+          "value": "(Li-ion Non removable), 4900 mAh"
+        }
+      ]
+    }
   },
   {
     "retailers": [
@@ -467,7 +803,175 @@
       "https://images.priceoye.pk/media/samsung-galaxy-a55-5g/samsung-galaxy-a55-5g-apj81.jpg",
       "https://images.priceoye.pk/media/samsung-galaxy-a55-5g/samsung-galaxy-a55-5g-l5vpq.jpg",
       "https://images.priceoye.pk/media/samsung-galaxy-a55-5g/samsung-galaxy-a55-5g-g17p6.jpg"
-    ]
+    ],
+    "detailed_specs": {
+      "Build": [
+        {
+          "label": "OS",
+          "value": "Android 14 OS"
+        },
+        {
+          "label": "UI",
+          "value": "OneUI 6.1"
+        },
+        {
+          "label": "Dimensions",
+          "value": "161.1 x 77.4 x 8.2 mm"
+        },
+        {
+          "label": "Weight",
+          "value": "214 g"
+        },
+        {
+          "label": "SIM",
+          "value": "Hybrid Dual SIM, Dual Standby, (Nano-SIM)"
+        },
+        {
+          "label": "Colors",
+          "value": "Iceblue, Lilac, Navy, Lemon"
+        }
+      ],
+      "Frequency": [
+        {
+          "label": "2G Band",
+          "value": "SIM1: GSM 850 / 900 / 1800 / 1900SIM2: GSM 850 / 900 / 1800 / 1900"
+        },
+        {
+          "label": "3G Band",
+          "value": "HSDPA 850 / 900 / 1700(AWS) / 1900 / 2100"
+        },
+        {
+          "label": "4G Band",
+          "value": "LTE band 1(2100), 3(1800), 5(850), 7(2600), 8(900), 20(800), 38(2600), 40(2300), 41(2500)"
+        },
+        {
+          "label": "5G Band",
+          "value": "SA/NSA/Sub6"
+        }
+      ],
+      "Processor": [
+        {
+          "label": "CPU",
+          "value": "Octa-core (4 x 2.7 GHz Cortex-A78 + 4 x 2.0 GHz Cortex-A55)"
+        },
+        {
+          "label": "Chipset",
+          "value": "Exynos 1480 (4 nm)"
+        },
+        {
+          "label": "GPU",
+          "value": "Xclipse 530"
+        }
+      ],
+      "Display": [
+        {
+          "label": "Technology",
+          "value": "Super AMOLED Capacitive Touchscreen, Multitouch"
+        },
+        {
+          "label": "Size",
+          "value": "6.6 Inches"
+        },
+        {
+          "label": "Resolution",
+          "value": "1080 x 2340 Pixels (~390 PPI)"
+        },
+        {
+          "label": "Protection",
+          "value": "Corning Gorilla Glass Victus+"
+        },
+        {
+          "label": "Extra Features",
+          "value": "120Hz, HDR10+, 1000 nits (HBM)"
+        }
+      ],
+      "Memory": [
+        {
+          "label": "Built-in",
+          "value": "256GB Built-in, 8GB RAM"
+        },
+        {
+          "label": "Card",
+          "value": "microSDXC (uses shared SIM slot)"
+        }
+      ],
+      "Camera": [
+        {
+          "label": "Main",
+          "value": "Triple Camera: 50 MP, f/1.8, (wide), 1/1.56\", PDAF, OIS + 12 MP, f/2.2, (ultrawide) + 5 MP, f/2.4, (macro), LED Flash"
+        },
+        {
+          "label": "Features",
+          "value": "panorama, HDR, Video (4K@30fps, 1080p@30/60fps, 720p@480fps)"
+        },
+        {
+          "label": "Front",
+          "value": "32 MP, f/2.2, 26mm (wide), 1/2.74\", HDR, Video (4K@30fps, 1080p@30/60fps)"
+        }
+      ],
+      "Connectivity": [
+        {
+          "label": "WLAN",
+          "value": "Wi-Fi 802.11 a/b/g/n/ac/6, dual-band, Wi-Fi Direct"
+        },
+        {
+          "label": "Bluetooth",
+          "value": "v5.3 with A2DP, LE"
+        },
+        {
+          "label": "GPS",
+          "value": "Yes + A-GPS support & Glonass, BDS, GALILEO, BDS"
+        },
+        {
+          "label": "USB",
+          "value": "USB Type-C 2.0, OTG"
+        },
+        {
+          "label": "NFC",
+          "value": "Yes"
+        },
+        {
+          "label": "Data",
+          "value": "GPRS, EDGE, 3G (HSPA 42.2/5.76 Mbps), 4G LTE-A, 5G capable"
+        }
+      ],
+      "Features": [
+        {
+          "label": "Sensors",
+          "value": "Accelerometer, Compass, Fingerprint (under display, optical), Gyro, Proximity, Virtual proximity sensing"
+        },
+        {
+          "label": "Audio",
+          "value": "Speaker Phone"
+        },
+        {
+          "label": "Browser",
+          "value": "HTML5"
+        },
+        {
+          "label": "Messaging",
+          "value": "SMS(threaded view), MMS, Email, Push Mail, IM"
+        },
+        {
+          "label": "Games",
+          "value": "Built-in + Downloadable"
+        },
+        {
+          "label": "Torch",
+          "value": "Yes"
+        },
+        {
+          "label": "Extra",
+          "value": "NFC (market/region dependent), IP67 dust/water resistant (up to 1m for 30 min), Glass front (Gorilla Glass Victus), glass back + Gorilla Glass), aluminum frame, Photo/video editor, Document viewer"
+        }
+      ],
+      "Battery": [
+        {
+          "label": "Capacity",
+          "value": "(Li-ion Non removable), 5000 mAh"
+        }
+      ]
+    }
   },
   {
     "retailers": [
@@ -636,7 +1140,175 @@
       "https://images.priceoye.pk/media/samsung-galaxy-a35-5g/samsung-galaxy-a35-5g-9b529.jpg",
       "https://images.priceoye.pk/media/samsung-galaxy-a35-5g/samsung-galaxy-a35-5g-1khwd.png",
       "https://images.priceoye.pk/media/samsung-galaxy-a35-5g/samsung-galaxy-a35-5g-jldxk.png"
-    ]
+    ],
+    "detailed_specs": {
+      "Build": [
+        {
+          "label": "OS",
+          "value": "Android 14 OS"
+        },
+        {
+          "label": "UI",
+          "value": "OneUI 6.1"
+        },
+        {
+          "label": "Dimensions",
+          "value": "161.7 x 78 x 8.2 mm"
+        },
+        {
+          "label": "Weight",
+          "value": "209 g"
+        },
+        {
+          "label": "SIM",
+          "value": "Dual Sim, Dual Standby (Nano-SIM)"
+        },
+        {
+          "label": "Colors",
+          "value": "Iceblue, Lilac, Navy, Lemon"
+        }
+      ],
+      "Frequency": [
+        {
+          "label": "2G Band",
+          "value": "SIM1: GSM 850 / 900 / 1800 / 1900SIM2: GSM 850 / 900 / 1800 / 1900"
+        },
+        {
+          "label": "3G Band",
+          "value": "HSDPA 850 / 900 / 1700(AWS) / 1900 / 2100"
+        },
+        {
+          "label": "4G Band",
+          "value": "LTE band 1(2100), 2(1900), 3(1800), 5(850), 7(2600), 8(900), 20(800), 38(2600), 40(2300), 41(2500)"
+        },
+        {
+          "label": "5G Band",
+          "value": "5G SA/NSA"
+        }
+      ],
+      "Processor": [
+        {
+          "label": "CPU",
+          "value": "Octa-core (4 x 2.4 GHz Cortex-A78 + 4 x 2.0 GHz Cortex-A55)"
+        },
+        {
+          "label": "Chipset",
+          "value": "Exynos 1380 (5 nm)"
+        },
+        {
+          "label": "GPU",
+          "value": "Mali-G68 MP5"
+        }
+      ],
+      "Display": [
+        {
+          "label": "Technology",
+          "value": "Super AMOLED Capacitive Touchscreen, Multitouch"
+        },
+        {
+          "label": "Size",
+          "value": "6.6 Inches"
+        },
+        {
+          "label": "Resolution",
+          "value": "1080 x 2340 Pixels (~390 PPI)"
+        },
+        {
+          "label": "Protection",
+          "value": "Corning Gorilla Glass Victus+"
+        },
+        {
+          "label": "Extra Features",
+          "value": "Always-on display, 120Hz, 1000 nits (HBM)"
+        }
+      ],
+      "Memory": [
+        {
+          "label": "Built-in",
+          "value": "256GB Built-in, 8GB RAM"
+        },
+        {
+          "label": "Card",
+          "value": "microSDXC (uses shared SIM slot)"
+        }
+      ],
+      "Camera": [
+        {
+          "label": "Main",
+          "value": "Triple Camera: 50 MP, f/1.8, (wide), 1/1.96\", PDAF, OIS + 8 MP, f/2.2, (ultrawide), 1/4.0\" + 5 MP, f/2.4, (macro), LED Flash"
+        },
+        {
+          "label": "Features",
+          "value": "panorama, HDR, Video (4K@30fps, 1080p@30/60fps, gyro-EIS)"
+        },
+        {
+          "label": "Front",
+          "value": "13 MP, f/2.2, (wide), 1/3.06\", Video (4K@30fps, 1080p@30fps)"
+        }
+      ],
+      "Connectivity": [
+        {
+          "label": "WLAN",
+          "value": "Wi-Fi 802.11 a/b/g/n/ac/6, dual-band, Wi-Fi Direct"
+        },
+        {
+          "label": "Bluetooth",
+          "value": "v5.3 with A2DP, LE"
+        },
+        {
+          "label": "GPS",
+          "value": "Yes + GPS, GLONASS, GALILEO, BDS"
+        },
+        {
+          "label": "USB",
+          "value": "USB Type-C 2.0, OTG"
+        },
+        {
+          "label": "NFC",
+          "value": "Yes"
+        },
+        {
+          "label": "Data",
+          "value": "GPRS, EDGE, 3G (HSPA 42.2/5.76 Mbps), 4G LTE, 5G capable"
+        }
+      ],
+      "Features": [
+        {
+          "label": "Sensors",
+          "value": "Accelerometer, Compass, Fingerprint (under display, optical), Gyro, Virtual proximity sensing"
+        },
+        {
+          "label": "Audio",
+          "value": "Speaker Phone"
+        },
+        {
+          "label": "Browser",
+          "value": "HTML5"
+        },
+        {
+          "label": "Messaging",
+          "value": "SMS(threaded view), MMS, Email, Push Mail, IM"
+        },
+        {
+          "label": "Games",
+          "value": "Built-in + Downloadable"
+        },
+        {
+          "label": "Torch",
+          "value": "Yes"
+        },
+        {
+          "label": "Extra",
+          "value": "NFC (market/region dependent), IP67 dust/water resistant (up to 1m for 30 min), Glass front+ Gorilla Glass 5), plastic frame, plastic back, Photo/video editor, Document viewer"
+        }
+      ],
+      "Battery": [
+        {
+          "label": "Capacity",
+          "value": "(Li-ion Non removable), 5000 mAh"
+        }
+      ]
+    }
   },
   {
     "retailers": [
@@ -800,7 +1472,171 @@
       "https://images.priceoye.pk/media/samsung-galaxy-a15/samsung-galaxy-a15-v9xyx.jpeg",
       "https://images.priceoye.pk/media/samsung-galaxy-a15/samsung-galaxy-a15-tjhbx.jpg",
       "https://images.priceoye.pk/media/samsung-galaxy-a15/samsung-galaxy-a15-blwtd.jpg"
-    ]
+    ],
+    "detailed_specs": {
+      "Build": [
+        {
+          "label": "OS",
+          "value": "Android 14 OS"
+        },
+        {
+          "label": "UI",
+          "value": "OneUI 6"
+        },
+        {
+          "label": "Dimensions",
+          "value": "160.1 x 76.8 x 8.4 mm"
+        },
+        {
+          "label": "Weight",
+          "value": "200 g"
+        },
+        {
+          "label": "SIM",
+          "value": "Dual Sim, Dual Standby (Nano-SIM)"
+        },
+        {
+          "label": "Colors",
+          "value": "Black, Personality Yellow, Fantasy Blue, Optimistic Blue"
+        }
+      ],
+      "Frequency": [
+        {
+          "label": "2G Band",
+          "value": "SIM1: GSM 850 / 900 / 1800 / 1900SIM2: GSM 850 / 900 / 1800 / 1900"
+        },
+        {
+          "label": "3G Band",
+          "value": "HSDPA 850 / 900 / 2100"
+        },
+        {
+          "label": "4G Band",
+          "value": "LTE"
+        }
+      ],
+      "Processor": [
+        {
+          "label": "CPU",
+          "value": "Octa-core (2 x 2.2 GHz Cortex-A76 + 6 x 2.0 GHz Cortex-A55)"
+        },
+        {
+          "label": "Chipset",
+          "value": "Mediatek Helio G99 (6 nm)"
+        },
+        {
+          "label": "GPU",
+          "value": "Mali-G57 MC2"
+        }
+      ],
+      "Display": [
+        {
+          "label": "Technology",
+          "value": "Capacitive Super AMOLED Touchscreen, 16M Colors, Multitouch"
+        },
+        {
+          "label": "Size",
+          "value": "6.5 Inches"
+        },
+        {
+          "label": "Resolution",
+          "value": "1080 x 2340 Pixels (~396 PPI)"
+        },
+        {
+          "label": "Extra Features",
+          "value": "90Hz, 800 nits (HBM)"
+        }
+      ],
+      "Memory": [
+        {
+          "label": "Built-in",
+          "value": "128GB Built-in, 6GB RAM"
+        },
+        {
+          "label": "Card",
+          "value": "microSDXC"
+        }
+      ],
+      "Camera": [
+        {
+          "label": "Main",
+          "value": "Triple Camera: 50 MP, f/1.8, (wide), AF + 5 MP, f/2.2, (ultrawide) + 2 MP, f/2.4, (macro), LED Flash"
+        },
+        {
+          "label": "Features",
+          "value": "Geo-tagging, touch focus, face detection, panorama, HDR, Video (1080p@30fps)"
+        },
+        {
+          "label": "Front",
+          "value": "13 MP, f/2.0, (wide), Video (1080p@30fps)"
+        }
+      ],
+      "Connectivity": [
+        {
+          "label": "WLAN",
+          "value": "Wi-Fi 802.11 a/b/g/n/ac, dual-band, Wi-Fi Direct"
+        },
+        {
+          "label": "Bluetooth",
+          "value": "v5.3 with A2DP, LE"
+        },
+        {
+          "label": "GPS",
+          "value": "Yes + GPS, GLONASS, GALILEO, BDS, QZSS"
+        },
+        {
+          "label": "Radio",
+          "value": "FM Radio (Market dependent)"
+        },
+        {
+          "label": "USB",
+          "value": "USB Type-C 2.0"
+        },
+        {
+          "label": "NFC",
+          "value": "Yes"
+        },
+        {
+          "label": "Data",
+          "value": "GPRS, EDGE, 3G (HSPA 42.2/5.76 Mbps), 4G LTE"
+        }
+      ],
+      "Features": [
+        {
+          "label": "Sensors",
+          "value": "Accelerometer, Compass, Fingerprint (side mounted), Virtual proximity sensing"
+        },
+        {
+          "label": "Audio",
+          "value": "3.5mm Audio Jack, MP3/WAV/WMA/eAAC+/FLAC player, MP4/WMV/H.265 player, Speaker Phone"
+        },
+        {
+          "label": "Browser",
+          "value": "HTML5"
+        },
+        {
+          "label": "Messaging",
+          "value": "SMS(threaded view), MMS, Email, Push Mail, IM"
+        },
+        {
+          "label": "Games",
+          "value": "Built-in + Downloadable"
+        },
+        {
+          "label": "Torch",
+          "value": "Yes"
+        },
+        {
+          "label": "Extra",
+          "value": "Glass front, Plastic back, Plastic frame, Photo/video editor, Document viewer"
+        }
+      ],
+      "Battery": [
+        {
+          "label": "Capacity",
+          "value": "(Li-Po Non removable), 5000 mAh"
+        }
+      ]
+    }
   },
   {
     "retailers": [
@@ -969,7 +1805,163 @@
       "https://images.priceoye.pk/media/samsung-galaxy-a05s/samsung-galaxy-a05s-hegaa.jpg",
       "https://images.priceoye.pk/media/samsung-galaxy-a05s/samsung-galaxy-a05s-9hrsf.png",
       "https://images.priceoye.pk/media/samsung-galaxy-a05s/samsung-galaxy-a05s-l695f.jpg"
-    ]
+    ],
+    "detailed_specs": {
+      "Build": [
+        {
+          "label": "OS",
+          "value": "Android 13 OS"
+        },
+        {
+          "label": "Dimensions",
+          "value": "168 x 77.8 x 8.8 mm"
+        },
+        {
+          "label": "Weight",
+          "value": "194 g"
+        },
+        {
+          "label": "SIM",
+          "value": "Dual Sim, Dual Standby (Nano-SIM)"
+        },
+        {
+          "label": "Colors",
+          "value": "Black, Silver, Light Green, Violet"
+        }
+      ],
+      "Frequency": [
+        {
+          "label": "2G Band",
+          "value": "SIM1: GSM 850 / 900 / 1800 / 1900SIM2: GSM 850 / 900 / 1800 / 1900"
+        },
+        {
+          "label": "3G Band",
+          "value": "HSDPA 850 / 900 / 2100"
+        },
+        {
+          "label": "4G Band",
+          "value": "LTE band 1(2100), 3(1800), 5(850), 7(2600), 8(900), 20(800), 38(2600), 40(2300), 41(2500)"
+        }
+      ],
+      "Processor": [
+        {
+          "label": "CPU",
+          "value": "Octa-core (4 x 2.4 GHz Kryo 265 Gold + 4 x 1.9 GHz Kryo 265 Silver)"
+        },
+        {
+          "label": "Chipset",
+          "value": "Qualcomm SM6225 Snapdragon 680 4G (6 nm)"
+        },
+        {
+          "label": "GPU",
+          "value": "Adreno 610"
+        }
+      ],
+      "Display": [
+        {
+          "label": "Technology",
+          "value": "PLS LCD Capacitive Touchscreen, 16M Colors, Multitouch"
+        },
+        {
+          "label": "Size",
+          "value": "6.7 Inches"
+        },
+        {
+          "label": "Resolution",
+          "value": "1080 x 2400 Pixels (~393 PPI)"
+        }
+      ],
+      "Memory": [
+        {
+          "label": "Built-in",
+          "value": "128GB Built-in, 4GB RAM"
+        },
+        {
+          "label": "Card",
+          "value": "microSD Card, (supports up to 1TB)"
+        }
+      ],
+      "Camera": [
+        {
+          "label": "Main",
+          "value": "Triple Camera: 50 MP, f/1.8, (wide), AF + 2 MP, f/2.4, (macro) + 2 MP, f/2.4, (depth), LED Flash"
+        },
+        {
+          "label": "Features",
+          "value": "Geo-tagging, touch focus, face detection, panorama, HDR, Video (1080p@30/60fps)"
+        },
+        {
+          "label": "Front",
+          "value": "13 MP, f/2.0, Video (1080p@30fps)"
+        }
+      ],
+      "Connectivity": [
+        {
+          "label": "WLAN",
+          "value": "Wi-Fi 802.11 a/b/g/n/ac, dual-band, Wi-Fi Direct"
+        },
+        {
+          "label": "Bluetooth",
+          "value": "v5.1 with A2DP, LE"
+        },
+        {
+          "label": "GPS",
+          "value": "Yes + GPS, GLONASS, GALILEO, BDS, QZSS"
+        },
+        {
+          "label": "Radio",
+          "value": "FM Radio (Unspecified)"
+        },
+        {
+          "label": "USB",
+          "value": "USB Type-C 2.0"
+        },
+        {
+          "label": "NFC",
+          "value": "No"
+        },
+        {
+          "label": "Data",
+          "value": "GPRS, EDGE, 3G (HSPA 42.2/5.76 Mbps), 4G (LTE Cat4 150/50 Mbps)"
+        }
+      ],
+      "Features": [
+        {
+          "label": "Sensors",
+          "value": "Accelerometer, Fingerprint (side-mounted), Proximity"
+        },
+        {
+          "label": "Audio",
+          "value": "3.5mm Audio Jack, Speaker Phone"
+        },
+        {
+          "label": "Browser",
+          "value": "HTML5"
+        },
+        {
+          "label": "Messaging",
+          "value": "SMS(threaded view), MMS, Email, Push Mail, IM"
+        },
+        {
+          "label": "Games",
+          "value": "Built-in + Downloadable"
+        },
+        {
+          "label": "Torch",
+          "value": "Yes"
+        },
+        {
+          "label": "Extra",
+          "value": "Glass front + plastic back, plastic frame, Photo/video editor, Document viewer"
+        }
+      ],
+      "Battery": [
+        {
+          "label": "Capacity",
+          "value": "(Li-Po Non removable), 5000 mAh"
+        }
+      ]
+    }
   },
   {
     "retailers": [
@@ -1133,7 +2125,167 @@
       "https://images.priceoye.pk/media/samsung-galaxy-a05/samsung-galaxy-a05-6dtx6.jpg",
       "https://images.priceoye.pk/media/samsung-galaxy-a05/samsung-galaxy-a05-yznpx.jpg",
       "https://images.priceoye.pk/media/samsung-galaxy-a05/samsung-galaxy-a05-xa38u.jpg"
-    ]
+    ],
+    "detailed_specs": {
+      "Build": [
+        {
+          "label": "OS",
+          "value": "Android 13 OS"
+        },
+        {
+          "label": "UI",
+          "value": "OneUI"
+        },
+        {
+          "label": "Dimensions",
+          "value": "168.8 x 78.2 x 8.8 mm"
+        },
+        {
+          "label": "Weight",
+          "value": "195 g"
+        },
+        {
+          "label": "SIM",
+          "value": "Dual Sim, Dual Standby (Nano-SIM)"
+        },
+        {
+          "label": "Colors",
+          "value": "Black, Silver, Light Green"
+        }
+      ],
+      "Frequency": [
+        {
+          "label": "2G Band",
+          "value": "SIM1: GSM 850 / 900 / 1800 / 1900SIM2: GSM 850 / 900 / 1800 / 1900"
+        },
+        {
+          "label": "3G Band",
+          "value": "HSDPA 850 / 900 / 2100"
+        },
+        {
+          "label": "4G Band",
+          "value": "LTE band 1(2100), 3(1800), 5(850), 7(2600), 8(900), 20(800), 38(2600), 40(2300), 41(2500)"
+        }
+      ],
+      "Processor": [
+        {
+          "label": "CPU",
+          "value": "Octa-core (2 x 2.0 GHz Cortex-A75 + 6 x 1.8 GHz Cortex-A55)"
+        },
+        {
+          "label": "Chipset",
+          "value": "Mediatek MT6769V/CZ Helio G85 (12nm)"
+        },
+        {
+          "label": "GPU",
+          "value": "Mali-G52 MC2"
+        }
+      ],
+      "Display": [
+        {
+          "label": "Technology",
+          "value": "PLS LCD Capacitive Touchscreen, 16M Colors, Multitouch"
+        },
+        {
+          "label": "Size",
+          "value": "6.7 Inches"
+        },
+        {
+          "label": "Resolution",
+          "value": "720 x 1600 Pixels (~262 PPI)"
+        }
+      ],
+      "Memory": [
+        {
+          "label": "Built-in",
+          "value": "64GB Built-in, 4GB RAM"
+        },
+        {
+          "label": "Card",
+          "value": "microSDXC"
+        }
+      ],
+      "Camera": [
+        {
+          "label": "Main",
+          "value": "Dual Camera: 50 MP, f/1.8, (wide), AF + 2 MP, f/2.4, (depth), LED Flash"
+        },
+        {
+          "label": "Features",
+          "value": "Geo-tagging, touch focus, face detection, panorama, HDR, Video (1080p@30/60fps)"
+        },
+        {
+          "label": "Front",
+          "value": "8 MP, f/2.0"
+        }
+      ],
+      "Connectivity": [
+        {
+          "label": "WLAN",
+          "value": "Wi-Fi 802.11 a/b/g/n/ac, dual-band, Wi-Fi Direct"
+        },
+        {
+          "label": "Bluetooth",
+          "value": "v5.3 with A2DP, LE"
+        },
+        {
+          "label": "GPS",
+          "value": "Yes + A-GPS support & Glonass, BDS"
+        },
+        {
+          "label": "Radio",
+          "value": "FM Radio"
+        },
+        {
+          "label": "USB",
+          "value": "USB Type-C 2.0"
+        },
+        {
+          "label": "NFC",
+          "value": "No"
+        },
+        {
+          "label": "Data",
+          "value": "GPRS, EDGE, 3G (HSPA 42.2/5.76 Mbps), 4G (LTE Cat4 150/50 Mbps)"
+        }
+      ],
+      "Features": [
+        {
+          "label": "Sensors",
+          "value": "Accelerometer, Proximity"
+        },
+        {
+          "label": "Audio",
+          "value": "3.5mm Audio Jack, Speaker Phone"
+        },
+        {
+          "label": "Browser",
+          "value": "HTML5"
+        },
+        {
+          "label": "Messaging",
+          "value": "SMS(threaded view), MMS, Email, Push Mail, IM"
+        },
+        {
+          "label": "Games",
+          "value": "Built-in + Downloadable"
+        },
+        {
+          "label": "Torch",
+          "value": "Yes"
+        },
+        {
+          "label": "Extra",
+          "value": "Glass front, plastic back, plastic frame, Photo/video editor, Document viewer"
+        }
+      ],
+      "Battery": [
+        {
+          "label": "Capacity",
+          "value": "(Li-Po Non removable), 5000 mAh"
+        }
+      ]
+    }
   },
   {
     "retailers": [
@@ -1318,7 +2470,179 @@
       "https://images.priceoye.pk/media/samsung-galaxy-s23-fe/samsung-galaxy-s23-fe-c5mrm.png",
       "https://images.priceoye.pk/media/samsung-galaxy-s23-fe/samsung-galaxy-s23-fe-4q84n.png",
       "https://images.priceoye.pk/media/samsung-galaxy-s23-fe/samsung-galaxy-s23-fe-lqr1h.png"
-    ]
+    ],
+    "detailed_specs": {
+      "Build": [
+        {
+          "label": "OS",
+          "value": "Android 13 OS, upgradable to Android 14"
+        },
+        {
+          "label": "UI",
+          "value": "OneUI 5.1"
+        },
+        {
+          "label": "Dimensions",
+          "value": "158 x 76.5 x 8.2 mm"
+        },
+        {
+          "label": "Weight",
+          "value": "209 g"
+        },
+        {
+          "label": "SIM",
+          "value": "Dual SIM (2 Nano-SIMs or SIM + eSIM, dual stand-by)"
+        },
+        {
+          "label": "Colors",
+          "value": "Mint, Cream, Graphite, Purple, Indigo, Tangerine"
+        }
+      ],
+      "Frequency": [
+        {
+          "label": "2G Band",
+          "value": "SIM1: GSM 850 / 900 / 1800 / 1900SIM2: GSM 850 / 900 / 1800 / 1900"
+        },
+        {
+          "label": "3G Band",
+          "value": "HSDPA 850 / 900 / 1700(AWS) / 1900 / 2100"
+        },
+        {
+          "label": "4G Band",
+          "value": "LTE band 1(2100), 2(1900), 3(1800), 4(1700/2100), 5(850), 7(2600), 8(900), 12(700), 13(700), 17(700), 18(800), 19(800), 20(800), 25(1900), 26(850), 28(700), 32(1500), 38(2600), 39(1900), 40(2300), 41(2500), 66(1700/2100)"
+        },
+        {
+          "label": "5G Band",
+          "value": "SA/NSA/Sub6"
+        }
+      ],
+      "Processor": [
+        {
+          "label": "CPU",
+          "value": "Octa-core (1 x 2.8 GHz Cortex-X2 + 3 x 2.50 GHz Cortex-A710 + 4 x 1.8 GHz Cortex-A510"
+        },
+        {
+          "label": "Chipset",
+          "value": "Exynos 2200 (4 nm)"
+        },
+        {
+          "label": "GPU",
+          "value": "Xclipse 920"
+        }
+      ],
+      "Display": [
+        {
+          "label": "Technology",
+          "value": "Dynamic AMOLED 2X Capacitive Touchscreen, Multitouch"
+        },
+        {
+          "label": "Size",
+          "value": "6.4 Inches"
+        },
+        {
+          "label": "Resolution",
+          "value": "1080 x 2340 Pixels (~403 PPI)"
+        },
+        {
+          "label": "Protection",
+          "value": "Corning Gorilla Glass 5"
+        },
+        {
+          "label": "Extra Features",
+          "value": "120Hz, HDR10+, 1450 nits (peak"
+        }
+      ],
+      "Memory": [
+        {
+          "label": "Built-in",
+          "value": "256GB Built-in, 8GB RAM"
+        },
+        {
+          "label": "Card",
+          "value": "No"
+        }
+      ],
+      "Camera": [
+        {
+          "label": "Main",
+          "value": "Triple Camera: 50 MP, f/1.8, 24mm (wide), PDAF, OIS+ 8 MP, f/2.4, 75mm (telephoto), PDAF, 3x optical zoom + 12 MP, f/2.2, 123˚ (ultrawide), LED Flash"
+        },
+        {
+          "label": "Features",
+          "value": "HDR, panorama, panorama, Video (8K@24fps, 4K@30/60fps, 1080p@30/60/120/240fps, 720p@960fps)"
+        },
+        {
+          "label": "Front",
+          "value": "10 MP, f/2.4, 26mm (wide), Video (4K@30/60fps, 1080p@30/60fps; gyro-EIS)"
+        }
+      ],
+      "Connectivity": [
+        {
+          "label": "WLAN",
+          "value": "Wi-Fi 802.11 a/b/g/n/ac/6e, dual-band, Wi-Fi Direct"
+        },
+        {
+          "label": "Bluetooth",
+          "value": "v5.3 with A2DP, LE"
+        },
+        {
+          "label": "GPS",
+          "value": "Yes + GPS, GLONASS, GALILEO, BDS"
+        },
+        {
+          "label": "Radio",
+          "value": "FM Radio (Unspecified)"
+        },
+        {
+          "label": "USB",
+          "value": "USB Type-C, OTG"
+        },
+        {
+          "label": "NFC",
+          "value": "Yes"
+        },
+        {
+          "label": "Data",
+          "value": "GPRS, Edge, 3G HSPA, 4G LTE-A (CA), 5G Capable"
+        }
+      ],
+      "Features": [
+        {
+          "label": "Sensors",
+          "value": "Accelerometer, Compass, Fingerprint (under display, optical), Gyro, Proximity, Virtual proximity sensing"
+        },
+        {
+          "label": "Audio",
+          "value": "32-bit/384kHz audio Tuned by AKG, Speaker Phone"
+        },
+        {
+          "label": "Browser",
+          "value": "HTML5"
+        },
+        {
+          "label": "Messaging",
+          "value": "SMS(threaded view), MMS, Email, Push Mail, IM"
+        },
+        {
+          "label": "Games",
+          "value": "Built-in + Downloadable"
+        },
+        {
+          "label": "Torch",
+          "value": "Yes"
+        },
+        {
+          "label": "Extra",
+          "value": "Glass front + Gorilla Glass 5), glass back + Gorilla Glass 5), Aluminum frame, IP68 dust/water resistant (up to 1.5m for 30 min), Document viewer, Photo/video editor"
+        }
+      ],
+      "Battery": [
+        {
+          "label": "Capacity",
+          "value": "(Li-ion Non removable), 4500 mAh"
+        }
+      ]
+    }
   },
   {
     "retailers": [
@@ -1490,7 +2814,171 @@
       "https://images.priceoye.pk/media/apple-iphone-15-pro-max/apple-iphone-15-pro-max-y7hjj.jpg",
       "https://images.priceoye.pk/media/apple-iphone-15-pro-max/apple-iphone-15-pro-max-llg89.jpg",
       "https://images.priceoye.pk/media/apple-iphone-15-pro-max/apple-iphone-15-pro-max-l68h7.jpg"
-    ]
+    ],
+    "detailed_specs": {
+      "Build": [
+        {
+          "label": "OS",
+          "value": "IOS 17, upgradable to iOS 17.5.1, planned upgrade to iOS 18"
+        },
+        {
+          "label": "Dimensions",
+          "value": "159.9 x 76.7 x 8.3 mm"
+        },
+        {
+          "label": "Weight",
+          "value": "221 g"
+        },
+        {
+          "label": "SIM",
+          "value": "eSIM (Nano-SIM)"
+        },
+        {
+          "label": "Colors",
+          "value": "Black Titanium, White Titanium, Blue Titanium, Natural Titanium"
+        }
+      ],
+      "Frequency": [
+        {
+          "label": "2G Band",
+          "value": "SIM1: GSM 850 / 900 / 1800 / 1900"
+        },
+        {
+          "label": "3G Band",
+          "value": "HSDPA 850 / 900 / 1700(AWS) / 1900 / 2100"
+        },
+        {
+          "label": "4G Band",
+          "value": "LTE"
+        },
+        {
+          "label": "5G Band",
+          "value": "SA/NSA/Sub6"
+        }
+      ],
+      "Processor": [
+        {
+          "label": "CPU",
+          "value": "Hexa-core (2 x 3.78 GHz + 4 x 2.11 GHz)"
+        },
+        {
+          "label": "Chipset",
+          "value": "Apple A17 Pro (3 nm)"
+        },
+        {
+          "label": "GPU",
+          "value": "Apple GPU (6-core graphics)"
+        }
+      ],
+      "Display": [
+        {
+          "label": "Technology",
+          "value": "LTPO Super Retina XDR OLED Capacitive Touchscreen, Multitouch"
+        },
+        {
+          "label": "Size",
+          "value": "6.7 Inches"
+        },
+        {
+          "label": "Resolution",
+          "value": "1290 x 2796 Pixels (~460 PPI)"
+        },
+        {
+          "label": "Protection",
+          "value": "Ceramic Shield glass"
+        },
+        {
+          "label": "Extra Features",
+          "value": "120Hz, HDR10, Dolby Vision, 1000 nits (typ), 2000 nits (HBM), Always-On display"
+        }
+      ],
+      "Memory": [
+        {
+          "label": "Built-in",
+          "value": "256GB Built-in, 8GB RAM, NVMe"
+        },
+        {
+          "label": "Card",
+          "value": "No"
+        }
+      ],
+      "Camera": [
+        {
+          "label": "Main",
+          "value": "Triple Camera: 48 MP, f/1.8, 24mm (wide), 1/1.28\", dual pixel PDAF, sensor-shift OIS + 12 MP, f/2.8, 120mm (periscope telephoto), 1/3.06\", dual pixel PDAF, 3D sensor‑shift OIS, 5x optical zoom + 12 MP, f/2.2, 13mm, (ultrawide), 1/2.55\", dual pixel PDAF + TOF 3D LiDAR scanner (depth)), dual-LED dual-tone flash"
+        },
+        {
+          "label": "Features",
+          "value": "HDR (photo/panorama), Video (4K@24/25/30/60fps, 1080p@25/30/60/120/240fps, 10-bit HDR, Dolby Vision HDR (up to 60fps), ProRes, Cinematic mode (4K@24/30fps), 3D (spatial) video, stereo sound rec.)"
+        },
+        {
+          "label": "Front",
+          "value": "12 MP, f/1.9, 23mm (wide), 1/3.6\", PDAF, OIS SL 3D, (depth/biometrics sensor), Video (4K@24/25/30/60fps, 1080p@25/30/60/120fps, gyro-EIS)"
+        }
+      ],
+      "Connectivity": [
+        {
+          "label": "WLAN",
+          "value": "Wi-Fi 802.11 a/b/g/n/ac/6e, dual-band, hotspot"
+        },
+        {
+          "label": "Bluetooth",
+          "value": "v5.3 with A2DP, LE"
+        },
+        {
+          "label": "GPS",
+          "value": "Yes + GPS (L1+L5), GLONASS, GALILEO, BDS, QZSS, NavIC"
+        },
+        {
+          "label": "USB",
+          "value": "USB Type-C 3.2 Gen 2, DisplayPort"
+        },
+        {
+          "label": "NFC",
+          "value": "Yes"
+        },
+        {
+          "label": "Data",
+          "value": "GPRS, Edge, 3G (HSPA 42.2/5.76 Mbps), 4G LTE, 5G, EV-DO Rev.A 3.1 Mbps"
+        }
+      ],
+      "Features": [
+        {
+          "label": "Sensors",
+          "value": "Accelerometer, Barometer, Compass, Face ID, Gyro, Proximity, Ultra Wideband (UWB) support"
+        },
+        {
+          "label": "Audio",
+          "value": "Lightning to 3.5 mm headphone jack adapter, Speaker Phone"
+        },
+        {
+          "label": "Browser",
+          "value": "Yes"
+        },
+        {
+          "label": "Messaging",
+          "value": "iMessage, SMS (threaded view), MMS, Email, Push Email"
+        },
+        {
+          "label": "Games",
+          "value": "Built-in + Downloadable"
+        },
+        {
+          "label": "Torch",
+          "value": "Yes"
+        },
+        {
+          "label": "Extra",
+          "value": "Glass front + Corning-made glass), Glass back + Corning-made glass), Titanium frame (grade 5), IP68 dust/water resistant (up to 6m for 30 min), Apple Pay (Visa, MasterCard, AMEX certified)"
+        }
+      ],
+      "Battery": [
+        {
+          "label": "Capacity",
+          "value": "(Li-ion Non removable), 4441 mAh"
+        }
+      ]
+    }
   },
   {
     "retailers": [
@@ -1662,7 +3150,171 @@
       "https://images.priceoye.pk/media/apple-iphone-15-pro/apple-iphone-15-pro-t93zu.jpg",
       "https://images.priceoye.pk/media/apple-iphone-15-pro/apple-iphone-15-pro-30yi4.png",
       "https://images.priceoye.pk/media/apple-iphone-15-pro/apple-iphone-15-pro-a73pi.png"
-    ]
+    ],
+    "detailed_specs": {
+      "Build": [
+        {
+          "label": "OS",
+          "value": "IOS 17, upgradable to iOS 17.5.1, planned upgrade to iOS 18"
+        },
+        {
+          "label": "Dimensions",
+          "value": "146.6 x 70.6 x 8.3 mm"
+        },
+        {
+          "label": "Weight",
+          "value": "187 g"
+        },
+        {
+          "label": "SIM",
+          "value": "eSIM (Nano-SIM)"
+        },
+        {
+          "label": "Colors",
+          "value": "Black Titanium, White Titanium, Blue Titanium, Natural Titanium"
+        }
+      ],
+      "Frequency": [
+        {
+          "label": "2G Band",
+          "value": "SIM1: GSM 850 / 900 / 1800 / 1900"
+        },
+        {
+          "label": "3G Band",
+          "value": "HSDPA 850 / 900 / 1700(AWS) / 1900 / 2100"
+        },
+        {
+          "label": "4G Band",
+          "value": "LTE"
+        },
+        {
+          "label": "5G Band",
+          "value": "SA/NSA/Sub6"
+        }
+      ],
+      "Processor": [
+        {
+          "label": "CPU",
+          "value": "Hexa-core (2 x 3.78 GHz + 4 x 2.11 GHz)"
+        },
+        {
+          "label": "Chipset",
+          "value": "Apple A17 Pro (3 nm)"
+        },
+        {
+          "label": "GPU",
+          "value": "Apple GPU (6-core graphics)"
+        }
+      ],
+      "Display": [
+        {
+          "label": "Technology",
+          "value": "LTPO Super Retina XDR OLED Capacitive Touchscreen, Multitouch"
+        },
+        {
+          "label": "Size",
+          "value": "6.1 Inches"
+        },
+        {
+          "label": "Resolution",
+          "value": "1179 x 2556 Pixels (~461 PPI)"
+        },
+        {
+          "label": "Protection",
+          "value": "Ceramic Shield glass"
+        },
+        {
+          "label": "Extra Features",
+          "value": "Always-On display, 120Hz, HDR10, Dolby Vision, 1000 nits (typ), 2000 nits (HBM)"
+        }
+      ],
+      "Memory": [
+        {
+          "label": "Built-in",
+          "value": "128GB Built-in, 8GB RAM, NVMe"
+        },
+        {
+          "label": "Card",
+          "value": "No"
+        }
+      ],
+      "Camera": [
+        {
+          "label": "Main",
+          "value": "Triple Camera: 48 MP, f/1.8, 24mm (wide), 1/1.28\", dual pixel PDAF, sensor-shift OIS + 12 MP, f/2.8, 77mm (telephoto), 1/3.5\", PDAF, OIS, 3x optical zoom + 12 MP, f/2.2, 13mm, (ultrawide), 1/2.55\", dual pixel PDAF + TOF 3D LiDAR scanner (depth), dual-LED dual-tone flash"
+        },
+        {
+          "label": "Features",
+          "value": "HDR (photo/panorama), Video (4K@24/25/30/60fps, 1080p@25/30/60/120/240fps, 10-bit HDR, Dolby Vision HDR (up to 60fps), ProRes, Cinematic mode (4K@24/30fps), 3D (spatial) video, stereo sound rec.)"
+        },
+        {
+          "label": "Front",
+          "value": "12 MP, f/1.9, 23mm (wide), 1/3.6\", PDAF, OIS SL 3D, (depth/biometrics sensor), HDR, Cinematic mode (4K@24/30fps), Video (4K@24/25/30/60fps, 1080p@25/30/60/120fps, gyro-EIS)"
+        }
+      ],
+      "Connectivity": [
+        {
+          "label": "WLAN",
+          "value": "Wi-Fi 802.11 a/b/g/n/ac/6e, dual-band, hotspot"
+        },
+        {
+          "label": "Bluetooth",
+          "value": "v5.3 with A2DP, LE"
+        },
+        {
+          "label": "GPS",
+          "value": "Yes + GPS (L1+L5), GLONASS, GALILEO, BDS, QZSS, NavIC"
+        },
+        {
+          "label": "USB",
+          "value": "USB Type-C 3.2 Gen 2, DisplayPort"
+        },
+        {
+          "label": "NFC",
+          "value": "Yes"
+        },
+        {
+          "label": "Data",
+          "value": "GPRS, Edge, 3G (HSPA 42.2/5.76 Mbps), 4G LTE, 5G, EV-DO Rev.A 3.1 Mbps"
+        }
+      ],
+      "Features": [
+        {
+          "label": "Sensors",
+          "value": "Accelerometer, Barometer, Compass, Face ID, Gyro, Proximity"
+        },
+        {
+          "label": "Audio",
+          "value": "Lightning to 3.5 mm headphone jack adapter, Speaker Phone"
+        },
+        {
+          "label": "Browser",
+          "value": "Yes"
+        },
+        {
+          "label": "Messaging",
+          "value": "iMessage, SMS (threaded view), MMS, Email, Push Email"
+        },
+        {
+          "label": "Games",
+          "value": "Built-in + Downloadable"
+        },
+        {
+          "label": "Torch",
+          "value": "Yes"
+        },
+        {
+          "label": "Extra",
+          "value": "Glass front + Corning-made glass), Glass back + Corning-made glass), titanium frame (grade 5), IP68 dust/water resistant (up to 6m for 30 min), Apple Pay (Visa, MasterCard, AMEX certified), Ultra Wideband (UWB) support (gen2 chip), Emergency SOS via satellite (SMS sending/receiving)"
+        }
+      ],
+      "Battery": [
+        {
+          "label": "Capacity",
+          "value": "(Li-ion Non removable), 3274 mAh"
+        }
+      ]
+    }
   },
   {
     "retailers": [
@@ -1846,7 +3498,171 @@
       "https://images.priceoye.pk/media/apple-iphone-15/apple-iphone-15-2r4r6.jpg",
       "https://images.priceoye.pk/media/apple-iphone-15/apple-iphone-15-wwdqk.jpg",
       "https://images.priceoye.pk/media/apple-iphone-15/apple-iphone-15-8vpuw.jpg"
-    ]
+    ],
+    "detailed_specs": {
+      "Build": [
+        {
+          "label": "OS",
+          "value": "IOS 17, iOS 17, upgradable to iOS 17.5.1, planned upgrade to iOS 18"
+        },
+        {
+          "label": "Dimensions",
+          "value": "147.6 x 71.6 x 7.8 mm"
+        },
+        {
+          "label": "Weight",
+          "value": "171 g"
+        },
+        {
+          "label": "SIM",
+          "value": "eSIM (Nano-SIM)"
+        },
+        {
+          "label": "Colors",
+          "value": "Black, Blue, Green, Yellow, Pink"
+        }
+      ],
+      "Frequency": [
+        {
+          "label": "2G Band",
+          "value": "SIM1: GSM 850 / 900 / 1800 / 1900"
+        },
+        {
+          "label": "3G Band",
+          "value": "HSDPA 850 / 900 / 1700(AWS) / 1900 / 2100"
+        },
+        {
+          "label": "4G Band",
+          "value": "LTE"
+        },
+        {
+          "label": "5G Band",
+          "value": "SA/NSA/Sub6"
+        }
+      ],
+      "Processor": [
+        {
+          "label": "CPU",
+          "value": "Hexa-core (2 x 3.46 GHz Everest + 4 x 2.02 GHz Sawtooth)"
+        },
+        {
+          "label": "Chipset",
+          "value": "Apple A16 Bionic (4 nm)"
+        },
+        {
+          "label": "GPU",
+          "value": "Apple GPU (5-core graphics)"
+        }
+      ],
+      "Display": [
+        {
+          "label": "Technology",
+          "value": "Super Retina XDR OLED Capacitive Touchscreen, Multitouch"
+        },
+        {
+          "label": "Size",
+          "value": "6.1 Inches"
+        },
+        {
+          "label": "Resolution",
+          "value": "1179 x 2556 Pixels (~461 PPI)"
+        },
+        {
+          "label": "Protection",
+          "value": "Ceramic Shield glass"
+        },
+        {
+          "label": "Extra Features",
+          "value": "HDR10, Dolby Vision, 1000 nits (HBM), 2000 nits (peak)"
+        }
+      ],
+      "Memory": [
+        {
+          "label": "Built-in",
+          "value": "128GB Built-in, 6GB RAM, NVMe"
+        },
+        {
+          "label": "Card",
+          "value": "No"
+        }
+      ],
+      "Camera": [
+        {
+          "label": "Main",
+          "value": "Dual Camera: 48 MP, f/1.6, 26mm (wide), dual pixel PDAF, sensor-shift OIS + 12 MP, f/2.4, 13mm, (ultrawide), LED Flash"
+        },
+        {
+          "label": "Features",
+          "value": "HDR (photo/panorama), Video (4K@24/25/30/60fps, 1080p@25/30/60/120/240fps, HDR, Dolby Vision HDR (up to 60fps), Cinematic mode (4K@30fps), stereo sound rec.)"
+        },
+        {
+          "label": "Front",
+          "value": "12 MP, f/1.9, 23mm (wide), 1/3.6\", PDAF SL 3D, (depth/biometrics sensor), HDR, Cinematic mode (4K@30fps), Video (4K@24/25/30/60fps, 1080p@25/30/60/120fps, gyro-EIS)"
+        }
+      ],
+      "Connectivity": [
+        {
+          "label": "WLAN",
+          "value": "Wi-Fi 802.11 a/b/g/n/ac/6, dual-band, hotspot"
+        },
+        {
+          "label": "Bluetooth",
+          "value": "v5.3 with A2DP, LE"
+        },
+        {
+          "label": "GPS",
+          "value": "Yes + GPS support, GLONASS, GALILEO, BDS, QZSS"
+        },
+        {
+          "label": "USB",
+          "value": "USB Type-C 2.0, DisplayPort"
+        },
+        {
+          "label": "NFC",
+          "value": "Yes"
+        },
+        {
+          "label": "Data",
+          "value": "GPRS, Edge, 3G (HSPA 42.2/5.76 Mbps), LTE, 5G, EV-DO Rev.A 3.1 Mbps"
+        }
+      ],
+      "Features": [
+        {
+          "label": "Sensors",
+          "value": "Accelerometer, Barometer, Compass, Face ID, Gyro, Proximity"
+        },
+        {
+          "label": "Audio",
+          "value": "Speaker Phone"
+        },
+        {
+          "label": "Browser",
+          "value": "Yes"
+        },
+        {
+          "label": "Messaging",
+          "value": "iMessage, SMS (threaded view), MMS, Email, Push Email"
+        },
+        {
+          "label": "Games",
+          "value": "Built-in + Downloadable"
+        },
+        {
+          "label": "Torch",
+          "value": "Yes"
+        },
+        {
+          "label": "Extra",
+          "value": "Glass front + Corning-made glass), Glass back + Corning-made glass), Aluminum frame, IP68 dust/water resistant (up to 6m for 30 min), Apple Pay (Visa, MasterCard, AMEX certified), Ultra Wideband (UWB) support (gen2 chip), Emergency SOS via satellite (SMS sending/receiving)"
+        }
+      ],
+      "Battery": [
+        {
+          "label": "Capacity",
+          "value": "(Li-ion Non removable), 3349 mAh"
+        }
+      ]
+    }
   },
   {
     "retailers": [
@@ -2026,7 +3842,171 @@
       "https://images.priceoye.pk/media/apple-iphone-14/apple-iphone-14-rx8hd.jpg",
       "https://images.priceoye.pk/media/apple-iphone-14/apple-iphone-14-ndpgc.jpg",
       "https://images.priceoye.pk/media/apple-iphone-14/apple-iphone-14-nlpub.jpg"
-    ]
+    ],
+    "detailed_specs": {
+      "Build": [
+        {
+          "label": "OS",
+          "value": "IOS 16"
+        },
+        {
+          "label": "Dimensions",
+          "value": "146.7 x 71.5 x 7.8 mm"
+        },
+        {
+          "label": "Weight",
+          "value": "172 g"
+        },
+        {
+          "label": "SIM",
+          "value": "Dual Sim, Dual Standby (Nano-SIM)"
+        },
+        {
+          "label": "Colors",
+          "value": "Midnight, Purple, Starlight, Blue, Red"
+        }
+      ],
+      "Frequency": [
+        {
+          "label": "2G Band",
+          "value": "SIM1: GSM 850 / 900 / 1800 / 1900SIM2: GSM 850 / 900 / 1800 / 1900"
+        },
+        {
+          "label": "3G Band",
+          "value": "HSDPA 850 / 900 / 1700(AWS) / 1900 / 2100"
+        },
+        {
+          "label": "4G Band",
+          "value": "LTE"
+        },
+        {
+          "label": "5G Band",
+          "value": "SA/NSA/Sub6"
+        }
+      ],
+      "Processor": [
+        {
+          "label": "CPU",
+          "value": "Hexa-core (2 x 3.23 GHz Avalanche + 4 x 1.82 GHz Blizzard)"
+        },
+        {
+          "label": "Chipset",
+          "value": "Apple A15 Bionic (5 nm)"
+        },
+        {
+          "label": "GPU",
+          "value": "Apple GPU (5-core graphics)"
+        }
+      ],
+      "Display": [
+        {
+          "label": "Technology",
+          "value": "Super Retina XDR OLED Capacitive Touchscreen, Multitouch"
+        },
+        {
+          "label": "Size",
+          "value": "6.1 Inches"
+        },
+        {
+          "label": "Resolution",
+          "value": "1170 x 2532 Pixels (~457 PPI)"
+        },
+        {
+          "label": "Protection",
+          "value": "Ion-strengthened glass, oleophobic coating"
+        },
+        {
+          "label": "Extra Features",
+          "value": "HDR10, Dolby Vision, 800 nits (HBM), 1200 nits (peak)"
+        }
+      ],
+      "Memory": [
+        {
+          "label": "Built-in",
+          "value": "128/256/512GB Built-in, 4GB RAM,NVMe"
+        },
+        {
+          "label": "Card",
+          "value": "No"
+        }
+      ],
+      "Camera": [
+        {
+          "label": "Main",
+          "value": "Dual Camera: 12 MP, f/1.5, 26mm (wide), 1/1.7\", dual pixel PDAF, sensor-shift OIS + 12 MP, f/2.4, 13mm, (ultrawide), dual-LED dual-tone flash"
+        },
+        {
+          "label": "Features",
+          "value": "HDR (photo/panorama), Video (4K@24/25/30/60fps, 1080p@25/30/60/120/240fps, HDR, Dolby Vision HDR (up to 60fps), Cinematic mode (4K@30fps), stereo sound rec.)"
+        },
+        {
+          "label": "Front",
+          "value": "Dual 12 MP, f/2.2, 23mm (wide), 1/3.6\" + SL 3D, (depth/biometrics sensor), HDR, Video (4K@24/25/30/60fps, 1080p@30/60/120fps, gyro-EIS)"
+        }
+      ],
+      "Connectivity": [
+        {
+          "label": "WLAN",
+          "value": "Wi-Fi 802.11 a/b/g/n/ac/6, dual-band, hotspot"
+        },
+        {
+          "label": "Bluetooth",
+          "value": "v5.3 with A2DP, LE"
+        },
+        {
+          "label": "GPS",
+          "value": "Yes + A-GPS support, & GLONASS, GALILEO, QZSS"
+        },
+        {
+          "label": "USB",
+          "value": "Lightning, USB 2.0"
+        },
+        {
+          "label": "NFC",
+          "value": "Yes"
+        },
+        {
+          "label": "Data",
+          "value": "GPRS, Edge, 3G (HSPA 42.2/5.76 Mbps), 4G LTE-A, 5G capable, EV-DO Rev.A 3.1 Mbps"
+        }
+      ],
+      "Features": [
+        {
+          "label": "Sensors",
+          "value": "Accelerometer, Barometer, Compass, Face ID, Gyro, Proximity, Ultra Wideband (UWB) support"
+        },
+        {
+          "label": "Audio",
+          "value": "Lightning to 3.5 mm headphone jack adapter, Speaker Phone"
+        },
+        {
+          "label": "Browser",
+          "value": "Yes"
+        },
+        {
+          "label": "Messaging",
+          "value": "iMessage, SMS (threaded view), MMS, Email, Push Email"
+        },
+        {
+          "label": "Games",
+          "value": "Built-in + Downloadable"
+        },
+        {
+          "label": "Torch",
+          "value": "Yes"
+        },
+        {
+          "label": "Extra",
+          "value": "Emergency SOS via satellite (SMS sending/receiving), Glass front + Gorilla Glass), Glass back + Gorilla Glass), IP68 dust/water resistant (up to 6m for 30 mins), Apple Pay (Visa, MasterCard, AMEX certified), Document editor"
+        }
+      ],
+      "Battery": [
+        {
+          "label": "Capacity",
+          "value": "(Li-ion Non removable), 3279 mAh, (12.68 Wh)"
+        }
+      ]
+    }
   },
   {
     "retailers": [
@@ -2232,7 +4212,179 @@
       "https://images.priceoye.pk/media/apple-iphone-13/apple-iphone-13-393y0.jpg",
       "https://images.priceoye.pk/media/apple-iphone-13/apple-iphone-13-qnf0m.png",
       "https://images.priceoye.pk/media/apple-iphone-13/apple-iphone-13-57zaj.jpg"
-    ]
+    ],
+    "detailed_specs": {
+      "Build": [
+        {
+          "label": "OS",
+          "value": "IOS 15 upgradable to iOS 15.3"
+        },
+        {
+          "label": "Dimensions",
+          "value": "146.7 x 71.5 x 7.7 mm"
+        },
+        {
+          "label": "Weight",
+          "value": "174 g"
+        },
+        {
+          "label": "SIM",
+          "value": "Dual Sim, Dual Standby or eSIM (Nano-SIM)"
+        },
+        {
+          "label": "Colors",
+          "value": "Starlight, Midnight, Blue, Pink, Red"
+        }
+      ],
+      "Frequency": [
+        {
+          "label": "2G Band",
+          "value": "SIM1: GSM 850 / 900 / 1800 / 1900SIM2: GSM 850 / 900 / 1800 / 1900"
+        },
+        {
+          "label": "3G Band",
+          "value": "HSDPA 850 / 900 / 1700(AWS) / 1900 / 2100"
+        },
+        {
+          "label": "4G Band",
+          "value": "LTE"
+        },
+        {
+          "label": "5G Band",
+          "value": "Sub6/mmWave"
+        }
+      ],
+      "Processor": [
+        {
+          "label": "CPU",
+          "value": "Hexa-core (2 x 3.22 GHz Avalanche + 4 x X.X GHz Blizzard)"
+        },
+        {
+          "label": "Chipset",
+          "value": "Apple A15 Bionic (5 nm)"
+        },
+        {
+          "label": "GPU",
+          "value": "Apple GPU (4-core graphics)"
+        }
+      ],
+      "Display": [
+        {
+          "label": "Technology",
+          "value": "Super Retina XDR OLED Capacitive Touchscreen, Multitouch"
+        },
+        {
+          "label": "Size",
+          "value": "6.1 Inches"
+        },
+        {
+          "label": "Resolution",
+          "value": "1170 x 2532 Pixels (~457 PPI)"
+        },
+        {
+          "label": "Protection",
+          "value": "Scratch-resistant ceramic glass, oleophobic coating"
+        },
+        {
+          "label": "Extra Features",
+          "value": "HDR10, Dolby Vision, 800 nits (HBM), 1200 nits (peak), Wide color gamut, True-tone"
+        }
+      ],
+      "Memory": [
+        {
+          "label": "Built-in",
+          "value": "128/256/512GB Built-in, 4GB RAM, NVMe"
+        },
+        {
+          "label": "Card",
+          "value": "No"
+        }
+      ],
+      "Camera": [
+        {
+          "label": "Main",
+          "value": "Dual 12 MP, f/1.6, 26mm (wide), 1.7µm, dual pixel PDAF, sensor-shift OIS + 12 MP, f/2.4, 13mm (ultrawide), dual-LED dual-tone flash"
+        },
+        {
+          "label": "Features",
+          "value": "HDR (photo/panorama), Video (4K@24/30/60fps, 1080p@30/60/120/240fps, HDR, Dolby Vision HDR (up to 60fps), stereo sound rec.)"
+        },
+        {
+          "label": "Front",
+          "value": "Dual 12 MP, f/2.2, 23mm (wide), 1/3.6\" SL 3D, (depth/biometrics sensor), HDR, Video (4K@24/25/30/60fps, 1080p@30/60/120fps, gyro-EIS)"
+        }
+      ],
+      "Connectivity": [
+        {
+          "label": "WLAN",
+          "value": "Wi-Fi 802.11 a/b/g/n/ac/6, dual-band, hotspot"
+        },
+        {
+          "label": "Bluetooth",
+          "value": "v5.0 with A2DP, LE"
+        },
+        {
+          "label": "GPS",
+          "value": "Yes + A-GPS support, & GLONASS, GALILEO, QZSS"
+        },
+        {
+          "label": "USB",
+          "value": "Lightning, USB 2.0"
+        },
+        {
+          "label": "NFC",
+          "value": "Yes"
+        },
+        {
+          "label": "Data",
+          "value": "GPRS, Edge, 3G (HSPA 42.2/5.76 Mbps), 4G LTE-A, 5G, (EV-DO Rev.A 3.1 Mbps)"
+        }
+      ],
+      "Features": [
+        {
+          "label": "Sensors",
+          "value": "Accelerometer, Barometer, Compass, Face ID, Gyro, Proximity"
+        },
+        {
+          "label": "Audio",
+          "value": "Lightning to 3.5 mm headphone jack adapter, Speaker Phone"
+        },
+        {
+          "label": "Browser",
+          "value": "Yes"
+        },
+        {
+          "label": "Messaging",
+          "value": "iMessage, SMS (threaded view), MMS, Email, Push Email"
+        },
+        {
+          "label": "Games",
+          "value": "Built-in + Downloadable"
+        },
+        {
+          "label": "Torch",
+          "value": "Yes"
+        },
+        {
+          "label": "Extra",
+          "value": "Glass front + Gorilla Glass), Glass back + Gorilla Glass), aluminum frame, IP68 dust/water resistant (up to 6m for 30 mins), Apple Pay (Visa, MasterCard, AMEX certified), Siri natural language commands and dictation, Ultra Wideband (UWB) support"
+        }
+      ],
+      "Battery": [
+        {
+          "label": "Capacity",
+          "value": "(Li-ion Non removable), 3240 mAh"
+        },
+        {
+          "label": "Standby",
+          "value": "up to 19 hrs"
+        },
+        {
+          "label": "Musicplay",
+          "value": "up to 75 hrs"
+        }
+      ]
+    }
   },
   {
     "retailers": [
@@ -2575,7 +4727,183 @@
         ]
       }
     ],
-    "banners": []
+    "banners": [],
+    "detailed_specs": {
+      "Build": [
+        {
+          "label": "OS",
+          "value": "Android 14 OS"
+        },
+        {
+          "label": "UI",
+          "value": "HyperOS"
+        },
+        {
+          "label": "Dimensions",
+          "value": "161.4 x 75.3 x 9.2 mm"
+        },
+        {
+          "label": "Weight",
+          "value": "224 g"
+        },
+        {
+          "label": "SIM",
+          "value": "Dual Sim, Dual Standby (Nano-SIM)"
+        },
+        {
+          "label": "Colors",
+          "value": "Black; other colors"
+        }
+      ],
+      "Frequency": [
+        {
+          "label": "2G Band",
+          "value": "SIM1: GSM 850 / 900 / 1800 / 1900SIM2: GSM 850 / 900 / 1800 / 1900"
+        },
+        {
+          "label": "3G Band",
+          "value": "HSDPA 800 / 850 / 900 / 1700(AWS) / 1900 / 2100"
+        },
+        {
+          "label": "4G Band",
+          "value": "LTE band 1(2100), 3(1800), 7(2600), 8(900), 20(800)"
+        },
+        {
+          "label": "5G Band",
+          "value": "5G SA/NSA"
+        }
+      ],
+      "Processor": [
+        {
+          "label": "CPU",
+          "value": "Octa-core (1 x 3.3 GHz Cortex-X4 + 3 x 3.2 GHz Cortex-A720 + 2 x 3.0 GHz Cortex-A720 + 2 x 2.3 GHz Cortex-A520)"
+        },
+        {
+          "label": "Chipset",
+          "value": "Qualcomm SM8650-AB Snapdragon 8 Gen 3 (4 nm)"
+        },
+        {
+          "label": "GPU",
+          "value": "Adreno 750"
+        }
+      ],
+      "Display": [
+        {
+          "label": "Technology",
+          "value": "LTPO AMOLED Capacitive Touchscreen, 68B Colors, Multitouch"
+        },
+        {
+          "label": "Size",
+          "value": "6.73 Inches"
+        },
+        {
+          "label": "Resolution",
+          "value": "1440 x 3200 Pixels (~521 PPI)"
+        },
+        {
+          "label": "Protection",
+          "value": "Xiaomi Longjing Glass"
+        },
+        {
+          "label": "Extra Features",
+          "value": "120Hz, Dolby Vision, HDR10+, 3000 nits (peak)"
+        }
+      ],
+      "Memory": [
+        {
+          "label": "Built-in",
+          "value": "256/512GB, 1TB Built-in, 12/16GB RAM, UFS 4.0"
+        },
+        {
+          "label": "Card",
+          "value": "No"
+        }
+      ],
+      "Camera": [
+        {
+          "label": "Main",
+          "value": "Quad Camera: 50 MP, f/1.6 or f/4.0, 23mm (wide), 1.0\"-type, multi-directional PDAF, Laser AF, OIS+ 50 MP, f/2.5, 120mm (periscope telephoto), 1/2.51\", Dual-Pixel PDAF (30cm - ∞), OIS, 5x optical zoom + 50 MP, f/1.8, 75mm (telephoto), 1/2.51\", Dual-Pixel PDAF (10cm - ∞), OIS, 3.2x optical zoom + 50 MP, f/1.8, 12mm, (ultrawide), 1/2.51\", Dual-Pixel PDAF + TOF 3D, (depth), Dual LED Flash"
+        },
+        {
+          "label": "Features",
+          "value": "Leica lenses, HDR, panorama, 67mm filter ring holder (optional, Video (8K@24/30fps, 4K@24/30/60/120fps, 1080p@30/60/120/240/480/960/1920fps, gyro-EIS, Dolby Vision HDR 10-bit rec. (4K@60fps, 1080p))"
+        },
+        {
+          "label": "Front",
+          "value": "32 MP, f/2.0, 22mm (wide), HDR, panorama, Video (1080p@30fps)"
+        }
+      ],
+      "Connectivity": [
+        {
+          "label": "WLAN",
+          "value": "Wi-Fi 802.11 a/b/g/n/ac/6e/7, tri-band, Wi-Fi Direct"
+        },
+        {
+          "label": "Bluetooth",
+          "value": "5.4, A2DP, LE, aptX HD, aptX HD, aptX Adaptive, LHDC"
+        },
+        {
+          "label": "GPS",
+          "value": "Yes + GPS (L1+L5), GLONASS (L1), BDS (B1I+B1c+B2a), GALILEO (E1+E5a), QZSS (L1+L5), NavIC (L5)"
+        },
+        {
+          "label": "Radio",
+          "value": "No"
+        },
+        {
+          "label": "USB",
+          "value": "USB Type-C 3.2, DisplayPort, OTG"
+        },
+        {
+          "label": "NFC",
+          "value": "Yes"
+        },
+        {
+          "label": "Infrared",
+          "value": "Yes"
+        },
+        {
+          "label": "Data",
+          "value": "GPRS, Edge, 3G (HSPA 42.2/5.76 Mbp), LTE-A, 5G capable"
+        }
+      ],
+      "Features": [
+        {
+          "label": "Sensors",
+          "value": "Accelerometer, Barometer, color spectrum, Compass, Fingerprint (under display, optical), Gyro, Proximity"
+        },
+        {
+          "label": "Audio",
+          "value": "24-bit/192kHz Hi-Res + Hi-Res Wireless audio, Speaker Phone"
+        },
+        {
+          "label": "Browser",
+          "value": "HTML5"
+        },
+        {
+          "label": "Messaging",
+          "value": "SMS(threaded view), MMS, Email, Push Mail, IM"
+        },
+        {
+          "label": "Games",
+          "value": "Built-in + Downloadable"
+        },
+        {
+          "label": "Torch",
+          "value": "Yes"
+        },
+        {
+          "label": "Extra",
+          "value": "Glass front + Longjing Glass), glass or eco leather back, titanium (grade 5) or Aluminum alloy frame, IP68 dust/water resistant (up to 1.5m for 30 min), Photo/video editor, Document viewer"
+        }
+      ],
+      "Battery": [
+        {
+          "label": "Capacity",
+          "value": "(Li-Po Non removable), 5300 mAh"
+        }
+      ]
+    }
   },
   {
     "retailers": [
@@ -3222,7 +5550,175 @@
       "https://images.priceoye.pk/media/xiaomi-redmi-note-13-pro/xiaomi-redmi-note-13-pro-j9ilf.png",
       "https://images.priceoye.pk/media/xiaomi-redmi-note-13-pro/xiaomi-redmi-note-13-pro-z868m.jpg",
       "https://images.priceoye.pk/media/xiaomi-redmi-note-13-pro/xiaomi-redmi-note-13-pro-ad7cc.png"
-    ]
+    ],
+    "detailed_specs": {
+      "Build": [
+        {
+          "label": "OS",
+          "value": "Android 13 OS"
+        },
+        {
+          "label": "UI",
+          "value": "MIUI 14"
+        },
+        {
+          "label": "Dimensions",
+          "value": "161.1 x 75 x 8 mm"
+        },
+        {
+          "label": "Weight",
+          "value": "188 g"
+        },
+        {
+          "label": "SIM",
+          "value": "Dual Sim, Dual Standby (Nano-SIM)"
+        },
+        {
+          "label": "Colors",
+          "value": "Midnight Black, Lavender Purple, Forest Green"
+        }
+      ],
+      "Frequency": [
+        {
+          "label": "2G Band",
+          "value": "SIM1: GSM 850 / 900 / 1800 / 1900SIM2: GSM 850 / 900 / 1800 / 1900"
+        },
+        {
+          "label": "3G Band",
+          "value": "HSDPA 850 / 900 / 1700(AWS) / 1900 / 2100"
+        },
+        {
+          "label": "4G Band",
+          "value": "LTE band 1(2100), 3(1800), 5(850), 7(2600), 8(900), 40(2300), 41(2500)"
+        }
+      ],
+      "Processor": [
+        {
+          "label": "CPU",
+          "value": "Octa-core (2 x 2.2 GHz Cortex-A76 + 6 x 2.0 GHz Cortex-A55)"
+        },
+        {
+          "label": "Chipset",
+          "value": "Mediatek Helio G99 Ultra"
+        },
+        {
+          "label": "GPU",
+          "value": "Mali-G57 MC2"
+        }
+      ],
+      "Display": [
+        {
+          "label": "Technology",
+          "value": "AMOLED Capacitive Touchscreen, 1B, Multitouch"
+        },
+        {
+          "label": "Size",
+          "value": "6.67 Inches"
+        },
+        {
+          "label": "Resolution",
+          "value": "1220 x 2400 Pixels (~404 PPI)"
+        },
+        {
+          "label": "Protection",
+          "value": "Corning Gorilla Glass 5"
+        },
+        {
+          "label": "Extra Features",
+          "value": "120Hz, 500 nits (typ), 1000 nits (HBM), 1300 nits (peak)"
+        }
+      ],
+      "Memory": [
+        {
+          "label": "Built-in",
+          "value": "256GB Built-in, 8GB RAM, UFS 2.2"
+        },
+        {
+          "label": "Card",
+          "value": "microSDXC"
+        }
+      ],
+      "Camera": [
+        {
+          "label": "Main",
+          "value": "Triple Camera: 200 MP, f/1.7, 23mm (wide), 1/1.4\", multi-directional PDAF, OIS + 8 MP, f/2.2, (ultrawide) + 2 MP, f/2.4, (macro), LED Flash"
+        },
+        {
+          "label": "Features",
+          "value": "Geo-tagging, Phase detection, touch focus, HDR, Panorama, Video (1080p@30/60fps)"
+        },
+        {
+          "label": "Front",
+          "value": "16 MP, f/2.4, (wide), Video (1080p@30/60fps)"
+        }
+      ],
+      "Connectivity": [
+        {
+          "label": "WLAN",
+          "value": "Wi-Fi 802.11 a/b/g/n/ac, dual-band"
+        },
+        {
+          "label": "Bluetooth",
+          "value": "v5.2 with A2DP, LE"
+        },
+        {
+          "label": "GPS",
+          "value": "Yes + A-GPS support & Glonass, BDS"
+        },
+        {
+          "label": "USB",
+          "value": "USB Type-C 2.0, OTG"
+        },
+        {
+          "label": "NFC",
+          "value": "Yes"
+        },
+        {
+          "label": "Infrared",
+          "value": "Yes"
+        },
+        {
+          "label": "Data",
+          "value": "GPRS, Edge, 3G (HSPA 42.2/5.76 Mbps), 4G LTE"
+        }
+      ],
+      "Features": [
+        {
+          "label": "Sensors",
+          "value": "Accelerometer, Compass, Fingerprint (under display, optical), Gyro, Proximity, Virtual proximity sensing"
+        },
+        {
+          "label": "Audio",
+          "value": "3.5mm Audio Jack, 24-bit/192kHz audio, Speaker Phone"
+        },
+        {
+          "label": "Browser",
+          "value": "HTML5"
+        },
+        {
+          "label": "Messaging",
+          "value": "SMS(threaded view), MMS, Email, Push Mail, IM"
+        },
+        {
+          "label": "Games",
+          "value": "Built-in + Downloadable"
+        },
+        {
+          "label": "Torch",
+          "value": "Yes"
+        },
+        {
+          "label": "Extra",
+          "value": "IP54, dust and splash resistant, Photo/video editor, Document viewer"
+        }
+      ],
+      "Battery": [
+        {
+          "label": "Capacity",
+          "value": "(Li-Po Non removable), 5000 mAh"
+        }
+      ]
+    }
   },
   {
     "retailers": [
@@ -3391,7 +5887,179 @@
       "https://images.priceoye.pk/media/xiaomi-redmi-note-13/xiaomi-redmi-note-13-e9i9v.jpg",
       "https://images.priceoye.pk/media/xiaomi-redmi-note-13/xiaomi-redmi-note-13-1sep6.jpg",
       "https://images.priceoye.pk/media/xiaomi-redmi-note-13/xiaomi-redmi-note-13-lvqja.jpg"
-    ]
+    ],
+    "detailed_specs": {
+      "Build": [
+        {
+          "label": "OS",
+          "value": "Android 13 OS"
+        },
+        {
+          "label": "UI",
+          "value": "MIUI 14"
+        },
+        {
+          "label": "Dimensions",
+          "value": "162.3 x 75.6 x 8 mm"
+        },
+        {
+          "label": "Weight",
+          "value": "188 g"
+        },
+        {
+          "label": "SIM",
+          "value": "Hybrid Dual SIM, Dual Standby, (Nano-SIM)"
+        },
+        {
+          "label": "Colors",
+          "value": "Midnight Black, Mint Green, Ice Blue, Ocean Sunset"
+        }
+      ],
+      "Frequency": [
+        {
+          "label": "2G Band",
+          "value": "SIM1: GSM 850 / 900 / 1800 / 1900SIM2: GSM 850 / 900 / 1800 / 1900"
+        },
+        {
+          "label": "3G Band",
+          "value": "HSDPA 850 / 900 / 2100"
+        },
+        {
+          "label": "4G Band",
+          "value": "LTE band 1(2100), 3(1800), 5(850), 7(2600), 8(900), 40(2300), 41(2500)"
+        }
+      ],
+      "Processor": [
+        {
+          "label": "CPU",
+          "value": "Octa-core (4 x 2.8 GHz Cortex-A73 + 4 x 1.9 GHz Cortex-A53)"
+        },
+        {
+          "label": "Chipset",
+          "value": "Qualcomm SM6225 Snapdragon 685 (6 nm)"
+        },
+        {
+          "label": "GPU",
+          "value": "Adreno 610"
+        }
+      ],
+      "Display": [
+        {
+          "label": "Technology",
+          "value": "AMOLED Capacitive Touchscreen, Multitouch"
+        },
+        {
+          "label": "Size",
+          "value": "6.67 Inches"
+        },
+        {
+          "label": "Resolution",
+          "value": "1080 x 2400 Pixels (~395 PPI)"
+        },
+        {
+          "label": "Protection",
+          "value": "Corning Gorilla Glass 3"
+        },
+        {
+          "label": "Extra Features",
+          "value": "120Hz, 1800 nits (peak)"
+        }
+      ],
+      "Memory": [
+        {
+          "label": "Built-in",
+          "value": "128GB Built-in, 8GB RAM, UFS 2.2"
+        },
+        {
+          "label": "Card",
+          "value": "microSDXC (uses shared SIM slot)"
+        }
+      ],
+      "Camera": [
+        {
+          "label": "Main",
+          "value": "Triple Camera: 108 MP, f/1.8, 24mm (wide), 1/1.67\", PDAF, OIS + 8 MP, f/2.2, (ultrawide) + 2 MP, f/2.4, (macro), LED Flash"
+        },
+        {
+          "label": "Features",
+          "value": "Geo-tagging, Phase detection, touch focus, HDR, Panorama, Video (1080p@30fps)"
+        },
+        {
+          "label": "Front",
+          "value": "16 MP, f/2.4, (wide), Video (1080p@30fps)"
+        }
+      ],
+      "Connectivity": [
+        {
+          "label": "WLAN",
+          "value": "Wi-Fi 802.11 a/b/g/n/ac, dual-band"
+        },
+        {
+          "label": "Bluetooth",
+          "value": "v5.1 with A2DP, LE"
+        },
+        {
+          "label": "GPS",
+          "value": "Yes + A-GPS support, & GLONASS, BDS, GALILEO"
+        },
+        {
+          "label": "Radio",
+          "value": "FM Radio (Unspecified)"
+        },
+        {
+          "label": "USB",
+          "value": "USB Type-C 2.0, OTG"
+        },
+        {
+          "label": "NFC",
+          "value": "Yes"
+        },
+        {
+          "label": "Infrared",
+          "value": "Yes"
+        },
+        {
+          "label": "Data",
+          "value": "GPRS, Edge, 3G (HSPA 42.2/5.76 Mbps), 4G LTE"
+        }
+      ],
+      "Features": [
+        {
+          "label": "Sensors",
+          "value": "Accelerometer, Compass, Fingerprint (under display, optical), Gyro"
+        },
+        {
+          "label": "Audio",
+          "value": "3.5mm Audio Jack, 24-bit/192kHz audio, Speaker Phone"
+        },
+        {
+          "label": "Browser",
+          "value": "HTML5"
+        },
+        {
+          "label": "Messaging",
+          "value": "SMS(threaded view), MMS, Email, Push Mail, IM"
+        },
+        {
+          "label": "Games",
+          "value": "Built-in + Downloadable"
+        },
+        {
+          "label": "Torch",
+          "value": "Yes"
+        },
+        {
+          "label": "Extra",
+          "value": "IP54, dust and splash resistant, Photo/video editor, Document viewer"
+        }
+      ],
+      "Battery": [
+        {
+          "label": "Capacity",
+          "value": "(Li-Po Non removable), 5000 mAh"
+        }
+      ]
+    }
   },
   {
     "retailers": [
@@ -3750,7 +6418,175 @@
       "https://images.priceoye.pk/media/xiaomi-redmi-a3/xiaomi-redmi-a3-k3p3c.jpg",
       "https://images.priceoye.pk/media/xiaomi-redmi-a3/xiaomi-redmi-a3-pvkab.jpg",
       "https://images.priceoye.pk/media/xiaomi-redmi-a3/xiaomi-redmi-a3-g2nkl.jpg"
-    ]
+    ],
+    "detailed_specs": {
+      "Build": [
+        {
+          "label": "OS",
+          "value": "Android 14 (Go edition)"
+        },
+        {
+          "label": "UI",
+          "value": "MIUI"
+        },
+        {
+          "label": "Dimensions",
+          "value": "168.3 x 76.3 x 8.3 mm"
+        },
+        {
+          "label": "Weight",
+          "value": "193 g"
+        },
+        {
+          "label": "SIM",
+          "value": "Dual Sim, Dual Standby (Nano-SIM)"
+        },
+        {
+          "label": "Colors",
+          "value": "Midnight Black, Olive Green, Lake Blue"
+        }
+      ],
+      "Frequency": [
+        {
+          "label": "2G Band",
+          "value": "SIM1: GSM 850 / 900 / 1800 / 1900SIM2: GSM 850 / 900 / 1800 / 1900"
+        },
+        {
+          "label": "3G Band",
+          "value": "HSDPA 850 / 900 / 1900 / 2100"
+        },
+        {
+          "label": "4G Band",
+          "value": "LTE band 1(2100), 3(1800), 5(850), 7(2600), 8(900), 38(2600), 39(1900), 40(2300), 41(2500)"
+        }
+      ],
+      "Processor": [
+        {
+          "label": "CPU",
+          "value": "Octa-core (4 x 2.2 GHz Cortex-A53 + 4 x 1.6 GHz Cortex-A53)"
+        },
+        {
+          "label": "Chipset",
+          "value": "Mediatek Helio G36 (12 nm)"
+        },
+        {
+          "label": "GPU",
+          "value": "PowerVR GE8320"
+        }
+      ],
+      "Display": [
+        {
+          "label": "Technology",
+          "value": "IPS LCD Capacitive Touchscreen, 16M Colors, Multitouch"
+        },
+        {
+          "label": "Size",
+          "value": "6.71 Inches"
+        },
+        {
+          "label": "Resolution",
+          "value": "720 x 1650 Pixels (~268 PPI)"
+        },
+        {
+          "label": "Protection",
+          "value": "Corning Gorilla Glass 3"
+        },
+        {
+          "label": "Extra Features",
+          "value": "90Hz"
+        }
+      ],
+      "Memory": [
+        {
+          "label": "Built-in",
+          "value": "128GB Built-in, 4GB RAM"
+        },
+        {
+          "label": "Card",
+          "value": "microSDXC (dedicated slot)"
+        }
+      ],
+      "Camera": [
+        {
+          "label": "Main",
+          "value": "Dual Camera: 8 MP, (wide) + 0.08 MP (auxiliary lens), Dual LED Flash"
+        },
+        {
+          "label": "Features",
+          "value": "HDR, Video (1080p@30fps)"
+        },
+        {
+          "label": "Front",
+          "value": "5 MP, Video (1080p@30fps)"
+        }
+      ],
+      "Connectivity": [
+        {
+          "label": "WLAN",
+          "value": "Wi-Fi 802.11 a/b/g/n/ac"
+        },
+        {
+          "label": "Bluetooth",
+          "value": "v5.3 with A2DP, LE"
+        },
+        {
+          "label": "GPS",
+          "value": "Yes + GPS, GLONASS, GALILEO, BDS"
+        },
+        {
+          "label": "Radio",
+          "value": "FM Radio"
+        },
+        {
+          "label": "USB",
+          "value": "USB Type-C 2.0"
+        },
+        {
+          "label": "NFC",
+          "value": "No"
+        },
+        {
+          "label": "Data",
+          "value": "GPRS, EDGE, 3G (HSPA 42.2/5.76 Mbps), 4G LTE-A"
+        }
+      ],
+      "Features": [
+        {
+          "label": "Sensors",
+          "value": "Accelerometer, Fingerprint (side mounted)"
+        },
+        {
+          "label": "Audio",
+          "value": "3.5mm Audio Jack, 24-bit/192kHz audio, Speaker Phone"
+        },
+        {
+          "label": "Browser",
+          "value": "HTML5"
+        },
+        {
+          "label": "Messaging",
+          "value": "SMS(threaded view), MMS, Email, Push Mail, IM"
+        },
+        {
+          "label": "Games",
+          "value": "built-in + downloadable"
+        },
+        {
+          "label": "Torch",
+          "value": "Yes"
+        },
+        {
+          "label": "Extra",
+          "value": "Glass front + Gorilla Glass 3), Glass back or silicone polymer back (eco leather), plastic frame, Photo/video editor, Document viewer"
+        }
+      ],
+      "Battery": [
+        {
+          "label": "Capacity",
+          "value": "(Li-Po Non removable), 5000 mAh"
+        }
+      ]
+    }
   },
   {
     "retailers": [
@@ -3803,7 +6639,7 @@
       "capacity_mah": 5000
     },
     "trending_rank": 4,
-    "image": "images/phones/infinix-gt-20-pro_studio.webp",
+    "image": "phones/infinix-gt-20-pro-official.jpg",
     "expert_verdict": {
       "verdict": "Official PMSL PUBG tournament smartphone in Pakistan. 120fps PUBG with Pixelworks gaming chip and Mecha LED lights.",
       "pros": [
@@ -3859,7 +6695,7 @@
       "cnic": 39000
     },
     "images": [
-      "images/phones/infinix-gt-20-pro_studio.webp",
+      "phones/infinix-gt-20-pro-official.jpg",
       "images/phones/infinix-gt-20-pro_view_1.webp",
       "images/phones/infinix-gt-20-pro_view_2.webp",
       "images/phones/infinix-gt-20-pro_view_3.webp",
@@ -3896,7 +6732,179 @@
       "https://images.priceoye.pk/media/infinix-gt-20-pro/infinix-gt-20-pro-uoc65.jpg",
       "https://images.priceoye.pk/media/infinix-gt-20-pro/infinix-gt-20-pro-lrqmg.png",
       "https://images.priceoye.pk/media/infinix-gt-20-pro/infinix-gt-20-pro-chpi3.png"
-    ]
+    ],
+    "detailed_specs": {
+      "Build": [
+        {
+          "label": "OS",
+          "value": "Android 14 OS"
+        },
+        {
+          "label": "UI",
+          "value": "XOS 14"
+        },
+        {
+          "label": "Dimensions",
+          "value": "164 x 75 x 8.2 mm"
+        },
+        {
+          "label": "Weight",
+          "value": "194 g"
+        },
+        {
+          "label": "SIM",
+          "value": "Dual Sim, Dual Standby (Nano-SIM)"
+        },
+        {
+          "label": "Colors",
+          "value": "Mecha Blue, Mecha Orange, Mecha Silver"
+        }
+      ],
+      "Frequency": [
+        {
+          "label": "2G Band",
+          "value": "SIM1: GSM 850 / 900 / 1800 / 1900SIM2: GSM 850 / 900 / 1800 / 1900"
+        },
+        {
+          "label": "3G Band",
+          "value": "HSDPA 850 / 900 / 1700(AWS) / 1900 / 2100"
+        },
+        {
+          "label": "4G Band",
+          "value": "LTE band 1(2100), 3(1800), 5(850), 8(900), 38(2600), 40(2300), 41(2500)"
+        },
+        {
+          "label": "5G Band",
+          "value": "SA/NSA"
+        }
+      ],
+      "Processor": [
+        {
+          "label": "CPU",
+          "value": "Octa-core (1 x 3.1 GHz Cortex-A78 + 3 x 3.0 GHz Cortex-A78 + 4 x 2.0 GHz Cortex-A55)"
+        },
+        {
+          "label": "Chipset",
+          "value": "Mediatek Dimensity 8200 Ultimate (4 nm)"
+        },
+        {
+          "label": "GPU",
+          "value": "Mali-G610 MC6"
+        }
+      ],
+      "Display": [
+        {
+          "label": "Technology",
+          "value": "AMOLED Capacitive Touchscreen, 1B, Multitouch"
+        },
+        {
+          "label": "Size",
+          "value": "6.8 Inches"
+        },
+        {
+          "label": "Resolution",
+          "value": "1080 x 2436 Pixels (~393 PPI)"
+        },
+        {
+          "label": "Extra Features",
+          "value": "144Hz"
+        }
+      ],
+      "Memory": [
+        {
+          "label": "Built-in",
+          "value": "256GB Built-in, 12GB RAM (+12GB Extended RAM), UFS 3.1"
+        },
+        {
+          "label": "Card",
+          "value": "microSDXC (dedicated slot)"
+        }
+      ],
+      "Camera": [
+        {
+          "label": "Main",
+          "value": "Triple Camera: 108 MP, f/1.8, (wide), 1/1.67\", AF, OIS + 2 MP, (macro) + 2 MP, (depth), Quad LED Flash"
+        },
+        {
+          "label": "Features",
+          "value": "HDR, panorama, Video (4K@30fps, 1080p@30/60fps)"
+        },
+        {
+          "label": "Front",
+          "value": "32 MP, f/2.5, (wide), Dual LED Flash, Video (1440p@30fps, 1080p@30/60fps)"
+        }
+      ],
+      "Connectivity": [
+        {
+          "label": "WLAN",
+          "value": "Wi-Fi 802.11 a/b/g/n/ac/6, dual-band, Wi-Fi Direct"
+        },
+        {
+          "label": "Bluetooth",
+          "value": "v5.3 with A2DP, LE"
+        },
+        {
+          "label": "GPS",
+          "value": "Yes + A-GPS support"
+        },
+        {
+          "label": "Radio",
+          "value": "FM Radio"
+        },
+        {
+          "label": "USB",
+          "value": "USB Type-C 2.0"
+        },
+        {
+          "label": "NFC",
+          "value": "Yes"
+        },
+        {
+          "label": "Infrared",
+          "value": "Yes"
+        },
+        {
+          "label": "Data",
+          "value": "GPRS, Edge, 3G HSPA, 4G LTE, 5G capable"
+        }
+      ],
+      "Features": [
+        {
+          "label": "Sensors",
+          "value": "Accelerometer, Compass, Fingerprint (under display, optical), Gyro, Proximity"
+        },
+        {
+          "label": "Audio",
+          "value": "3.5mm Audio Jack,24-bit/192kHz Hi-Res audio, Tuned by JBL, Speaker Phone"
+        },
+        {
+          "label": "Browser",
+          "value": "HTML5"
+        },
+        {
+          "label": "Messaging",
+          "value": "SMS(threaded view), MMS, Email, Push Mail, IM"
+        },
+        {
+          "label": "Games",
+          "value": "Built-in + Downloadable"
+        },
+        {
+          "label": "Torch",
+          "value": "Yes"
+        },
+        {
+          "label": "Extra",
+          "value": "Splash/Water and dust resistance, Photo/video editor, Document viewer"
+        }
+      ],
+      "Battery": [
+        {
+          "label": "Capacity",
+          "value": "(Non removable), 5000 mAh"
+        }
+      ]
+    }
   },
   {
     "retailers": [
@@ -3949,7 +6957,7 @@
       "capacity_mah": 5000
     },
     "trending_rank": 2,
-    "image": "images/phones/infinix-note-40-pro_studio.webp",
+    "image": "phones/infinix-note-40-pro-official.jpg",
     "expert_verdict": {
       "verdict": "70W wired + 20W wireless MagCharge bundled in the box with curved AMOLED under 65k PKR.",
       "pros": [
@@ -4005,7 +7013,7 @@
       "cnic": 31000
     },
     "images": [
-      "images/phones/infinix-note-40-pro_studio.webp",
+      "phones/infinix-note-40-pro-official.jpg",
       "images/phones/infinix-note-40-pro_view_1.webp",
       "images/phones/infinix-note-40-pro_view_2.webp",
       "images/phones/infinix-note-40-pro_view_3.webp",
@@ -4234,7 +7242,175 @@
       "https://images.priceoye.pk/media/infinix-note-40/infinix-note-40-rqw5u.png",
       "https://images.priceoye.pk/media/infinix-note-40/infinix-note-40-7jfg6.png",
       "https://images.priceoye.pk/media/infinix-note-40/infinix-note-40-g5ep6.png"
-    ]
+    ],
+    "detailed_specs": {
+      "Build": [
+        {
+          "label": "OS",
+          "value": "Android 14 OS"
+        },
+        {
+          "label": "UI",
+          "value": "XOS 14"
+        },
+        {
+          "label": "Dimensions",
+          "value": "164.1 x 74.5 x 7.8 mm"
+        },
+        {
+          "label": "Weight",
+          "value": "190 g"
+        },
+        {
+          "label": "SIM",
+          "value": "Dual Sim, Dual Standby (Nano-SIM)"
+        },
+        {
+          "label": "Colors",
+          "value": "Titan Gold, Obsidian Black"
+        }
+      ],
+      "Frequency": [
+        {
+          "label": "2G Band",
+          "value": "SIM1: GSM 850 / 900 / 1800 / 1900SIM2: GSM 850 / 900 / 1800 / 1900"
+        },
+        {
+          "label": "3G Band",
+          "value": "HSDPA 850 / 900 / 2100"
+        },
+        {
+          "label": "4G Band",
+          "value": "LTE band 1(2100), 3(1800), 5(850), 8(900), 40(2300), 41(2500)"
+        }
+      ],
+      "Processor": [
+        {
+          "label": "CPU",
+          "value": "Octa-core (2 x 2.2 GHz Cortex-A76 + 6 x 2.0 GHz Cortex-A55)"
+        },
+        {
+          "label": "Chipset",
+          "value": "Mediatek Helio G99 Ultimate"
+        },
+        {
+          "label": "GPU",
+          "value": "Arm Mali G57"
+        }
+      ],
+      "Display": [
+        {
+          "label": "Technology",
+          "value": "AMOLED Capacitive Touchscreen, Multitouch"
+        },
+        {
+          "label": "Size",
+          "value": "6.78 Inches"
+        },
+        {
+          "label": "Resolution",
+          "value": "1080 x 2436 Pixels (~393 PPI)"
+        },
+        {
+          "label": "Protection",
+          "value": "Corning Concore Glass"
+        },
+        {
+          "label": "Extra Features",
+          "value": "120Hz, 1300 nits (peak)"
+        }
+      ],
+      "Memory": [
+        {
+          "label": "Built-in",
+          "value": "256GB Built-in, 8GB RAM, UFS 2.2"
+        },
+        {
+          "label": "Card",
+          "value": "Unspecified"
+        }
+      ],
+      "Camera": [
+        {
+          "label": "Main",
+          "value": "Triple Camera: 108 MP, f/1.9, (wide), 1/1.52\", PDAF + 2 MP, f/2.4 + 3rd unspecified camera, Quad LED Flash"
+        },
+        {
+          "label": "Features",
+          "value": "HDR, Panorama, Video (1440p@30fps, 1080p@30/60fps)"
+        },
+        {
+          "label": "Front",
+          "value": "32 MP, f/2.2, (wide), 1/3.1"
+        }
+      ],
+      "Connectivity": [
+        {
+          "label": "WLAN",
+          "value": "Wi-Fi 802.11 a/b/g/n/ac, dual-band"
+        },
+        {
+          "label": "Bluetooth",
+          "value": "v5.1 with A2DP, LE"
+        },
+        {
+          "label": "GPS",
+          "value": "Yes + A-GPS support"
+        },
+        {
+          "label": "Radio",
+          "value": "FM Radio"
+        },
+        {
+          "label": "USB",
+          "value": "USB Type-C 2.0, OTG"
+        },
+        {
+          "label": "NFC",
+          "value": "Yes"
+        },
+        {
+          "label": "Data",
+          "value": "GPRS, Edge, 3G (HSPA 42.2/5.76 Mbps, 4G (LTE Cat4 150/50 Mbps)"
+        }
+      ],
+      "Features": [
+        {
+          "label": "Sensors",
+          "value": "Accelerometer, Compass, Fingerprint (side mounted), Gyro, Proximity"
+        },
+        {
+          "label": "Audio",
+          "value": "Tuned by JBL, 24-bit/192kHz Hi-Res audio, Speaker Phone"
+        },
+        {
+          "label": "Browser",
+          "value": "HTML5"
+        },
+        {
+          "label": "Messaging",
+          "value": "SMS(threaded view), MMS, Email, Push Mail, IM"
+        },
+        {
+          "label": "Games",
+          "value": "Built-in + Downloadable"
+        },
+        {
+          "label": "Torch",
+          "value": "Yes"
+        },
+        {
+          "label": "Extra",
+          "value": "IP53, NFC (market/region dependent), IP54, dust and splash resistant, Photo/video editor, Document viewer"
+        }
+      ],
+      "Battery": [
+        {
+          "label": "Capacity",
+          "value": "(Non removable), 5000 mAh"
+        }
+      ]
+    }
   },
   {
     "retailers": [
@@ -4403,7 +7579,171 @@
       "https://images.priceoye.pk/media/infinix-hot-40-pro/infinix-hot-40-pro-8r0xq.png",
       "https://images.priceoye.pk/media/infinix-hot-40-pro/infinix-hot-40-pro-fftij.png",
       "https://images.priceoye.pk/media/infinix-hot-40-pro/infinix-hot-40-pro-631ti.png"
-    ]
+    ],
+    "detailed_specs": {
+      "Build": [
+        {
+          "label": "OS",
+          "value": "Android 13 OS"
+        },
+        {
+          "label": "UI",
+          "value": "XOS 13.5"
+        },
+        {
+          "label": "Dimensions",
+          "value": "168.6 x 76.6 x 8.3 mm"
+        },
+        {
+          "label": "Weight",
+          "value": "199 g"
+        },
+        {
+          "label": "SIM",
+          "value": "Dual Sim, Dual Standby (Nano-SIM)"
+        },
+        {
+          "label": "Colors",
+          "value": "Palm Blue, Horizon Gold, Starlit Black, Starfall Green"
+        }
+      ],
+      "Frequency": [
+        {
+          "label": "2G Band",
+          "value": "SIM1: GSM 850 / 900 / 1800 / 1900SIM2: GSM 850 / 900 / 1800 / 1900"
+        },
+        {
+          "label": "3G Band",
+          "value": "HSDPA 900 / 2100"
+        },
+        {
+          "label": "4G Band",
+          "value": "LTE band 1(2100), 3(1800), 5(850), 8(900), 38(2600), 40(2300), 41(2500)"
+        }
+      ],
+      "Processor": [
+        {
+          "label": "CPU",
+          "value": "Octa-core (2 x 2.2 GHz Cortex-A76 + 6 x 2.0 GHz Cortex-A55)"
+        },
+        {
+          "label": "Chipset",
+          "value": "Mediatek Helio G99 (6nm)"
+        },
+        {
+          "label": "GPU",
+          "value": "Mali-G57 MC2"
+        }
+      ],
+      "Display": [
+        {
+          "label": "Technology",
+          "value": "IPS LCD Capacitive Touchscreen, 16M Colors, Multitouch"
+        },
+        {
+          "label": "Size",
+          "value": "6.78 Inches"
+        },
+        {
+          "label": "Resolution",
+          "value": "1080 x 2460 Pixels (~396 PPI)"
+        },
+        {
+          "label": "Extra Features",
+          "value": "120Hz, 500 nits (peak)"
+        }
+      ],
+      "Memory": [
+        {
+          "label": "Built-in",
+          "value": "256GB Built-in, 8GB RAM, UFS 2.2"
+        },
+        {
+          "label": "Card",
+          "value": "microSDXC (dedicated slot)"
+        }
+      ],
+      "Camera": [
+        {
+          "label": "Main",
+          "value": "Triple Camera: 108 MP, f/1.8, (wide), AF + 2 MP, f/2.4, (macro) + 0.08 MP, (auxiliary lens), Quad LED Flash"
+        },
+        {
+          "label": "Features",
+          "value": "HDR, Panorama, Video (1440p@30fps, 1080p@30fps)"
+        },
+        {
+          "label": "Front",
+          "value": "32 MP, f/2.2, (wide), Dual LED Flash, Video (1080p@30fps)"
+        }
+      ],
+      "Connectivity": [
+        {
+          "label": "WLAN",
+          "value": "Wi-Fi 802.11 a/b/g/n/ac, dual-band"
+        },
+        {
+          "label": "Bluetooth",
+          "value": "v5.1 with A2DP, LE"
+        },
+        {
+          "label": "GPS",
+          "value": "Yes + A-GPS support"
+        },
+        {
+          "label": "Radio",
+          "value": "FM Radio"
+        },
+        {
+          "label": "USB",
+          "value": "USB Type-C 2.0, OTG"
+        },
+        {
+          "label": "NFC",
+          "value": "No"
+        },
+        {
+          "label": "Data",
+          "value": "GPRS, Edge, 3G (HSPA 42.2/5.76 Mbps, 4G (LTE Cat4 150/50 Mbps)"
+        }
+      ],
+      "Features": [
+        {
+          "label": "Sensors",
+          "value": "Accelerometer, Compass, Fingerprint (side-mounted), Gyro, Proximity"
+        },
+        {
+          "label": "Audio",
+          "value": "3.5mm Audio Jack, 24-bit/192kHz audio, Speaker Phone"
+        },
+        {
+          "label": "Browser",
+          "value": "HTML5"
+        },
+        {
+          "label": "Messaging",
+          "value": "SMS(threaded view), MMS, Email, Push Mail, IM"
+        },
+        {
+          "label": "Games",
+          "value": "Built-in + Downloadable"
+        },
+        {
+          "label": "Torch",
+          "value": "Yes"
+        },
+        {
+          "label": "Extra",
+          "value": "Glass front, plastic frame, plastic back, Photo/video editor, Document viewer"
+        }
+      ],
+      "Battery": [
+        {
+          "label": "Capacity",
+          "value": "(Li-ion Non removable), 5000 mAh"
+        }
+      ]
+    }
   },
   {
     "retailers": [
@@ -4456,7 +7796,7 @@
       "capacity_mah": 5000
     },
     "trending_rank": 8,
-    "image": "images/phones/infinix-smart-8_studio.webp",
+    "image": "phones/infinix-smart-8-official.jpg",
     "expert_verdict": {
       "verdict": "Pakistan's most widely sold smartphone under 20,000 PKR. Features 90Hz punch-hole display.",
       "pros": [
@@ -4512,7 +7852,7 @@
       "cnic": 9000
     },
     "images": [
-      "images/phones/infinix-smart-8_studio.webp",
+      "phones/infinix-smart-8-official.jpg",
       "images/phones/infinix-smart-8_view_1.webp",
       "images/phones/infinix-smart-8_view_2.webp",
       "images/phones/infinix-smart-8_view_3.webp",
@@ -4595,7 +7935,167 @@
       "https://images.priceoye.pk/media/infinix-smart-8/infinix-smart-8-w43lz.png",
       "https://images.priceoye.pk/media/infinix-smart-8/infinix-smart-8-u798z.png",
       "https://images.priceoye.pk/media/infinix-smart-8/infinix-smart-8-4gbxt.png"
-    ]
+    ],
+    "detailed_specs": {
+      "Build": [
+        {
+          "label": "OS",
+          "value": "Android 13 OS"
+        },
+        {
+          "label": "Dimensions",
+          "value": "163.6 x 75.6 x 8.5 mm"
+        },
+        {
+          "label": "Weight",
+          "value": "184 g"
+        },
+        {
+          "label": "SIM",
+          "value": "Dual Sim, Dual Standby (Nano-SIM)"
+        },
+        {
+          "label": "Colors",
+          "value": "Timber Black, Shiny Gold, Crystal Green, Galaxy White"
+        }
+      ],
+      "Frequency": [
+        {
+          "label": "2G Band",
+          "value": "SIM1: GSM 850 / 900 / 1800 / 1900SIM2: GSM 850 / 900 / 1800 / 1900"
+        },
+        {
+          "label": "3G Band",
+          "value": "HSDPA 850 / 900 / 1900 / 2100"
+        },
+        {
+          "label": "4G Band",
+          "value": "LTE"
+        }
+      ],
+      "Processor": [
+        {
+          "label": "CPU",
+          "value": "Octa-core (2 x 1.6 GHz Cortex-A75 + 6 x 1.6 GHz Cortex-A55)"
+        },
+        {
+          "label": "Chipset",
+          "value": "Unisoc T606 (12 nm)"
+        },
+        {
+          "label": "GPU",
+          "value": "Mali-G57 MP1"
+        }
+      ],
+      "Display": [
+        {
+          "label": "Technology",
+          "value": "IPS LCD Capacitive Touchscreen"
+        },
+        {
+          "label": "Size",
+          "value": "6.6 Inches"
+        },
+        {
+          "label": "Resolution",
+          "value": "720 x 1612 Pixels (~267 PPI)"
+        },
+        {
+          "label": "Extra Features",
+          "value": "90Hz, 500 nits (peak)"
+        }
+      ],
+      "Memory": [
+        {
+          "label": "Built-in",
+          "value": "64GB Built-in, 2GB RAM"
+        },
+        {
+          "label": "Card",
+          "value": "microSDXC (dedicated slot)"
+        }
+      ],
+      "Camera": [
+        {
+          "label": "Main",
+          "value": "Dual Camera: 13 MP, f/1.9, 27mm (wide), AF + 0.08 MP, (auxiliary lens), Ring-LED flash"
+        },
+        {
+          "label": "Features",
+          "value": "HDR, panorama, Video (1080p@30fps)"
+        },
+        {
+          "label": "Front",
+          "value": "8 MP, f/2.0, (wide), Video (1080p@30fps)"
+        }
+      ],
+      "Connectivity": [
+        {
+          "label": "WLAN",
+          "value": "Wi-Fi 802.11 a/b/g/n/ac, dual-band"
+        },
+        {
+          "label": "Bluetooth",
+          "value": "v5.0 with A2DP, LE"
+        },
+        {
+          "label": "GPS",
+          "value": "Yes + A-GPS support"
+        },
+        {
+          "label": "Radio",
+          "value": "FM Radio"
+        },
+        {
+          "label": "USB",
+          "value": "USB Type-C 2.0, OTG"
+        },
+        {
+          "label": "NFC",
+          "value": "No"
+        },
+        {
+          "label": "Data",
+          "value": "GPRS, Edge, 3G (HSPA 21.1/5.76 Mbps), 4G (LTE Cat4 150/50 Mbps)"
+        }
+      ],
+      "Features": [
+        {
+          "label": "Sensors",
+          "value": "Accelerometer, Compass, Fingerprint (side mounted), Proximity"
+        },
+        {
+          "label": "Audio",
+          "value": "3.5mm Audio Jack, MP4/WMV/H.264 player, MP3/WAV/WMA/eAAC+/FLAC player, Speaker Phone"
+        },
+        {
+          "label": "Browser",
+          "value": "HTML5"
+        },
+        {
+          "label": "Messaging",
+          "value": "SMS(threaded view), MMS, Email, Push Mail, IM"
+        },
+        {
+          "label": "Games",
+          "value": "Built-in + Downloadable"
+        },
+        {
+          "label": "Torch",
+          "value": "Yes"
+        },
+        {
+          "label": "Extra",
+          "value": "Glass front, plastic back, plastic frame, Photo/video editor, Document viewer"
+        }
+      ],
+      "Battery": [
+        {
+          "label": "Capacity",
+          "value": "(Li-Po Non removable), 5000 mAh"
+        }
+      ]
+    }
   },
   {
     "retailers": [
@@ -5115,7 +8615,7 @@
       "capacity_mah": 5000
     },
     "trending_rank": 10,
-    "image": "images/phones/tecno-camon-30_studio.webp",
+    "image": "phones/tecno-camon-30-official.jpg",
     "expert_verdict": {
       "verdict": "70W fast charging, 50MP OIS camera, and 50MP autofocus selfie shooter around 52,000 PKR.",
       "pros": [
@@ -5171,7 +8671,7 @@
       "cnic": 26000
     },
     "images": [
-      "images/phones/tecno-camon-30_studio.webp",
+      "phones/tecno-camon-30-official.jpg",
       "images/phones/tecno-camon-30_view_1.webp",
       "images/phones/tecno-camon-30_view_2.webp",
       "images/phones/tecno-camon-30_view_3.webp",
@@ -5231,7 +8731,175 @@
       "https://images.priceoye.pk/media/tecno-camon-30/tecno-camon-30-3fv8b.webp",
       "https://images.priceoye.pk/media/tecno-camon-30/tecno-camon-30-ebpk8.webp",
       "https://images.priceoye.pk/media/tecno-camon-30/tecno-camon-30-c1xrr.webp"
-    ]
+    ],
+    "detailed_specs": {
+      "Build": [
+        {
+          "label": "OS",
+          "value": "Android 14 OS"
+        },
+        {
+          "label": "UI",
+          "value": "HIOS 14"
+        },
+        {
+          "label": "Dimensions",
+          "value": "165.3 x 75.3 x 7.7 mm"
+        },
+        {
+          "label": "Weight",
+          "value": "N/A"
+        },
+        {
+          "label": "SIM",
+          "value": "Dual Sim, Dual Standby (Nano-SIM)"
+        },
+        {
+          "label": "Colors",
+          "value": "Iceland Basaltic Dark, Uyuni Salt White, Sahara Sand Brown"
+        }
+      ],
+      "Frequency": [
+        {
+          "label": "2G Band",
+          "value": "SIM1: GSM 850 / 900 / 1800 / 1900SIM2: GSM 850 / 900 / 1800 / 1900"
+        },
+        {
+          "label": "3G Band",
+          "value": "HSDPA 850 / 900 / 1700(AWS) / 1900 / 2100"
+        },
+        {
+          "label": "4G Band",
+          "value": "LTE band 1(2100), 2(1900), 3(1800), 4(1700/2100), 5(850), 7(2600), 8(900), 20(800), 28(700), 38(2600), 40(2300), 41(2500)"
+        }
+      ],
+      "Processor": [
+        {
+          "label": "CPU",
+          "value": "Octa-core (2 x 2.2 GHz Cortex-A76 + 6 x 2.0 GHz Cortex-A55)"
+        },
+        {
+          "label": "Chipset",
+          "value": "Mediatek Helio G99 Ultimate"
+        },
+        {
+          "label": "GPU",
+          "value": "Mali-G57 MC2"
+        }
+      ],
+      "Display": [
+        {
+          "label": "Technology",
+          "value": "AMOLED Capacitive Touchscreen, Multitouch"
+        },
+        {
+          "label": "Size",
+          "value": "6.78 Inches"
+        },
+        {
+          "label": "Resolution",
+          "value": "1080 x 2436 Pixels (~393 PPI)"
+        },
+        {
+          "label": "Extra Features",
+          "value": "Always-on display, 120Hz"
+        }
+      ],
+      "Memory": [
+        {
+          "label": "Built-in",
+          "value": "256GB Built-in, 8GB RAM"
+        },
+        {
+          "label": "Card",
+          "value": "microSDXC (dedicated slot)"
+        }
+      ],
+      "Camera": [
+        {
+          "label": "Main",
+          "value": "Dual camera: 50 MP, f/1.9, (wide), 1/1.57\", PDAF, OIS + 2 MP, (depth), Dual LED Flash"
+        },
+        {
+          "label": "Features",
+          "value": "Geo-tagging, Face detection, Panorama, HDR, Video (1440p@30fps, 1080p@30/60fps)"
+        },
+        {
+          "label": "Front",
+          "value": "50 MP, (wide), AF, Dual-LED dual-tone flash, Video (1440p@30fps, 1080p@30/60fps))"
+        }
+      ],
+      "Connectivity": [
+        {
+          "label": "WLAN",
+          "value": "Wi-Fi 802.11 a/b/g/n/ac, dual-band"
+        },
+        {
+          "label": "Bluetooth",
+          "value": "v5.3 with A2DP, LE"
+        },
+        {
+          "label": "GPS",
+          "value": "Yes + A-GPS support"
+        },
+        {
+          "label": "Radio",
+          "value": "FM Radio"
+        },
+        {
+          "label": "USB",
+          "value": "USB Type-C 2.0, OTG"
+        },
+        {
+          "label": "NFC",
+          "value": "Yes"
+        },
+        {
+          "label": "Infrared",
+          "value": "Yes"
+        },
+        {
+          "label": "Data",
+          "value": "GPRS, Edge, 3G (HSPA 42.2/5.76 Mbps), 4G LTE-A"
+        }
+      ],
+      "Features": [
+        {
+          "label": "Sensors",
+          "value": "Accelerometer, Compass, Fingerprint (under display, optical), Gyro, Proximity"
+        },
+        {
+          "label": "Audio",
+          "value": "Speaker Phone"
+        },
+        {
+          "label": "Browser",
+          "value": "HTML5"
+        },
+        {
+          "label": "Messaging",
+          "value": "SMS(threaded view), MMS, Email, Push Mail, IM"
+        },
+        {
+          "label": "Games",
+          "value": "Built-in + Downloadable"
+        },
+        {
+          "label": "Torch",
+          "value": "Yes"
+        },
+        {
+          "label": "Extra",
+          "value": "Glass front, glass back or silicone polymer back (eco leather), Document viewer"
+        }
+      ],
+      "Battery": [
+        {
+          "label": "Capacity",
+          "value": "(Non removable), 5000 mAh"
+        }
+      ]
+    }
   },
   {
     "retailers": [
@@ -5399,7 +9067,171 @@
       "https://images.priceoye.pk/media/tecno-spark-20-pro-plus/tecno-spark-20-pro-plus-lmauc.jpg",
       "https://images.priceoye.pk/media/tecno-spark-20-pro-plus/tecno-spark-20-pro-plus-p5042.jpg",
       "https://images.priceoye.pk/media/tecno-spark-20-pro-plus/tecno-spark-20-pro-plus-fdt1w.jpg"
-    ]
+    ],
+    "detailed_specs": {
+      "Build": [
+        {
+          "label": "OS",
+          "value": "Android 14 OS"
+        },
+        {
+          "label": "Dimensions",
+          "value": "164.7 x 75 x 7.6 mm"
+        },
+        {
+          "label": "Weight",
+          "value": "175 g"
+        },
+        {
+          "label": "SIM",
+          "value": "Dual Sim, Dual Standby (Nano-SIM)"
+        },
+        {
+          "label": "Colors",
+          "value": "Temporal Orbits, Lunar Frost, Radiant Starstream, Magic Skin 2.0 Green"
+        }
+      ],
+      "Frequency": [
+        {
+          "label": "2G Band",
+          "value": "SIM1: GSM 850 / 900 / 1800 / 1900SIM2: GSM 850 / 900 / 1800 / 1900"
+        },
+        {
+          "label": "3G Band",
+          "value": "HSDPA 850 / 900 / 1900 / 2100"
+        },
+        {
+          "label": "4G Band",
+          "value": "LTE"
+        }
+      ],
+      "Processor": [
+        {
+          "label": "CPU",
+          "value": "Octa-core (2 x 2.2 GHz Cortex-A76 + 6 x 2.0 GHz Cortex-A55)"
+        },
+        {
+          "label": "Chipset",
+          "value": "Mediatek Helio G99 Ultimate"
+        },
+        {
+          "label": "GPU",
+          "value": "Mali-G57 MC2"
+        }
+      ],
+      "Display": [
+        {
+          "label": "Technology",
+          "value": "AMOLED Capacitive Touchscreen, 16M Colors, Multitouch"
+        },
+        {
+          "label": "Size",
+          "value": "6.78 Inches"
+        },
+        {
+          "label": "Resolution",
+          "value": "1080 x 2436 Pixels (~393 PPI)"
+        },
+        {
+          "label": "Protection",
+          "value": "Corning Gorilla Glass 5"
+        },
+        {
+          "label": "Extra Features",
+          "value": "Always-On display, 120Hz, 1000 nits (peak)"
+        }
+      ],
+      "Memory": [
+        {
+          "label": "Built-in",
+          "value": "256GB Built-in, 8GB RAM (+8GB Extended RAM)"
+        },
+        {
+          "label": "Card",
+          "value": "microSDXC"
+        }
+      ],
+      "Camera": [
+        {
+          "label": "Main",
+          "value": "Dual Camera: 108 MP + 2 MP (macro lens), Quad LED Flash"
+        },
+        {
+          "label": "Features",
+          "value": "HDR, Panorama, Video, Video (1440p@30fps, 1080p@30fps)"
+        },
+        {
+          "label": "Front",
+          "value": "32 MP, f/2.2, (wide), Dual LED Flash, Video (1080p@30fps)"
+        }
+      ],
+      "Connectivity": [
+        {
+          "label": "WLAN",
+          "value": "Wi-Fi 802.11 a/b/g/n/ac, dual-band"
+        },
+        {
+          "label": "Bluetooth",
+          "value": "v5.2 with A2DP, LE"
+        },
+        {
+          "label": "GPS",
+          "value": "Yes + A-GPS support"
+        },
+        {
+          "label": "Radio",
+          "value": "FM Radio"
+        },
+        {
+          "label": "USB",
+          "value": "USB Type-C"
+        },
+        {
+          "label": "NFC",
+          "value": "Yes"
+        },
+        {
+          "label": "Data",
+          "value": "GPRS, Edge, 3G HSPA, 4G LTE"
+        }
+      ],
+      "Features": [
+        {
+          "label": "Sensors",
+          "value": "Accelerometer, Compass, Fingerprint (under display, optical), Gyro, Proximity"
+        },
+        {
+          "label": "Audio",
+          "value": "24-bit/192kHz Hi-Res & Hi-Res wireless audio, Speaker Phone"
+        },
+        {
+          "label": "Browser",
+          "value": "HTML5"
+        },
+        {
+          "label": "Messaging",
+          "value": "SMS(threaded view), MMS, Email, Push Mail, IM"
+        },
+        {
+          "label": "Games",
+          "value": "Built-in + Downloadable"
+        },
+        {
+          "label": "Torch",
+          "value": "Yes"
+        },
+        {
+          "label": "Extra",
+          "value": "Glass front, plastic back, plastic frame, IP53, dust and splash resistant, Document viewer, Photo/video editor"
+        }
+      ],
+      "Battery": [
+        {
+          "label": "Capacity",
+          "value": "(Li-Po Non removable), 5000 mAh"
+        }
+      ]
+    }
   },
   {
     "retailers": [
@@ -5636,7 +9468,7 @@
       "capacity_mah": 5000
     },
     "trending_rank": 9,
-    "image": "images/phones/tecno-spark-go-2024_studio.webp",
+    "image": "phones/tecno-spark-go-2024-official.jpg",
     "expert_verdict": {
       "verdict": "Ultra-budget champion with 90Hz smooth punch-hole and dual stereo speakers below 19,000 PKR.",
       "pros": [
@@ -5692,7 +9524,7 @@
       "cnic": 8500
     },
     "images": [
-      "images/phones/tecno-spark-go-2024_studio.webp",
+      "phones/tecno-spark-go-2024-official.jpg",
       "images/phones/tecno-spark-go-2024_view_1.webp",
       "images/phones/tecno-spark-go-2024_view_2.webp",
       "images/phones/tecno-spark-go-2024_view_3.webp",
@@ -5760,7 +9592,171 @@
       "https://images.priceoye.pk/media/tecno-spark-go-2024/tecno-spark-go-2024-m7819.webp",
       "https://images.priceoye.pk/media/tecno-spark-go-2024/tecno-spark-go-2024-4o5e0.webp",
       "https://images.priceoye.pk/media/tecno-spark-go-2024/tecno-spark-go-2024-e8kfx.webp"
-    ]
+    ],
+    "detailed_specs": {
+      "Build": [
+        {
+          "label": "OS",
+          "value": "Android 13 (Go Edition)"
+        },
+        {
+          "label": "UI",
+          "value": "Hios 12.0"
+        },
+        {
+          "label": "Dimensions",
+          "value": "163.69 x 75.6 x 8.55mm"
+        },
+        {
+          "label": "Weight",
+          "value": "N/A"
+        },
+        {
+          "label": "SIM",
+          "value": "Dual Sim, Dual Standby (Nano-SIM)"
+        },
+        {
+          "label": "Colors",
+          "value": "Mystery White, Alpenglow Gold, Magic Skin, Gravity Black"
+        }
+      ],
+      "Frequency": [
+        {
+          "label": "2G Band",
+          "value": "SIM1: GSM 850 / 900 / 1800 / 1900SIM2: GSM 850 / 900 / 1800 / 1900"
+        },
+        {
+          "label": "3G Band",
+          "value": "HSDPA 900 / 2100"
+        },
+        {
+          "label": "4G Band",
+          "value": "LTE"
+        }
+      ],
+      "Processor": [
+        {
+          "label": "CPU",
+          "value": "Octa-core (2 x 1.6 GHz Cortex-A75 + 6 x 1.6 GHz Cortex-A55)"
+        },
+        {
+          "label": "Chipset",
+          "value": "Unisoc T606 (12 nm)"
+        },
+        {
+          "label": "GPU",
+          "value": "Mali-G57 MP1"
+        }
+      ],
+      "Display": [
+        {
+          "label": "Technology",
+          "value": "IPS LCD Capacitive Touchscreen, 16M Colors, Multitouch"
+        },
+        {
+          "label": "Size",
+          "value": "6.6 Inches"
+        },
+        {
+          "label": "Resolution",
+          "value": "720 x 1612 Pixels (~267 PPI)"
+        },
+        {
+          "label": "Extra Features",
+          "value": "90Hz"
+        }
+      ],
+      "Memory": [
+        {
+          "label": "Built-in",
+          "value": "64GB Built-in, 4GB RAM"
+        },
+        {
+          "label": "Card",
+          "value": "microSDXC"
+        }
+      ],
+      "Camera": [
+        {
+          "label": "Main",
+          "value": "Dual Camera: 13 MP, f/1.8, (wide), AF + 0.08 MP, (depth), Dual LED Flash"
+        },
+        {
+          "label": "Features",
+          "value": "Phase detection, Geo-tagging, Panorama, HDR, Video (1080p@30fps)"
+        },
+        {
+          "label": "Front",
+          "value": "8 MP, Dual LED Flash"
+        }
+      ],
+      "Connectivity": [
+        {
+          "label": "WLAN",
+          "value": "Wi-Fi 802.11 b/g/n"
+        },
+        {
+          "label": "Bluetooth",
+          "value": "v5.0 with A2DP, LE"
+        },
+        {
+          "label": "GPS",
+          "value": "Yes + A-GPS support"
+        },
+        {
+          "label": "Radio",
+          "value": "FM Radio"
+        },
+        {
+          "label": "USB",
+          "value": "USB Type-C, OTG"
+        },
+        {
+          "label": "NFC",
+          "value": "No"
+        },
+        {
+          "label": "Data",
+          "value": "GPRS, Edge, 3G (HSPA 42.2/5.76 Mbps), 4G (LTE Cat4 150/50 Mbps)"
+        }
+      ],
+      "Features": [
+        {
+          "label": "Sensors",
+          "value": "Accelerometer, Fingerprint (side-mounted)"
+        },
+        {
+          "label": "Audio",
+          "value": "3.5mm Audio Jack, MP4/H.264 player, MP3/WAV/FLAC/eAAC+ player, Speaker Phone"
+        },
+        {
+          "label": "Browser",
+          "value": "HTML5"
+        },
+        {
+          "label": "Messaging",
+          "value": "SMS(threaded view), MMS, Email, Push Mail, IM"
+        },
+        {
+          "label": "Games",
+          "value": "Built-in + Downloadable"
+        },
+        {
+          "label": "Torch",
+          "value": "Yes"
+        },
+        {
+          "label": "Extra",
+          "value": "Document viewer, Photo/video editor"
+        }
+      ],
+      "Battery": [
+        {
+          "label": "Capacity",
+          "value": "(Li-Po Non removable), 5000 mAh"
+        }
+      ]
+    }
   },
   {
     "retailers": [
@@ -5920,7 +9916,7 @@
       "capacity_mah": 5000
     },
     "trending_rank": 7,
-    "image": "images/phones/vivo-v30-5g_studio.webp",
+    "image": "phones/vivo-v30-official.jpg",
     "expert_verdict": {
       "verdict": "The undisputed portrait king in Pakistan. Studio-quality Aura Light 2.0 and 50MP autofocus selfie camera.",
       "pros": [
@@ -5976,7 +9972,7 @@
       "cnic": 62000
     },
     "images": [
-      "images/phones/vivo-v30-5g_studio.webp",
+      "phones/vivo-v30-official.jpg",
       "images/phones/vivo-v30-5g_view_1.webp",
       "images/phones/vivo-v30-5g_view_2.webp",
       "images/phones/vivo-v30-5g_view_3.webp",
@@ -6172,7 +10168,175 @@
       "https://images.priceoye.pk/media/vivo-v30e/vivo-v30e-zqycx.jpg",
       "https://images.priceoye.pk/media/vivo-v30e/vivo-v30e-nwui6.png",
       "https://images.priceoye.pk/media/vivo-v30e/vivo-v30e-qtvec.png"
-    ]
+    ],
+    "detailed_specs": {
+      "Build": [
+        {
+          "label": "OS",
+          "value": "Android 14 OS"
+        },
+        {
+          "label": "UI",
+          "value": "FuntouchOS 14"
+        },
+        {
+          "label": "Dimensions",
+          "value": "164.4 x 74.8 x 7.7 mm"
+        },
+        {
+          "label": "Weight",
+          "value": "179 g"
+        },
+        {
+          "label": "SIM",
+          "value": "Hybrid Dual SIM, Dual Standby, (Nano-SIM)"
+        },
+        {
+          "label": "Colors",
+          "value": "Classy Brown, Sunny Green"
+        }
+      ],
+      "Frequency": [
+        {
+          "label": "2G Band",
+          "value": "SIM1: GSM 850 / 900 / 1800 / 1900SIM2: GSM 850 / 900 / 1800 / 1900"
+        },
+        {
+          "label": "3G Band",
+          "value": "HSDPA 850 / 900 / 1700(AWS) / 1900 / 2100"
+        },
+        {
+          "label": "4G Band",
+          "value": "LTE band 1(2100), 2(1900), 3(1800), 4(1700/2100), 5(850), 8(900), 34(2000), 38(2600), 39(1900), 40(2300), 41(2500)"
+        },
+        {
+          "label": "5G Band",
+          "value": "5G SA/NSA"
+        }
+      ],
+      "Processor": [
+        {
+          "label": "CPU",
+          "value": "Octa-core (4 x 2.2 GHz Cortex-A78 + 4 x 1.8 GHz Cortex-A55)"
+        },
+        {
+          "label": "Chipset",
+          "value": "Qualcomm SM6450 Snapdragon 6 Gen 1 (4 nm)"
+        },
+        {
+          "label": "GPU",
+          "value": "Adreno 710"
+        }
+      ],
+      "Display": [
+        {
+          "label": "Technology",
+          "value": "AMOLED Capacitive Touchscreen, 1B, Multitouch"
+        },
+        {
+          "label": "Size",
+          "value": "6.8 Inches"
+        },
+        {
+          "label": "Resolution",
+          "value": "1080 x 2400 Pixels (~388 PPI)"
+        },
+        {
+          "label": "Protection",
+          "value": "Schott Xensation glass"
+        },
+        {
+          "label": "Extra Features",
+          "value": "120Hz, 1300 nits (peak)"
+        }
+      ],
+      "Memory": [
+        {
+          "label": "Built-in",
+          "value": "256GB Built-in, 8GB RAM, UFS 2.2"
+        },
+        {
+          "label": "Card",
+          "value": "microSDXC ( Support up to 1TB)"
+        }
+      ],
+      "Camera": [
+        {
+          "label": "Main",
+          "value": "Dual Camera: 50 MP, f/1.8, 26mm (wide), 1/1.95\", PDAF, + 8 MP, f/2.2, (ultrawide), 1/4.0\", 1.12µm, Ring-LED flash"
+        },
+        {
+          "label": "Features",
+          "value": "HDR, panorama, Video (4K@30fps, 1080p@30fps, gyro-EIS)"
+        },
+        {
+          "label": "Front",
+          "value": "32 MP, f/2.0, 24mm (wide), Video (4K@30fps (India only), 1080p@30fps)"
+        }
+      ],
+      "Connectivity": [
+        {
+          "label": "WLAN",
+          "value": "Wi-Fi 802.11 a/b/g/n/ac, dual-band"
+        },
+        {
+          "label": "Bluetooth",
+          "value": "5.1 with A2DP, LE"
+        },
+        {
+          "label": "GPS",
+          "value": "Yes + A-GPS support, & GLONASS, GALILEO, BDS, QZSS, NavIC"
+        },
+        {
+          "label": "USB",
+          "value": "USB Type-C 2.0, OTG"
+        },
+        {
+          "label": "NFC",
+          "value": "Yes"
+        },
+        {
+          "label": "Data",
+          "value": "GPRS, Edge, 3G (HSPA 42.2/5.76 Mbps), 4G LTE, 5G capable"
+        }
+      ],
+      "Features": [
+        {
+          "label": "Sensors",
+          "value": "Accelerometer, Compass, Fingerprint (under display, optical), Gyro, Proximity"
+        },
+        {
+          "label": "Audio",
+          "value": "24-bit/192kHz Hi-Res audio (market/region dependent), Snapdragon Sound (market/region dependent), Speaker Phone"
+        },
+        {
+          "label": "Browser",
+          "value": "HTML5"
+        },
+        {
+          "label": "Messaging",
+          "value": "SMS(threaded view), MMS, Email, Push Mail, IM"
+        },
+        {
+          "label": "Games",
+          "value": "Built-in + Downloadable"
+        },
+        {
+          "label": "Torch",
+          "value": "Yes"
+        },
+        {
+          "label": "Extra",
+          "value": "NFC (market/region dependent), Glass front, plastic frame, glass back or plastic back, IP64, dust and water resistant, Document viewer, Photo/video editor"
+        }
+      ],
+      "Battery": [
+        {
+          "label": "Capacity",
+          "value": "(Li-ion Non removable), 5500 mAh"
+        }
+      ]
+    }
   },
   {
     "retailers": [
@@ -6318,7 +10482,171 @@
       "https://images.priceoye.pk/media/vivo-y27s/vivo-y27s-w12r5.jpg",
       "https://images.priceoye.pk/media/vivo-y27s/vivo-y27s-xv8lc.jpg",
       "https://images.priceoye.pk/media/vivo-y27s/vivo-y27s-zohg7.jpg"
-    ]
+    ],
+    "detailed_specs": {
+      "Build": [
+        {
+          "label": "OS",
+          "value": "Android 13 OS"
+        },
+        {
+          "label": "UI",
+          "value": "Funtouch OS 13"
+        },
+        {
+          "label": "Dimensions",
+          "value": "164.1 x 76.2 x 8.2 mm"
+        },
+        {
+          "label": "Weight",
+          "value": "192 g"
+        },
+        {
+          "label": "SIM",
+          "value": "Dual Sim, Dual Standby (Nano-SIM)"
+        },
+        {
+          "label": "Colors",
+          "value": "Burgundy Black, Garden Green"
+        }
+      ],
+      "Frequency": [
+        {
+          "label": "2G Band",
+          "value": "SIM1: GSM 850 / 900 / 1800 / 1900SIM2: GSM 850 / 900 / 1800 / 1900"
+        },
+        {
+          "label": "3G Band",
+          "value": "HSDPA 850 / 900 / 2100"
+        },
+        {
+          "label": "4G Band",
+          "value": "LTE band 1(2100), 3(1800), 5(850), 8(900), 28(700), 38(2600), 40(2300), 41(2500)"
+        }
+      ],
+      "Processor": [
+        {
+          "label": "CPU",
+          "value": "Octa-core (4 x 2.4 GHz Kryo 265 Gold + 4 x 1.9 GHz Kryo 265 Silver)"
+        },
+        {
+          "label": "Chipset",
+          "value": "Qualcomm SM6225 Snapdragon 680 4G (6 nm)"
+        },
+        {
+          "label": "GPU",
+          "value": "Adreno 610"
+        }
+      ],
+      "Display": [
+        {
+          "label": "Technology",
+          "value": "IPS LCD Capacitive Touchscreen, 16M Colors, Multitouch"
+        },
+        {
+          "label": "Size",
+          "value": "6.64 Inches"
+        },
+        {
+          "label": "Resolution",
+          "value": "1080 x 2388 Pixels (~395 PPI)"
+        },
+        {
+          "label": "Extra Features",
+          "value": "90Hz, 650 nits (peak)"
+        }
+      ],
+      "Memory": [
+        {
+          "label": "Built-in",
+          "value": "128GB Built-in, 8GB RAM"
+        },
+        {
+          "label": "Card",
+          "value": "microSDXC (dedicated slot)"
+        }
+      ],
+      "Camera": [
+        {
+          "label": "Main",
+          "value": "Dual Camera: 50 MP, f/1.8, (wide), PDAF + 2 MP, f/2.4, (depth), dual-LED dual-tone flash"
+        },
+        {
+          "label": "Features",
+          "value": "Geo-tagging, Phase detection, Panorama, HDR, Video (1080p@30fps)"
+        },
+        {
+          "label": "Front",
+          "value": "8 MP, f/2.0, (wide), Video (1080p@30fps)"
+        }
+      ],
+      "Connectivity": [
+        {
+          "label": "WLAN",
+          "value": "Wi-Fi 802.11 a/b/g/n/ac, dual-band"
+        },
+        {
+          "label": "Bluetooth",
+          "value": "v5.0 with A2DP, LE"
+        },
+        {
+          "label": "GPS",
+          "value": "Yes + AGPS, GLONASS, BDS, GALILEO"
+        },
+        {
+          "label": "Radio",
+          "value": "FM Radio"
+        },
+        {
+          "label": "USB",
+          "value": "USB Type-C 2.0, OTG"
+        },
+        {
+          "label": "NFC",
+          "value": "No"
+        },
+        {
+          "label": "Data",
+          "value": "GPRS, Edge, 3G (HSPA 42.2/5.76 Mbps), 4G LTE-A"
+        }
+      ],
+      "Features": [
+        {
+          "label": "Sensors",
+          "value": "Accelerometer, Compass, Fingerprint (side-mounted), Gyro, Proximity"
+        },
+        {
+          "label": "Audio",
+          "value": "3.5mm Audio Jack, MP4/H.264 player, MP3/WAV/eAAC+/FLAC player, Speaker Phone"
+        },
+        {
+          "label": "Browser",
+          "value": "HTML5"
+        },
+        {
+          "label": "Messaging",
+          "value": "SMS(threaded view), MMS, Email, Push Mail, IM"
+        },
+        {
+          "label": "Games",
+          "value": "Built-in + Downloadable"
+        },
+        {
+          "label": "Torch",
+          "value": "Yes"
+        },
+        {
+          "label": "Extra",
+          "value": "IP54, dust and splash resistant, Glass front, plastic frame, plastic back, Document viewer, Photo/video editor"
+        }
+      ],
+      "Battery": [
+        {
+          "label": "Capacity",
+          "value": "(Li-Po Non removable), 5000 mAh"
+        }
+      ]
+    }
   },
   {
     "retailers": [
@@ -6522,7 +10850,7 @@
       "capacity_mah": 5000
     },
     "trending_rank": 11,
-    "image": "images/phones/oppo-reno-11-f-5g_studio.webp",
+    "image": "phones/oppo-reno-11f-official.jpg",
     "expert_verdict": {
       "verdict": "IP65 water and dust resistance with 67W SuperVOOC and 4K recording front & rear.",
       "pros": [
@@ -6578,7 +10906,7 @@
       "cnic": 36000
     },
     "images": [
-      "images/phones/oppo-reno-11-f-5g_studio.webp",
+      "phones/oppo-reno-11f-official.jpg",
       "images/phones/oppo-reno-11-f-5g_view_1.webp",
       "images/phones/oppo-reno-11-f-5g_view_2.webp",
       "images/phones/oppo-reno-11-f-5g_view_3.webp",
@@ -7378,7 +11706,7 @@
       "capacity_mah": 5000
     },
     "trending_rank": 15,
-    "image": "images/phones/realme-c67_studio.webp",
+    "image": "phones/realme-c67-official.jpg",
     "expert_verdict": {
       "verdict": "108MP 3x sensor-zoom camera, Snapdragon 685, and 33W SuperVOOC under 47k.",
       "pros": [
@@ -7434,7 +11762,7 @@
       "cnic": 24000
     },
     "images": [
-      "images/phones/realme-c67_studio.webp",
+      "phones/realme-c67-official.jpg",
       "images/phones/realme-c67_view_1.webp",
       "images/phones/realme-c67_view_2.webp",
       "images/phones/realme-c67_view_3.webp",
@@ -7476,7 +11804,175 @@
       "https://images.priceoye.pk/media/realme-c67/realme-c67-fflid.jpg",
       "https://images.priceoye.pk/media/realme-c67/realme-c67-8kp0s.png",
       "https://images.priceoye.pk/media/realme-c67/realme-c67-ok4hu.jpg"
-    ]
+    ],
+    "detailed_specs": {
+      "Build": [
+        {
+          "label": "OS",
+          "value": "Android 14 OS"
+        },
+        {
+          "label": "UI",
+          "value": "Realme UI"
+        },
+        {
+          "label": "Dimensions",
+          "value": "164.6 x 75.4 x 7.6 mm"
+        },
+        {
+          "label": "Weight",
+          "value": "185 g"
+        },
+        {
+          "label": "SIM",
+          "value": "Dual Sim, Dual Standby (Nano-SIM)"
+        },
+        {
+          "label": "Colors",
+          "value": "Sunny Oasis, Black Rock"
+        }
+      ],
+      "Frequency": [
+        {
+          "label": "2G Band",
+          "value": "SIM1: GSM 850 / 900 / 1800 / 1900SIM2: GSM 850 / 900 / 1800 / 1900"
+        },
+        {
+          "label": "3G Band",
+          "value": "HSDPA 850 / 900 / 2100"
+        },
+        {
+          "label": "4G Band",
+          "value": "LTE band 1(2100), 3(1800), 5(850), 7(2600), 8(900), 34(2000), 38(2600), 39(1900), 40(2300), 41(2500)"
+        }
+      ],
+      "Processor": [
+        {
+          "label": "CPU",
+          "value": "Octa-core (4 x 2.8 GHz Cortex-A73 + 4 x 1.9 GHz Cortex-A53)"
+        },
+        {
+          "label": "Chipset",
+          "value": "Qualcomm SM6225 Snapdragon 685 (6 nm)"
+        },
+        {
+          "label": "GPU",
+          "value": "Adreno 610"
+        }
+      ],
+      "Display": [
+        {
+          "label": "Technology",
+          "value": "IPS LCD Capacitive Touchscreen, 16M Colors, Multitouch"
+        },
+        {
+          "label": "Size",
+          "value": "6.72 Inches"
+        },
+        {
+          "label": "Resolution",
+          "value": "1080 x 2400 Pixels (~392 PPI)"
+        },
+        {
+          "label": "Protection",
+          "value": "Panda Glass"
+        },
+        {
+          "label": "Extra Features",
+          "value": "90Hz, 800 nits (typ), 950 nits (HBM)"
+        }
+      ],
+      "Memory": [
+        {
+          "label": "Built-in",
+          "value": "128GB Built-in, 8GB RAM"
+        },
+        {
+          "label": "Card",
+          "value": "microSDXC (dedicated slot)"
+        }
+      ],
+      "Camera": [
+        {
+          "label": "Main",
+          "value": "Dual Camera: 108 MP, f/1.8, (wide), PDAF + 2 MP, f/2.4, (depth), LED Flash"
+        },
+        {
+          "label": "Features",
+          "value": "HDR, panorama, Video (1080p@30fps, gyro-EIS)"
+        },
+        {
+          "label": "Front",
+          "value": "8 MP, f/2.1, (wide), Video (1080p@30fps)"
+        }
+      ],
+      "Connectivity": [
+        {
+          "label": "WLAN",
+          "value": "Wi-Fi 802.11 a/b/g/n/ac, dual-band"
+        },
+        {
+          "label": "Bluetooth",
+          "value": "v5.0 with A2DP, LE"
+        },
+        {
+          "label": "GPS",
+          "value": "Yes + A-GPS support, & GLONASS, BDS"
+        },
+        {
+          "label": "Radio",
+          "value": "FM Radio"
+        },
+        {
+          "label": "USB",
+          "value": "USB Type-C 2.0"
+        },
+        {
+          "label": "NFC",
+          "value": "Yes"
+        },
+        {
+          "label": "Data",
+          "value": "GPRS, Edge, 3G (HSPA 42.2/11.5 Mbps), 4G LTE-A,"
+        }
+      ],
+      "Features": [
+        {
+          "label": "Sensors",
+          "value": "Accelerometer, Compass, Fingerprint (side-mounted), Gyro, Proximity"
+        },
+        {
+          "label": "Audio",
+          "value": "3.5mm Audio Jack, Speaker Phone"
+        },
+        {
+          "label": "Browser",
+          "value": "HTML5"
+        },
+        {
+          "label": "Messaging",
+          "value": "SMS(threaded view), MMS, Email, Push Mail, IM"
+        },
+        {
+          "label": "Games",
+          "value": "Built-in + Downloadable"
+        },
+        {
+          "label": "Torch",
+          "value": "Yes"
+        },
+        {
+          "label": "Extra",
+          "value": "NFC, 360˚, IP54, dust and splash resistant, Photo/video editor, Document viewer"
+        }
+      ],
+      "Battery": [
+        {
+          "label": "Capacity",
+          "value": "(Li-Po Non removable), 5000 mAh"
+        }
+      ]
+    }
   },
   {
     "retailers": [
@@ -7529,7 +12025,7 @@
       "capacity_mah": 5000
     },
     "trending_rank": 25,
-    "image": "images/phones/realme-note-50_studio.webp",
+    "image": "phones/realme-note-50-official.jpg",
     "expert_verdict": {
       "verdict": "IP54 dust/water resistance, 90Hz screen, and metal frame feeling under 21,000 PKR.",
       "pros": [
@@ -7585,7 +12081,7 @@
       "cnic": 9500
     },
     "images": [
-      "images/phones/realme-note-50_studio.webp",
+      "phones/realme-note-50-official.jpg",
       "images/phones/realme-note-50_view_1.webp",
       "images/phones/realme-note-50_view_2.webp",
       "images/phones/realme-note-50_view_3.webp",
@@ -8104,7 +12600,7 @@
       "capacity_mah": 5000
     },
     "trending_rank": 9,
-    "image": "images/phones/sparx-edge-20-pro_studio.webp",
+    "image": "phones/sparx-edge-20-pro-official.jpg",
     "expert_verdict": {
       "verdict": "Pakistan's own local brand flagship. Curved 120Hz AMOLED, 108MP camera, and 65W charging under 50k.",
       "pros": [
@@ -8160,7 +12656,7 @@
       "cnic": 22000
     },
     "images": [
-      "images/phones/sparx-edge-20-pro_studio.webp",
+      "phones/sparx-edge-20-pro-official.jpg",
       "images/phones/sparx-edge-20-pro_view_1.webp",
       "images/phones/sparx-edge-20-pro_view_2.webp",
       "images/phones/sparx-edge-20-pro_view_3.webp",
@@ -8247,7 +12743,7 @@
       "capacity_mah": 5000
     },
     "trending_rank": 23,
-    "image": "images/phones/sparx-neo-7-ultra_studio.webp",
+    "image": "phones/sparx-neo-7-ultra-official.jpg",
     "expert_verdict": {
       "verdict": "Omni-glass back design with 128GB storage and Unisoc T616 under 27,000 PKR.",
       "pros": [
@@ -8303,7 +12799,7 @@
       "cnic": 12000
     },
     "images": [
-      "images/phones/sparx-neo-7-ultra_studio.webp",
+      "phones/sparx-neo-7-ultra-official.jpg",
       "images/phones/sparx-neo-7-ultra_view_1.webp",
       "images/phones/sparx-neo-7-ultra_view_2.webp",
       "images/phones/sparx-neo-7-ultra_view_3.webp",
@@ -8416,7 +12912,7 @@
       "capacity_mah": 5000
     },
     "trending_rank": 14,
-    "image": "images/phones/itel-s23-plus_studio.webp",
+    "image": "phones/itel-s23-plus-official.jpg",
     "expert_verdict": {
       "verdict": "Pakistan's cheapest curved AMOLED phone with in-display fingerprint and 256GB storage under 40k.",
       "pros": [
@@ -8472,7 +12968,7 @@
       "cnic": 18000
     },
     "images": [
-      "images/phones/itel-s23-plus_studio.webp",
+      "phones/itel-s23-plus-official.jpg",
       "images/phones/itel-s23-plus_view_1.webp",
       "images/phones/itel-s23-plus_view_2.webp",
       "images/phones/itel-s23-plus_view_3.webp",
@@ -8513,7 +13009,171 @@
       "https://images.priceoye.pk/media/itel-s23-plus/itel-s23-plus-fkjon.jpg",
       "https://images.priceoye.pk/media/itel-s23-plus/itel-s23-plus-axk1o.png",
       "https://images.priceoye.pk/media/itel-s23-plus/itel-s23-plus-wm22q.png"
-    ]
+    ],
+    "detailed_specs": {
+      "Build": [
+        {
+          "label": "OS",
+          "value": "Android 13 OS"
+        },
+        {
+          "label": "UI",
+          "value": "itel OS 13"
+        },
+        {
+          "label": "Dimensions",
+          "value": "7.9 mm thickness"
+        },
+        {
+          "label": "Weight",
+          "value": "178 g"
+        },
+        {
+          "label": "SIM",
+          "value": "Dual Sim, Dual Standby (Nano-SIM)"
+        },
+        {
+          "label": "Colors",
+          "value": "Black, Cyan"
+        }
+      ],
+      "Frequency": [
+        {
+          "label": "2G Band",
+          "value": "SIM1: GSM 850 / 900 / 1800 / 1900SIM2: GSM 850 / 900 / 1800 / 1900"
+        },
+        {
+          "label": "3G Band",
+          "value": "HSDPA 850 / 900 / 2100"
+        },
+        {
+          "label": "4G Band",
+          "value": "LTE"
+        }
+      ],
+      "Processor": [
+        {
+          "label": "CPU",
+          "value": "Octa-core (2 x 2.0 GHz Cortex-A75 + 6 x 1.8 GHz Cortex-A55)"
+        },
+        {
+          "label": "Chipset",
+          "value": "Unisoc Tiger T616 (12 nm)"
+        },
+        {
+          "label": "GPU",
+          "value": "Mali-G57 MP1"
+        }
+      ],
+      "Display": [
+        {
+          "label": "Technology",
+          "value": "AMOLED Capacitive Touchscreen, Multitouch"
+        },
+        {
+          "label": "Size",
+          "value": "6.78 Inches"
+        },
+        {
+          "label": "Resolution",
+          "value": "1080 x 2400 Pixels (~388 PPI)"
+        },
+        {
+          "label": "Extra Features",
+          "value": "500 nits (peak)"
+        }
+      ],
+      "Memory": [
+        {
+          "label": "Built-in",
+          "value": "256GB Built-in, 8GB RAM (+8GB of Virtual RAM ), UFS 2.0"
+        },
+        {
+          "label": "Card",
+          "value": "No"
+        }
+      ],
+      "Camera": [
+        {
+          "label": "Main",
+          "value": "Dual Camera: 50 MP, f/1.6, (wide), AF + 0.08 MP (auxiliary lens), LED Flash"
+        },
+        {
+          "label": "Features",
+          "value": "HDR Super Night Mode, Video (1080p@30fps)"
+        },
+        {
+          "label": "Front",
+          "value": "32 MP, f/2.0, Video (1080p@30fps)"
+        }
+      ],
+      "Connectivity": [
+        {
+          "label": "WLAN",
+          "value": "Wi-Fi 802.11 a/b/g/n/ac, dual-band, Wi-Fi Direct"
+        },
+        {
+          "label": "Bluetooth",
+          "value": "v5.0 with A2DP, LE"
+        },
+        {
+          "label": "GPS",
+          "value": "Yes + A-GPS support"
+        },
+        {
+          "label": "Radio",
+          "value": "FM Radio"
+        },
+        {
+          "label": "USB",
+          "value": "USB Type-C 2.0, OTG"
+        },
+        {
+          "label": "NFC",
+          "value": "Yes"
+        },
+        {
+          "label": "Data",
+          "value": "GPRS, Edge, 3G (HSPA 42.2/11.5 Mbps), 4G LTE"
+        }
+      ],
+      "Features": [
+        {
+          "label": "Sensors",
+          "value": "Accelerometer, Compass, Fingerprint (under display, optical), Gyro, Proximity"
+        },
+        {
+          "label": "Audio",
+          "value": "Speaker Phone"
+        },
+        {
+          "label": "Browser",
+          "value": "HTML5"
+        },
+        {
+          "label": "Messaging",
+          "value": "SMS(threaded view), MMS, Email, Push Mail, IM"
+        },
+        {
+          "label": "Games",
+          "value": "Built-in + Downloadable"
+        },
+        {
+          "label": "Torch",
+          "value": "Yes"
+        },
+        {
+          "label": "Extra",
+          "value": "Glass front, plastic frame, plastic back, NFC, (market/region dependent), Photo/video editor, Document viewer"
+        }
+      ],
+      "Battery": [
+        {
+          "label": "Capacity",
+          "value": "(Li-Po Non removable), 5000 mAh"
+        }
+      ]
+    }
   },
   {
     "retailers": [
@@ -8566,7 +13226,7 @@
       "capacity_mah": 5000
     },
     "trending_rank": 27,
-    "image": "images/phones/itel-a70_studio.webp",
+    "image": "phones/itel-a70-official.jpg",
     "expert_verdict": {
       "verdict": "Entry level device with iPhone-like 3-ring camera design and Dynamic Bar at Rs. 19,000.",
       "pros": [
@@ -8622,7 +13282,7 @@
       "cnic": 8500
     },
     "images": [
-      "images/phones/itel-a70_studio.webp",
+      "phones/itel-a70-official.jpg",
       "images/phones/itel-a70_view_1.webp",
       "images/phones/itel-a70_view_2.webp",
       "images/phones/itel-a70_view_3.webp",
@@ -8690,7 +13350,167 @@
       "https://images.priceoye.pk/media/itel-a70/itel-a70-7sscs.png",
       "https://images.priceoye.pk/media/itel-a70/itel-a70-m6ivu.png",
       "https://images.priceoye.pk/media/itel-a70/itel-a70-og6vt.png"
-    ]
+    ],
+    "detailed_specs": {
+      "Build": [
+        {
+          "label": "OS",
+          "value": "Android 13 (Go Edition)"
+        },
+        {
+          "label": "UI",
+          "value": "itel OS 13"
+        },
+        {
+          "label": "Dimensions",
+          "value": "8.6mm in thickness"
+        },
+        {
+          "label": "Weight",
+          "value": "N/A"
+        },
+        {
+          "label": "SIM",
+          "value": "Dual Sim, Dual Standby (Nano-SIM)"
+        },
+        {
+          "label": "Colors",
+          "value": "Brilliant Gold, Starlish Black, Field Green, Azure Blue"
+        }
+      ],
+      "Frequency": [
+        {
+          "label": "2G Band",
+          "value": "SIM1: GSM 850 / 900 / 1800 / 1900SIM2: GSM 850 / 900 / 1800 / 1900"
+        },
+        {
+          "label": "3G Band",
+          "value": "HSDPA 850 / 900 / 1900 / 2100"
+        },
+        {
+          "label": "4G Band",
+          "value": "LTE"
+        }
+      ],
+      "Processor": [
+        {
+          "label": "CPU",
+          "value": "1.8 Ghz Quad Core"
+        },
+        {
+          "label": "Chipset",
+          "value": "Unisoc T603 SoC"
+        },
+        {
+          "label": "GPU",
+          "value": "PowerVR GE8322"
+        }
+      ],
+      "Display": [
+        {
+          "label": "Technology",
+          "value": "IPS LCD Capacitive Touchscreen, 16M Colors, Multitouch"
+        },
+        {
+          "label": "Size",
+          "value": "6.6 Inches"
+        },
+        {
+          "label": "Resolution",
+          "value": "720 x 1612 Pixels (~267 PPI)"
+        }
+      ],
+      "Memory": [
+        {
+          "label": "Built-in",
+          "value": "128GB Built-in, 4GB RAM, (+8GB Extended RAM)"
+        },
+        {
+          "label": "Card",
+          "value": "microSDXC (dedicated slot)"
+        }
+      ],
+      "Camera": [
+        {
+          "label": "Main",
+          "value": "Dual Camera:13 MP + 0.08 MP (auxiliary lens)"
+        },
+        {
+          "label": "Features",
+          "value": "Geo-tagging, Phase detection, Night Mode, Video stabilization, Snapshot in video recording, Video (1080p@30fps)"
+        },
+        {
+          "label": "Front",
+          "value": "8 MP"
+        }
+      ],
+      "Connectivity": [
+        {
+          "label": "WLAN",
+          "value": "Wi-Fi 802.11 b/g/n, Wi-Fi Direct, hotspot"
+        },
+        {
+          "label": "Bluetooth",
+          "value": "v5.0 with A2DP, LE"
+        },
+        {
+          "label": "GPS",
+          "value": "Yes + A-GPS support"
+        },
+        {
+          "label": "Radio",
+          "value": "FM Radio (not yet confirmed)"
+        },
+        {
+          "label": "USB",
+          "value": "microUSBv2.0"
+        },
+        {
+          "label": "NFC",
+          "value": "No"
+        },
+        {
+          "label": "Data",
+          "value": "GPRS, Edge, 3G (HSPA 42.2/11.5 Mbps), 4G (LTE Cat4 150/50 Mbps)"
+        }
+      ],
+      "Features": [
+        {
+          "label": "Sensors",
+          "value": "Accelerometer, Face ID, Fingerprint (rear mounted), Proximity"
+        },
+        {
+          "label": "Audio",
+          "value": "3.5mm Audio Jack, XviD/MP4/H.265 player, MP3/AAC+/WAV/Flac player, Speaker Phone"
+        },
+        {
+          "label": "Browser",
+          "value": "HTML5"
+        },
+        {
+          "label": "Messaging",
+          "value": "SMS(threaded view), MMS, Email, Push Mail, IM"
+        },
+        {
+          "label": "Games",
+          "value": "Built-in + Downloadable"
+        },
+        {
+          "label": "Torch",
+          "value": "Yes"
+        },
+        {
+          "label": "Extra",
+          "value": "Photo/video editor, Document viewer, Google Search, Maps, Gmail, Document viewer"
+        }
+      ],
+      "Battery": [
+        {
+          "label": "Capacity",
+          "value": "(Li-ion Non removable), 5000 mAh"
+        }
+      ]
+    }
   },
   {
     "retailers": [
@@ -8743,7 +13563,7 @@
       "capacity_mah": 5000
     },
     "trending_rank": 22,
-    "image": "images/phones/dcode-bold-3-pro_studio.webp",
+    "image": "phones/dcode-bold-3-pro-official.jpg",
     "expert_verdict": {
       "verdict": "Helio G99 processor with 120Hz AMOLED and 256GB storage under 38,000 PKR by Premier Code Pakistan.",
       "pros": [
@@ -8799,7 +13619,7 @@
       "cnic": 17500
     },
     "images": [
-      "images/phones/dcode-bold-3-pro_studio.webp",
+      "phones/dcode-bold-3-pro-official.jpg",
       "images/phones/dcode-bold-3-pro_view_1.webp",
       "images/phones/dcode-bold-3-pro_view_2.webp",
       "images/phones/dcode-bold-3-pro_view_3.webp",
@@ -27436,7 +32256,7 @@
     "price_pkr": 24999,
     "lowest_verified_price": 21499,
     "usd_price": 89,
-    "image": "images/phones/itel-itel-a50c-special-edition_studio.webp",
+    "image": "phones/itel-a50c-official-studio.png",
     "popular": false,
     "trending_rank": 99,
     "pta_status": "approved",
@@ -27462,8 +32282,8 @@
       "antutu_score": 230000
     },
     "memory": {
-      "ram_gb": 64,
-      "storage_gb": 2,
+      "ram_gb": 2,
+      "storage_gb": 64,
       "card_slot": true
     },
     "battery": {
@@ -27518,7 +32338,7 @@
       }
     ],
     "expert_verdict": {
-      "verdict": "Impressive entry-level smartphone offering 64GB RAM and 2GB internal storage with smooth performance for social apps and streaming in Pakistan.",
+      "verdict": "Impressive entry-level smartphone offering 2GB RAM and 64GB internal storage with smooth performance for social apps and streaming in Pakistan.",
       "pros": [
         "4000mAh battery",
         "HD+ IPS Display",
@@ -27531,7 +32351,7 @@
     },
     "competitor_ids": [],
     "images": [
-      "images/phones/itel-itel-a50c-special-edition_studio.webp",
+      "phones/itel-a50c-official-studio.png",
       "images/phones/itel-itel-a50c-special-edition_view_1.webp",
       "images/phones/itel-itel-a50c-special-edition_view_2.webp",
       "images/phones/itel-itel-a50c-special-edition_view_3.webp",
@@ -27595,7 +32415,163 @@
         ]
       }
     ],
-    "banners": []
+    "banners": [],
+    "detailed_specs": {
+      "Build": [
+        {
+          "label": "OS",
+          "value": "Android 14 (Go edition)"
+        },
+        {
+          "label": "Dimensions",
+          "value": "N/A"
+        },
+        {
+          "label": "Weight",
+          "value": "N/A"
+        },
+        {
+          "label": "SIM",
+          "value": "Dual Sim, Dual Standby (Nano-SIM)"
+        },
+        {
+          "label": "Colors",
+          "value": "Dawn Blue, Misty Aqua, Sapphire Black"
+        }
+      ],
+      "Frequency": [
+        {
+          "label": "2G Band",
+          "value": "SIM1: GSM 850 / 900 / 1800 / 1900SIM2: GSM 850 / 900 / 1800 / 1900"
+        },
+        {
+          "label": "3G Band",
+          "value": "HSDPA 850 / 900 / 1900 / 2100"
+        },
+        {
+          "label": "4G Band",
+          "value": "LTE"
+        }
+      ],
+      "Processor": [
+        {
+          "label": "CPU",
+          "value": "Octa Core"
+        },
+        {
+          "label": "Chipset",
+          "value": "Unisoc Tiger T603"
+        },
+        {
+          "label": "GPU",
+          "value": "Mali-G57 MP1"
+        }
+      ],
+      "Display": [
+        {
+          "label": "Technology",
+          "value": "IPS LCD Capacitive Touchscreen, 16M Colors, Multitouch"
+        },
+        {
+          "label": "Size",
+          "value": "6.6 Inches"
+        },
+        {
+          "label": "Resolution",
+          "value": "720 x 1612 Pixels (~267 PPI)"
+        }
+      ],
+      "Memory": [
+        {
+          "label": "Built-in",
+          "value": "32GB Built-in, 2GB RAM (+2GB Virtual RAM)"
+        },
+        {
+          "label": "Card",
+          "value": "microSDXC (dedicated slot)"
+        }
+      ],
+      "Camera": [
+        {
+          "label": "Main",
+          "value": "Single Camera: 8 MP, LED Flash"
+        },
+        {
+          "label": "Features",
+          "value": "Geo-tagging, Phase detection, Video"
+        },
+        {
+          "label": "Front",
+          "value": "5 MP"
+        }
+      ],
+      "Connectivity": [
+        {
+          "label": "WLAN",
+          "value": "Wi-Fi 802.11 b/g/n, Wi-Fi Direct, hotspot"
+        },
+        {
+          "label": "Bluetooth",
+          "value": "v5.0 with A2DP, LE"
+        },
+        {
+          "label": "GPS",
+          "value": "Yes + A-GPS support"
+        },
+        {
+          "label": "Radio",
+          "value": "FM Radio (not yet confirmed)"
+        },
+        {
+          "label": "USB",
+          "value": "USB Type-C"
+        },
+        {
+          "label": "NFC",
+          "value": "No"
+        },
+        {
+          "label": "Data",
+          "value": "2G GSM, 3G HSPA, 4G LTE"
+        }
+      ],
+      "Features": [
+        {
+          "label": "Sensors",
+          "value": "Accelerometer, Face Unlock, Fingerprint (side mounted), Proximity"
+        },
+        {
+          "label": "Audio",
+          "value": "Speaker Phone"
+        },
+        {
+          "label": "Browser",
+          "value": "HTML5"
+        },
+        {
+          "label": "Messaging",
+          "value": "SMS(threaded view), MMS, Email, Push Mail, IM"
+        },
+        {
+          "label": "Games",
+          "value": "Built-in + Downloadable"
+        },
+        {
+          "label": "Torch",
+          "value": "Yes"
+        },
+        {
+          "label": "Extra",
+          "value": "Photo/video editor, Document viewer, Google Search, Maps, Gmail, Document viewer"
+        }
+      ],
+      "Battery": [
+        {
+          "label": "Capacity",
+          "value": "(Li-ion Non removable), 4000 mAh"
+        }
+      ]
+    }
   },
   {
     "id": "gfive-gfive-16-pro",

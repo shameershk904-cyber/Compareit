@@ -1,9 +1,73 @@
 "use client";
 
+import { useRef, useState } from "react";
 import { type Phone } from "@/types";
 import { formatPKR, getSupabaseImageUrl } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
+
+function ScrollableSpecCell({
+  icon,
+  text,
+  title,
+}: {
+  icon: string;
+  text: string;
+  title: string;
+}) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const textRef = useRef<HTMLSpanElement>(null);
+  const [isHovered, setIsHovered] = useState(false);
+  const [scrollDistance, setScrollDistance] = useState(0);
+  const [duration, setDuration] = useState(0);
+
+  const handleMouseEnter = () => {
+    if (containerRef.current && textRef.current) {
+      const containerW = containerRef.current.clientWidth;
+      const textW = textRef.current.scrollWidth;
+      const diff = textW - containerW;
+      if (diff > 1) {
+        const distance = diff + 8;
+        // ~35px/s provides smooth, comfortable reading speed
+        const time = Math.max(1.3, distance / 35);
+        setScrollDistance(distance);
+        setDuration(time);
+        setIsHovered(true);
+      }
+    }
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    setScrollDistance(0);
+    setDuration(0.35);
+  };
+
+  return (
+    <div
+      className={`spec-cell ${isHovered && scrollDistance > 0 ? "is-scrolling" : ""}`}
+      title={title}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      <span className="spec-icon shrink-0">{icon}</span>
+      <div ref={containerRef} className="spec-text-track flex-1 overflow-hidden min-w-0">
+        <span
+          ref={textRef}
+          className="spec-text-inner inline-block whitespace-nowrap will-change-transform"
+          style={{
+            transform: isHovered && scrollDistance > 0 ? `translateX(-${scrollDistance}px)` : "translateX(0)",
+            transition: isHovered
+              ? `transform ${duration}s linear`
+              : "transform 0.35s ease-out",
+          }}
+        >
+          {text}
+        </span>
+      </div>
+    </div>
+  );
+}
 
 export function PhoneCard({ phone, isCompared, toggleCompare }: { phone: Phone; isCompared: boolean; toggleCompare: (id: string) => void }) {
   const ptaBadge = phone.pta_status === 'approved'
@@ -25,6 +89,16 @@ export function PhoneCard({ phone, isCompared, toggleCompare }: { phone: Phone; 
     ? <span className="card-gallery-pill">📸 {imgCount} Photos</span>
     : null;
 
+  const productUrl = `/phone/${phone.slug || phone.id}`;
+
+  const displayType = (phone.display?.type || '').split(',')[0].trim();
+  const refreshRate = (phone.display?.type || '').match(/(\d+Hz)/i)?.[1];
+  const displayDisplay = phone.display?.size
+    ? `${phone.display.size}" ${displayType}${refreshRate ? ` ${refreshRate}` : ''}`
+    : (phone.display?.type || 'N/A');
+
+  const cameraDisplay = `${phone.camera?.main_mp} MP ${(phone.camera?.setup || '').includes('OIS') ? 'OIS' : ''}`.trim();
+
   return (
     <article className="phone-card">
       <div className="card-header-bar">
@@ -37,7 +111,13 @@ export function PhoneCard({ phone, isCompared, toggleCompare }: { phone: Phone; 
         </div>
       </div>
 
-      <div className="card-top">
+      {/* Clicking photo navigates to product page */}
+      <Link 
+        href={productUrl}
+        className="card-top" 
+        style={{ textDecoration: 'none', display: 'flex', cursor: 'pointer' }}
+        title={`View details for ${phone.brand} ${phone.model}`}
+      >
         <Image 
           src={getSupabaseImageUrl(phone.image || (phone.images && phone.images[0]) || '')} 
           alt={`${phone.brand} ${phone.model}`} 
@@ -47,11 +127,18 @@ export function PhoneCard({ phone, isCompared, toggleCompare }: { phone: Phone; 
           unoptimized 
         />
         {galleryPill}
-      </div>
+      </Link>
 
       <div className="card-body">
-        <span className="card-brand">{phone.brand}</span>
-        <h3 className="card-title">{phone.model}</h3>
+        <Link 
+          href={productUrl} 
+          className="card-title-link-wrapper"
+          style={{ textDecoration: 'none', color: 'inherit', display: 'flex', flexDirection: 'column', gap: '0.2rem' }}
+          title={`View details for ${phone.brand} ${phone.model}`}
+        >
+          <span className="card-brand">{phone.brand}</span>
+          <h3 className="card-title">{phone.model}</h3>
+        </Link>
 
         <div className="card-pricing">
           {lowestPrice > 0 ? (
@@ -74,27 +161,32 @@ export function PhoneCard({ phone, isCompared, toggleCompare }: { phone: Phone; 
           )}
         </div>
 
+        {/* Spec Matrix with hover-scroll support for long text */}
         <div className="spec-matrix">
-          <div className="spec-cell" title="RAM & Storage">
-            <span>💾</span>
-            <span>{ramDisplay} / {phone.memory.storage_gb}GB</span>
-          </div>
-          <div className="spec-cell" title="Display">
-            <span>📺</span>
-            <span>{phone.display.size}&quot; {(phone.display.type || '').split(',')[0]}</span>
-          </div>
-          <div className="spec-cell" title="Battery & Fast Charging">
-            <span>⚡</span>
-            <span>{phone.battery.capacity_mah} mAh ({phone.battery.charging_watt}W)</span>
-          </div>
-          <div className="spec-cell" title="Main Camera">
-            <span>📸</span>
-            <span>{phone.camera.main_mp} MP {(phone.camera.setup || '').includes('OIS') ? 'OIS' : ''}</span>
-          </div>
+          <ScrollableSpecCell
+            icon="💾"
+            text={`${ramDisplay} / ${phone.memory.storage_gb}GB`}
+            title="RAM & Storage"
+          />
+          <ScrollableSpecCell
+            icon="📺"
+            text={displayDisplay}
+            title={`Display: ${phone.display.size}" ${phone.display.type || ''}`}
+          />
+          <ScrollableSpecCell
+            icon="⚡"
+            text={`${phone.battery.capacity_mah} mAh (${phone.battery.charging_watt}W)`}
+            title="Battery & Fast Charging"
+          />
+          <ScrollableSpecCell
+            icon="📸"
+            text={cameraDisplay}
+            title="Main Camera"
+          />
         </div>
 
         <div className="card-actions">
-          <Link href={`/phone/${phone.slug || phone.id}`} className="btn-spec" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Link href={productUrl} className="btn-spec" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             View Details →
           </Link>
           <button className={`btn-compare-card ${isCompared ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); toggleCompare(phone.id); }} title="Compare this phone">

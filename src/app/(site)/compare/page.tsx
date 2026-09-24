@@ -1,0 +1,55 @@
+import fs from "fs";
+import path from "path";
+import { Suspense } from "react";
+import { type Phone } from "@/types";
+import { CompareClient } from "@/components/compare/CompareClient";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Compare Smartphones in Pakistan - Side-by-Side Specs Matrix | CompareIt.pk",
+  description:
+    "Compare latest smartphones side-by-side in Pakistan. Real-time Hafeez Centre rates, PriceOye deals, PTA DIRBS tax calculations, benchmark scores, and comprehensive spec shootout.",
+};
+
+async function getPhones(): Promise<Phone[]> {
+  const filePath = path.join(process.cwd(), "public", "data", "phones.json");
+  const fileContents = fs.readFileSync(filePath, "utf8");
+  return JSON.parse(fileContents);
+}
+
+export default async function ComparePage(props: {
+  searchParams?: Promise<{ phones?: string }>;
+}) {
+  const searchParams = props.searchParams ? await props.searchParams : undefined;
+  const phones = await getPhones();
+
+  const requestedSlugs = searchParams?.phones
+    ? searchParams.phones.split(",").map((s) => s.trim()).filter(Boolean)
+    : ["itel-a50c-special-edition", "xiaomi-redmi-a3", "samsung-galaxy-a15"];
+
+  // Ensure requested phones exist in selected pool
+  const selectedPhones = requestedSlugs
+    .map((slug) => phones.find((p) => p.slug === slug || p.id === slug))
+    .filter((p): p is Phone => !!p);
+
+  // Curated pool of 150 phones with selected phones prioritized at front
+  const catalogPool = [
+    ...selectedPhones,
+    ...phones.filter((p) => !selectedPhones.some((sp) => sp.id === p.id)),
+  ].slice(0, 150);
+
+  // Strip massive detailed_specs from the inlined payload to keep HTML super light and performant
+  const leanPhones: Phone[] = catalogPool.map((p) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { detailed_specs, ...rest } = p;
+    return rest as Phone;
+  });
+
+  return (
+    <main className="w-full bg-surface min-h-screen">
+      <Suspense fallback={<div className="min-h-screen flex items-center justify-center font-['Poppins',sans-serif] text-on-surface">Loading Comparison Matrix...</div>}>
+        <CompareClient initialPhones={leanPhones} initialCompareSlugs={requestedSlugs} />
+      </Suspense>
+    </main>
+  );
+}

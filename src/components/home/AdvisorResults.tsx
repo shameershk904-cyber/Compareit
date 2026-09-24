@@ -44,10 +44,16 @@ export function AdvisorResults({
         <div className="rec-winner-card">
           <span className="rec-badge-winner">🏆 #1 Top Recommendation</span>
           <div className="rec-winner-hero">
-            <Image src={getSupabaseImageUrl(winner.image)} alt={winner.model} width={90} height={90} unoptimized />
+            <Link href={`/phone/${winner.slug || winner.id}`} title={`View ${winner.model}`} style={{ display: 'inline-block' }}>
+              <Image src={getSupabaseImageUrl(winner.image)} alt={winner.model} width={90} height={90} unoptimized />
+            </Link>
             <div>
               <span className="card-brand">{winner.brand}</span>
-              <h3>{winner.model}</h3>
+              <h3>
+                <Link href={`/phone/${winner.slug || winner.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                  {winner.model}
+                </Link>
+              </h3>
               <div className="rec-price">{formatPKR(winner.lowest_verified_price || winner.price_pkr)}</div>
               <span className="badge-warranty">{winner.warranty?.provider?.split('/')[0] || 'Local Warranty'}</span>
             </div>
@@ -72,9 +78,15 @@ export function AdvisorResults({
               {rivals.map(r => (
                 <div key={r.id} className="rival-card">
                   <div className="rival-left">
-                    <Image src={getSupabaseImageUrl(r.image)} alt={r.model} width={40} height={40} unoptimized />
+                    <Link href={`/phone/${r.slug || r.id}`} title={`View ${r.model}`} style={{ display: 'inline-block' }}>
+                      <Image src={getSupabaseImageUrl(r.image)} alt={r.model} width={40} height={40} unoptimized />
+                    </Link>
                     <div className="rival-info">
-                      <h5>{r.brand} {r.model}</h5>
+                      <h5>
+                        <Link href={`/phone/${r.slug || r.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                          {r.brand} {r.model}
+                        </Link>
+                      </h5>
                       <div className="rival-price">{formatPKR(r.lowest_verified_price || r.price_pkr)}</div>
                       <small style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>
                         {r.platform?.chipset?.split('(')[0] || 'Unknown Chip'} • {r.camera?.main_mp || 0}MP
