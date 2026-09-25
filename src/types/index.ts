@@ -26,6 +26,7 @@ export interface Phone {
   release_date: string;
   trending_rank?: number;
   popular?: boolean;
+  status?: string;
   pta_status: "approved" | "non_pta" | string;
   pta_tax?: {
     passport: number;

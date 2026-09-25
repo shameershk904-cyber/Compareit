@@ -11,6 +11,17 @@ const poppins = Poppins({
 export const metadata: Metadata = {
   title: "Compare It - Find, Compare, Get the Best Phone",
   description: "Find, Compare, Get the Best Phone in Pakistan",
+  icons: {
+    icon: [
+      { url: "https://cevetoazfcbjmodmjzyh.supabase.co/storage/v1/object/public/phones/favicon-rounded.png?v=rounded", type: "image/png" },
+      { url: "/favicon.png?v=rounded", type: "image/png" },
+      { url: "/favicon.ico?v=rounded" },
+    ],
+    shortcut: ["https://cevetoazfcbjmodmjzyh.supabase.co/storage/v1/object/public/phones/favicon-rounded.png?v=rounded"],
+    apple: [
+      { url: "https://cevetoazfcbjmodmjzyh.supabase.co/storage/v1/object/public/phones/apple-touch-icon.png?v=rounded" },
+    ],
+  },
 };
 
 export default function RootLayout({
@@ -21,6 +32,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <link
+          rel="icon"
+          href="https://cevetoazfcbjmodmjzyh.supabase.co/storage/v1/object/public/phones/favicon-rounded.png?v=rounded"
+          type="image/png"
+        />
+        <link
+          rel="apple-touch-icon"
+          href="https://cevetoazfcbjmodmjzyh.supabase.co/storage/v1/object/public/phones/apple-touch-icon.png?v=rounded"
+        />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link

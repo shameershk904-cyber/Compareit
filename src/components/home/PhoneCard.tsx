@@ -70,9 +70,17 @@ function ScrollableSpecCell({
 }
 
 export function PhoneCard({ phone, isCompared, toggleCompare }: { phone: Phone; isCompared: boolean; toggleCompare: (id: string) => void }) {
-  const ptaBadge = phone.pta_status === 'approved'
-    ? <span className="badge-pta-approved">✓ PTA Approved</span>
-    : <span className="badge-pta-non" title="Non-PTA (Duty required)">⚠️ Non-PTA / JV</span>;
+  const lowestPrice = (phone.lowest_verified_price && phone.lowest_verified_price > 0)
+    ? phone.lowest_verified_price
+    : (phone.price_pkr && phone.price_pkr > 0 ? phone.price_pkr : 0);
+  const storeCount = Array.isArray(phone.retailers) ? phone.retailers.length : 0;
+  const isAvailableWithPrice = lowestPrice > 0 && storeCount > 0;
+
+  const ptaBadge = isAvailableWithPrice
+    ? (phone.pta_status === 'approved'
+        ? <span className="badge-pta-approved">✓ PTA Approved</span>
+        : <span className="badge-pta-non" title="Non-PTA (Duty required)">⚠️ Non-PTA / JV</span>)
+    : <span className="badge-pta-non" style={{ background: '#f1f5f9', color: '#64748b', border: '1px solid #e2e8f0' }}>Unlisted / Discontinued</span>;
 
   const isComingSoon = phone.release_date && (phone.release_date.toLowerCase().includes('exp') || phone.release_date.includes('2027') || phone.release_date.includes('2028'));
   const trendingBadge = phone.popular ? <span className="badge-trending">🔥 Trending</span> : null;
@@ -80,9 +88,6 @@ export function PhoneCard({ phone, isCompared, toggleCompare }: { phone: Phone; 
   const ramDisplay = (phone.memory.virtual_ram_gb && phone.memory.virtual_ram_gb > 0)
     ? `${phone.memory.ram_gb}GB + ${phone.memory.virtual_ram_gb}GB`
     : `${phone.memory.ram_gb}GB`;
-
-  const lowestPrice = phone.lowest_verified_price || phone.price_pkr;
-  const storeCount = (phone.retailers && phone.retailers.length) || 4;
 
   const imgCount = (phone.images && phone.images.length) || 1;
   const galleryPill = imgCount > 1
@@ -141,21 +146,27 @@ export function PhoneCard({ phone, isCompared, toggleCompare }: { phone: Phone; 
         </Link>
 
         <div className="card-pricing">
-          {lowestPrice > 0 ? (
+          {isAvailableWithPrice ? (
             <>
               <span className="price-lowest-badge">Lowest Verified Price:</span>
               <div className="price-pkr-official">{formatPKR(lowestPrice)}</div>
               <div className="price-sub">
-                <span>List: <del>{formatPKR(phone.price_pkr)}</del></span>
+                {phone.price_pkr && phone.price_pkr > lowestPrice && (
+                  <span>List: <del>{formatPKR(phone.price_pkr)}</del></span>
+                )}
                 <span className="retailers-count-tag">{storeCount} Stores Tracked</span>
               </div>
             </>
           ) : (
             <>
-              <span className="price-lowest-badge">Market Status:</span>
-              <div className="price-pkr-official" style={{ fontSize: '1.1rem', color: 'var(--text-muted)' }}>Price N/A</div>
+              <span className="price-lowest-badge" style={{ color: 'var(--text-muted)' }}>Market Status:</span>
+              <div className="price-pkr-official" style={{ fontSize: '1.2rem', color: '#64748b', fontWeight: 800 }}>
+                Price N/A
+              </div>
               <div className="price-sub">
-                <span>Older or Unreleased Model</span>
+                <span className="retailers-count-tag" style={{ background: '#f8fafc', color: '#64748b', borderColor: '#e2e8f0', fontWeight: 600 }}>
+                  {phone.status || 'Discontinued / Unlisted'}
+                </span>
               </div>
             </>
           )}

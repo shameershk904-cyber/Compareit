@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, useEffect, useMemo, Suspense } from "react";
 import Link from "next/link";
 import { type Phone } from "@/types";
 import { PhoneCard } from "./PhoneCard";
@@ -8,6 +8,32 @@ import { formatPKR, getSupabaseImageUrl } from "@/lib/utils";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { AdvisorResults } from "./AdvisorResults";
+import { matchPhoneSearch } from "@/lib/search";
+
+const BRAND_POPULARITY_RANK: Record<string, number> = {
+  Samsung: 100,
+  Apple: 98,
+  Xiaomi: 95,
+  Infinix: 92,
+  Tecno: 90,
+  Vivo: 88,
+  Oppo: 86,
+  Realme: 84,
+  OnePlus: 80,
+  Google: 78,
+  Honor: 76,
+  Motorola: 74,
+  Huawei: 72,
+  Nothing: 70,
+  Itel: 68,
+  Sparx: 66,
+  Dcode: 64,
+  QMobile: 62,
+  Nokia: 60,
+  ZTE: 58,
+  Sony: 56,
+  Asus: 54,
+};
 
 interface HomeClientProps {
   initialPhones: Phone[];
@@ -23,10 +49,42 @@ export function HomeClient({ initialPhones }: HomeClientProps) {
 
 function HomeClientInner({ initialPhones }: HomeClientProps) {
   const searchParams = useSearchParams();
-  const query = searchParams.get("q") || "";
+  const [query, setQuery] = useState(searchParams.get("q") || "");
+
+  useEffect(() => {
+    const handlePhoneSearch = (e: any) => {
+      setQuery(e.detail ?? "");
+    };
+    window.addEventListener("phone-search", handlePhoneSearch);
+    return () => {
+      window.removeEventListener("phone-search", handlePhoneSearch);
+    };
+  }, []);
+
+  useEffect(() => {
+    setQuery(searchParams.get("q") || "");
+  }, [searchParams]);
+
+  useEffect(() => {
+    const scrollParam = searchParams.get("scroll");
+    if (scrollParam === "phones") {
+      const timer = setTimeout(() => {
+        const target = document.getElementById("products-section") || document.getElementById("phones-section") || document.querySelector(".products-section");
+        if (target) {
+          const headerOffset = 85;
+          const elementPosition = target.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+          window.scrollTo({
+            top: Math.max(0, offsetPosition),
+            behavior: "smooth"
+          });
+        }
+      }, 150);
+      return () => clearTimeout(timer);
+    }
+  }, [searchParams]);
 
   const [maxPrice, setMaxPrice] = useState(600000);
-  const [ptaStatus, setPtaStatus] = useState("all");
   const [selectedBrands, setSelectedBrands] = useState<Set<string>>(new Set());
   const [compareList, setCompareList] = useState<string[]>([]);
   const [isCompareModalOpen, setIsCompareModalOpen] = useState(false);
@@ -34,6 +92,7 @@ function HomeClientInner({ initialPhones }: HomeClientProps) {
   const [ram, setRam] = useState("all");
   const [battery, setBattery] = useState("all");
   const [charging, setCharging] = useState("all");
+  const [sortBy, setSortBy] = useState("popularity");
 
   const [advisorMinBudget, setAdvisorMinBudget] = useState(35000);
   const [advisorMaxBudget, setAdvisorMaxBudget] = useState(75000);
@@ -132,27 +191,102 @@ function HomeClientInner({ initialPhones }: HomeClientProps) {
     });
   };
 
-  const filteredPhones = initialPhones.filter(phone => {
-    const sq = query.toLowerCase();
-    if (sq) {
-      if (!phone.brand.toLowerCase().includes(sq) &&
-          !phone.model.toLowerCase().includes(sq)) {
-        return false;
-      }
+  const matchedPhonesWithScore: { phone: Phone; score: number }[] = [];
+
+  for (const phone of initialPhones) {
+    let score = 0;
+    if (query.trim()) {
+      const matchResult = matchPhoneSearch(phone, query);
+      if (!matchResult.matches) continue;
+      score = matchResult.score;
     }
 
-    const price = phone.lowest_verified_price || phone.price_pkr;
-    if (price > maxPrice) return false;
-    if (ptaStatus !== "all" && phone.pta_status !== ptaStatus) return false;
-    if (selectedBrands.size > 0 && !selectedBrands.has(phone.brand)) return false;
-    if (ram !== "all" && phone.memory.ram_gb < parseInt(ram, 10)) return false;
-    if (battery !== "all" && phone.battery.capacity_mah < parseInt(battery, 10)) return false;
-    if (charging !== "all" && phone.battery.charging_watt < parseInt(charging, 10)) return false;
-    return true;
-  });
+    const price = (phone.lowest_verified_price && phone.lowest_verified_price > 0)
+      ? phone.lowest_verified_price
+      : (phone.price_pkr && phone.price_pkr > 0 ? phone.price_pkr : 0);
 
-  const visiblePhones = filteredPhones.slice(0, visibleCount);
-  const allBrands = Array.from(new Set(initialPhones.map(p => p.brand))).sort();
+    // If user filtered by a budget ceiling (maxPrice < 500000) and hasn't explicitly searched for this phone, exclude unpriced/discontinued phones
+    if (maxPrice < 500000 && !query.trim() && price === 0) continue;
+    if (price > maxPrice) continue;
+    if (selectedBrands.size > 0 && !selectedBrands.has(phone.brand)) continue;
+    if (ram !== "all" && phone.memory.ram_gb < parseInt(ram, 10)) continue;
+    if (battery !== "all" && phone.battery.capacity_mah < parseInt(battery, 10)) continue;
+    if (charging !== "all" && phone.battery.charging_watt < parseInt(charging, 10)) continue;
+
+    matchedPhonesWithScore.push({ phone, score });
+  }
+
+  const sortedPhones = [...matchedPhonesWithScore].sort((a, b) => {
+    // When a search query is active and relevance score difference is significant, prioritize higher score
+    if (query.trim() && Math.abs(b.score - a.score) >= 20) {
+      return b.score - a.score;
+    }
+
+    const aPrice = (a.phone.lowest_verified_price && a.phone.lowest_verified_price > 0)
+      ? a.phone.lowest_verified_price
+      : (a.phone.price_pkr && a.phone.price_pkr > 0 ? a.phone.price_pkr : 0);
+    const bPrice = (b.phone.lowest_verified_price && b.phone.lowest_verified_price > 0)
+      ? b.phone.lowest_verified_price
+      : (b.phone.price_pkr && b.phone.price_pkr > 0 ? b.phone.price_pkr : 0);
+
+    if (sortBy === "price-asc") {
+      if (aPrice === 0 && bPrice > 0) return 1;
+      if (bPrice === 0 && aPrice > 0) return -1;
+      if (aPrice === 0 && bPrice === 0) return 0;
+      return aPrice - bPrice;
+    }
+    if (sortBy === "price-desc") {
+      if (aPrice === 0 && bPrice > 0) return 1;
+      if (bPrice === 0 && aPrice > 0) return -1;
+      if (aPrice === 0 && bPrice === 0) return 0;
+      return bPrice - aPrice;
+    }
+
+    // Popularity sort
+    if (query.trim() && b.score !== a.score) {
+      return b.score - a.score;
+    }
+
+    const aTrending = (a.phone as any).is_trending || a.phone.popular ? 1 : 0;
+    const bTrending = (b.phone as any).is_trending || b.phone.popular ? 1 : 0;
+    if (bTrending !== aTrending) return bTrending - aTrending;
+
+    // Devices with active verified prices should appear ahead of discontinued unpriced models
+    const aHasPrice = aPrice > 0 ? 1 : 0;
+    const bHasPrice = bPrice > 0 ? 1 : 0;
+    if (aHasPrice !== bHasPrice) return bHasPrice - aHasPrice;
+
+    return bPrice - aPrice;
+  }).map(item => item.phone);
+
+  const filteredPhones = sortedPhones;
+
+  const visiblePhones = sortedPhones.slice(0, visibleCount);
+  
+  const allBrands = useMemo(() => {
+    const brandStats = new Map<string, number>();
+    for (const phone of initialPhones) {
+      const current = brandStats.get(phone.brand) || 0;
+      const weight = phone.popular || (phone as any).is_trending ? 3 : 1;
+      brandStats.set(phone.brand, current + weight);
+    }
+
+    const brands = Array.from(brandStats.keys());
+    brands.sort((a, b) => {
+      const rankA = BRAND_POPULARITY_RANK[a] || 0;
+      const rankB = BRAND_POPULARITY_RANK[b] || 0;
+      if (rankB !== rankA) return rankB - rankA;
+
+      const countA = brandStats.get(a) || 0;
+      const countB = brandStats.get(b) || 0;
+      if (countB !== countA) return countB - countA;
+
+      return a.localeCompare(b);
+    });
+
+    return brands;
+  }, [initialPhones]);
+
   const comparePhones = compareList.map(id => initialPhones.find(p => p.id === id)).filter(Boolean) as Phone[];
 
   return (
@@ -164,7 +298,9 @@ function HomeClientInner({ initialPhones }: HomeClientProps) {
             {/* Compact Header Bar */}
             <div className="advisor-top-bar">
               <div className="advisor-headline">
-                <span className="advisor-badge-pill">⚡ AI Match</span>
+                <span className="advisor-badge-pill" onClick={runSmartAdvisor} title="Click to run AI Match">
+                  <span className="ai-pill-icon">⚡</span> AI Match
+                </span>
                 <h2 className="advisor-title-compact">Find Your Ideal Phone</h2>
                 <span className="advisor-desc-inline">Select budget & focus to discover Pakistan&apos;s verified best value buy.</span>
               </div>
@@ -250,8 +386,8 @@ function HomeClientInner({ initialPhones }: HomeClientProps) {
               </div>
             </div>
           </div>
-          
-          {/* RIGHT SIDE BANNER PLACEHOLDER */}
+
+          {/* RIGHT SIDE BANNER */}
           <div className="advisor-banner-ad">
             <div className="banner-placeholder">
               <Image 
@@ -264,6 +400,7 @@ function HomeClientInner({ initialPhones }: HomeClientProps) {
               />
             </div>
           </div>
+
         </div>
       </section>
 
@@ -296,14 +433,14 @@ function HomeClientInner({ initialPhones }: HomeClientProps) {
       </section>
 
       {/* MAIN 2-COLUMN CATALOG */}
-      <main className="container main-content">
+      <main className="container main-content" id="phones-section">
         <div className="app-layout">
           
           {/* LEFT SIDEBAR: FILTERS */}
           <aside className="filters-sidebar">
             <div className="filters-header">
               <h3>Filters & Range</h3>
-              <button className="btn-link" onClick={() => { setMaxPrice(600000); setPtaStatus("all"); setSelectedBrands(new Set()); setRam("all"); setBattery("all"); setCharging("all"); }}>Reset All</button>
+              <button className="btn-link" onClick={() => { setMaxPrice(600000); setSelectedBrands(new Set()); setRam("all"); setBattery("all"); setCharging("all"); }}>Reset All</button>
             </div>
 
             <div className="filter-group">
@@ -313,24 +450,6 @@ function HomeClientInner({ initialPhones }: HomeClientProps) {
               </label>
               <div className="slider-container">
                 <input type="range" min="2000" max="600000" step="1000" value={maxPrice} onChange={(e) => setMaxPrice(Number(e.target.value))} />
-              </div>
-            </div>
-
-            <div className="filter-group">
-              <label className="filter-label">PTA Status</label>
-              <div className="radio-pill-group">
-                <label className="radio-pill">
-                  <input type="radio" name="pta_status" checked={ptaStatus === 'all'} onChange={() => setPtaStatus('all')} />
-                  <span>All</span>
-                </label>
-                <label className="radio-pill">
-                  <input type="radio" name="pta_status" checked={ptaStatus === 'approved'} onChange={() => setPtaStatus('approved')} />
-                  <span>PTA Approved</span>
-                </label>
-                <label className="radio-pill">
-                  <input type="radio" name="pta_status" checked={ptaStatus === 'non_pta'} onChange={() => setPtaStatus('non_pta')} />
-                  <span>Non-PTA / JV</span>
-                </label>
               </div>
             </div>
 
@@ -376,10 +495,28 @@ function HomeClientInner({ initialPhones }: HomeClientProps) {
           </aside>
 
           {/* RIGHT PRODUCTS SECTION */}
-          <section className="products-section">
+          <section className="products-section" id="products-section">
             <div className="products-toolbar">
-              <div className="toolbar-info">
+              <div className="toolbar-info" style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
                 <h2>Tracking Smartphones Across Pakistan</h2>
+                {query.trim() && (
+                  <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)', fontWeight: 500, background: '#f1f3f5', padding: '0.2rem 0.6rem', borderRadius: '12px' }}>
+                    {filteredPhones.length} {filteredPhones.length === 1 ? 'phone' : 'phones'} found for &ldquo;{query}&rdquo;
+                  </span>
+                )}
+              </div>
+              <div className="toolbar-sort">
+                <span>Sort by</span>
+                <select
+                  id="sort-dropdown"
+                  className="sort-dropdown"
+                  value={sortBy}
+                  onChange={e => { setSortBy(e.target.value); setVisibleCount(24); }}
+                >
+                  <option value="popularity">Popularity</option>
+                  <option value="price-desc">Price: High to Low</option>
+                  <option value="price-asc">Price: Low to High</option>
+                </select>
               </div>
             </div>
 

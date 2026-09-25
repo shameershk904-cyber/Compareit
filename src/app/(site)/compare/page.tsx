@@ -25,25 +25,12 @@ export default async function ComparePage(props: {
 
   const requestedSlugs = searchParams?.phones
     ? searchParams.phones.split(",").map((s) => s.trim()).filter(Boolean)
-    : ["itel-a50c-special-edition", "xiaomi-redmi-a3", "samsung-galaxy-a15"];
-
-  // Ensure requested phones exist in selected pool
-  const selectedPhones = requestedSlugs
-    .map((slug) => phones.find((p) => p.slug === slug || p.id === slug))
-    .filter((p): p is Phone => !!p);
-
-  // Curated pool of 150 phones with selected phones prioritized at front
-  const catalogPool = [
-    ...selectedPhones,
-    ...phones.filter((p) => !selectedPhones.some((sp) => sp.id === p.id)),
-  ].slice(0, 150);
+    : [];
 
   // Strip massive detailed_specs from the inlined payload to keep HTML super light and performant
-  const leanPhones: Phone[] = catalogPool.map((p) => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { detailed_specs, ...rest } = p;
-    return rest as Phone;
-  });
+  // but allow searching across the full smartphones database
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const leanPhones: Phone[] = phones.map(({ detailed_specs, ...rest }) => rest as Phone);
 
   return (
     <main className="w-full bg-surface min-h-screen">

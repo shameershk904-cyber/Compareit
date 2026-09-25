@@ -22,10 +22,16 @@ export async function generateMetadata(props: { params: Promise<{ slug: string }
     };
   }
 
-  const lowest = phone.lowest_verified_price || phone.price_pkr;
+  const lowest = (phone.lowest_verified_price && phone.lowest_verified_price > 0)
+    ? phone.lowest_verified_price
+    : (phone.price_pkr && phone.price_pkr > 0 ? phone.price_pkr : 0);
+  const isAvailable = lowest > 0 && Array.isArray(phone.retailers) && phone.retailers.length > 0 && phone.status !== "Discontinued";
+
   return {
-    title: `${phone.brand} ${phone.model} Price in Pakistan & Specs | CompareIt.pk`,
-    description: `Check latest verified price of ${phone.brand} ${phone.model} in Pakistan (Rs. ${lowest.toLocaleString()}). Verified store prices, full specs, PTA DIRBS tax, and expert verdict.`,
+    title: `${phone.brand} ${phone.model} ${isAvailable ? `Price in Pakistan (Rs. ${lowest.toLocaleString()})` : "Price in Pakistan (Price N/A - Discontinued)"} & Specs | CompareIt.pk`,
+    description: isAvailable
+      ? `Check latest verified price of ${phone.brand} ${phone.model} in Pakistan (Rs. ${lowest.toLocaleString()}). Verified store prices, full specs, PTA DIRBS tax, and expert verdict.`
+      : `${phone.brand} ${phone.model} price in Pakistan is unlisted/discontinued (Price N/A). View historical specs, release details, PTA DIRBS tax status, and comparisons on CompareIt.pk.`,
   };
 }
 

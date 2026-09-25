@@ -66,7 +66,7 @@ async function loadPhonesData() {
 
 // Format number to Pakistani Rupee string (e.g. Rs. 74,999)
 function formatPKR(amount) {
-  if (!amount && amount !== 0) return 'N/A';
+  if (amount === undefined || amount === null || amount <= 0 || isNaN(amount)) return 'Price N/A';
   return 'Rs. ' + Math.round(amount).toLocaleString('en-PK');
 }
 
@@ -160,18 +160,19 @@ function renderProductPage(phone) {
   }
 
   // Pricing Box
-  const lowestPrice = phone.lowest_verified_price || phone.price_pkr;
-  if (lowestPrice > 0) {
+  const hasVerifiedPricing = (phone.lowest_verified_price > 0 || phone.price_pkr > 0) && phone.retailers && phone.retailers.length > 0 && phone.status !== 'Discontinued';
+  const lowestPrice = hasVerifiedPricing ? (phone.lowest_verified_price || phone.price_pkr) : 0;
+  if (hasVerifiedPricing && lowestPrice > 0) {
     document.getElementById('prod-lowest-price').textContent = formatPKR(lowestPrice);
     document.getElementById('prod-official-price').textContent = formatPKR(phone.price_pkr);
   } else {
     document.getElementById('prod-lowest-price').textContent = 'Price N/A';
-    document.getElementById('prod-official-price').textContent = 'Upcoming/Discontinued';
+    document.getElementById('prod-official-price').textContent = phone.status || 'Discontinued / Unlisted';
   }
 
   const savings = phone.price_pkr - lowestPrice;
   const savingsPill = document.getElementById('prod-savings-pill');
-  if (savings > 0 && lowestPrice > 0) {
+  if (hasVerifiedPricing && savings > 0 && lowestPrice > 0) {
     savingsPill.textContent = `Save ${formatPKR(savings)} vs Official MSRP`;
     savingsPill.classList.remove('hidden');
   } else {
@@ -342,14 +343,22 @@ function renderRetailersTable(phone) {
   const tbody = document.getElementById('retailers-table-body');
   if (!tbody) return;
 
-  const retailers = phone.retailers || [
-    { store: "PriceOye.pk", price: phone.lowest_verified_price || phone.price_pkr, in_stock: true, condition: "Official PTA Approved", delivery: "Free 1-2 Days", url: "https://priceoye.pk" },
-    { store: "Daraz Mall Official", price: phone.price_pkr, in_stock: true, condition: "Official Brand Warranty", delivery: "Express Delivery", url: "https://daraz.pk" },
-    { store: "Telemart.pk", price: Math.round((phone.lowest_verified_price || phone.price_pkr) * 1.02), in_stock: true, condition: "Official Warranty Box Pack", delivery: "2-3 Days", url: "https://telemart.pk" },
-    { store: "WhatMobile Benchmark", price: phone.price_pkr, in_stock: true, condition: "Official Retail Price", delivery: "Nationwide", url: "https://whatmobile.com.pk" }
-  ];
+  const hasVerified = (phone.lowest_verified_price > 0 || phone.price_pkr > 0) && phone.retailers && phone.retailers.length > 0 && phone.status !== 'Discontinued';
 
-  // Find lowest price
+  if (!hasVerified) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="5" style="text-align: center; padding: 2.5rem 1rem;">
+          <div style="font-size: 2.2rem; margin-bottom: 0.5rem;">📦</div>
+          <strong style="color: var(--text-primary); font-size: 1.1rem; display: block; margin-bottom: 0.35rem;">No Active Online Retailers in Pakistan</strong>
+          <span style="color: var(--text-muted); font-size: 0.9rem;">${phone.brand} ${phone.model} is a discontinued or unlisted device. Authorized Pakistani retailers are no longer stocking brand-new units (Price: N/A).</span>
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  const retailers = phone.retailers;
   const minPrice = Math.min(...retailers.map(r => r.price));
 
   tbody.innerHTML = retailers.map(r => {
@@ -794,9 +803,17 @@ function renderPhoneCards() {
 
   grid.innerHTML = visiblePhones.map(phone => {
     const isCompared = compareList.includes(phone.id);
-    const ptaBadge = phone.pta_status === 'approved'
-      ? `<span class="badge-pta-approved">✓ PTA Approved</span>`
-      : `<span class="badge-pta-non" title="Non-PTA (Duty required)">⚠️ Non-PTA / JV</span>`;
+    const lowestPrice = (phone.lowest_verified_price && phone.lowest_verified_price > 0)
+      ? phone.lowest_verified_price
+      : (phone.price_pkr && phone.price_pkr > 0 ? phone.price_pkr : 0);
+    const storeCount = (phone.retailers && Array.isArray(phone.retailers)) ? phone.retailers.length : 0;
+    const isAvailableWithPrice = lowestPrice > 0 && storeCount > 0 && phone.status !== 'Discontinued';
+
+    const ptaBadge = isAvailableWithPrice
+      ? (phone.pta_status === 'approved'
+          ? `<span class="badge-pta-approved">✓ PTA Approved</span>`
+          : `<span class="badge-pta-non" title="Non-PTA (Duty required)">⚠️ Non-PTA / JV</span>`)
+      : `<span class="badge-pta-non" style="background:#f1f5f9; color:#64748b; border:1px solid #e2e8f0;">Unlisted / Discontinued</span>`;
 
     const trendingBadge = phone.popular
       ? `<span class="badge-trending">🔥 Trending</span>`
@@ -805,9 +822,6 @@ function renderPhoneCards() {
     const ramDisplay = (phone.memory.virtual_ram_gb && phone.memory.virtual_ram_gb > 0)
       ? `${phone.memory.ram_gb}GB + ${phone.memory.virtual_ram_gb}GB`
       : `${phone.memory.ram_gb}GB`;
-
-    const lowestPrice = phone.lowest_verified_price || phone.price_pkr;
-    const storeCount = (phone.retailers && phone.retailers.length) || 4;
 
     const imgCount = (phone.images && phone.images.length) || 1;
     const galleryPill = imgCount > 1
@@ -836,18 +850,20 @@ function renderPhoneCards() {
           <h3 class="card-title">${phone.model}</h3>
 
           <div class="card-pricing">
-            ${lowestPrice > 0 ? `
+            ${isAvailableWithPrice ? `
               <span class="price-lowest-badge">Lowest Verified Price:</span>
               <div class="price-pkr-official">${formatPKR(lowestPrice)}</div>
               <div class="price-sub">
-                <span>List: <del>${formatPKR(phone.price_pkr)}</del></span>
+                ${phone.price_pkr && phone.price_pkr > lowestPrice ? `<span>List: <del>${formatPKR(phone.price_pkr)}</del></span>` : ''}
                 <span class="retailers-count-tag">${storeCount} Stores Tracked</span>
               </div>
             ` : `
-              <span class="price-lowest-badge">Market Status:</span>
-              <div class="price-pkr-official" style="font-size:1.1rem; color:var(--text-muted);">Price N/A</div>
+              <span class="price-lowest-badge" style="color:var(--text-muted);">Market Status:</span>
+              <div class="price-pkr-official" style="font-size:1.15rem; color:#64748b; font-weight:800;">Price N/A</div>
               <div class="price-sub">
-                <span>Older or Unreleased Model</span>
+                <span class="retailers-count-tag" style="background:#f8fafc; color:#64748b; border-color:#e2e8f0; font-weight:600;">
+                  ${phone.status || 'Discontinued / Unlisted'}
+                </span>
               </div>
             `}
           </div>

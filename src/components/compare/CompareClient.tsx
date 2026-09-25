@@ -1,14 +1,27 @@
 "use client";
 
-import { useState, useMemo, useRef } from "react";
+import React, { useState, useMemo, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { type Phone } from "@/types";
 import { formatPKR, getSupabaseImageUrl } from "@/lib/utils";
+import { matchPhoneSearch } from "@/lib/search";
 
 interface CompareClientProps {
   initialPhones: Phone[];
   initialCompareSlugs?: string[];
+}
+
+interface SpecRowDef {
+  label: string;
+  getValue: (phone: Phone) => React.ReactNode;
+  getRawValue?: (phone: Phone) => string | number;
+}
+
+interface SpecSectionDef {
+  title: string;
+  icon: string;
+  rows: SpecRowDef[];
 }
 
 export function CompareClient({ initialPhones, initialCompareSlugs }: CompareClientProps) {
@@ -16,38 +29,33 @@ export function CompareClient({ initialPhones, initialCompareSlugs }: CompareCli
   const searchParams = useSearchParams();
   const fromUrl = searchParams?.get("from");
 
-  // Resolve initial phones for comparison (strictly 3 phones max)
-  const defaultSlugs = initialCompareSlugs && initialCompareSlugs.length > 0
-    ? initialCompareSlugs.slice(0, 3)
-    : ["itel-a50c-special-edition", "xiaomi-redmi-a3", "samsung-galaxy-a15"];
-
-  const resolvedInitialPhones = useMemo(() => {
-    const list: Phone[] = [];
-    for (const slug of defaultSlugs) {
-      const match = initialPhones.find(
-        (p) => p.slug === slug || p.id === slug || p.model.toLowerCase().replace(/\s+/g, "-").includes(slug.toLowerCase())
-      );
-      if (match && !list.some((item) => item.id === match.id)) {
-        list.push(match);
-      }
+  // 3 Comparison Slots (strictly 3 slots max). Start completely empty if no initialCompareSlugs
+  const [slots, setSlots] = useState<(Phone | null)[]>(() => {
+    const arr: (Phone | null)[] = [null, null, null];
+    if (initialCompareSlugs && initialCompareSlugs.length > 0) {
+      initialCompareSlugs.slice(0, 3).forEach((slug, idx) => {
+        const match = initialPhones.find(
+          (p) => p.slug === slug || p.id === slug || p.model.toLowerCase().replace(/\s+/g, "-").includes(slug.toLowerCase())
+        );
+        if (match) {
+          arr[idx] = match;
+        }
+      });
     }
-    // Fallback if none matched
-    if (list.length === 0) {
-      list.push(...initialPhones.slice(0, 3));
-    }
-    return list.slice(0, 3);
-  }, [initialPhones, defaultSlugs]);
+    return arr;
+  });
 
-  const [compareList, setCompareList] = useState<Phone[]>(resolvedInitialPhones);
+  const compareList = useMemo(() => slots.filter((p): p is Phone => p !== null), [slots]);
+
   const [isModalOpen, setIsModalOpen] = useState(true);
   const [diffOnly, setDiffOnly] = useState(false);
   const [budgetFilter, setBudgetFilter] = useState<"all" | "under25k" | "25k-45k" | "pta">("all");
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // Search state for modal slots
+  // Search state for slots (0, 1, 2)
+  const [slotQueries, setSlotQueries] = useState<string[]>(["", "", ""]);
   const [activeSlotSearch, setActiveSlotSearch] = useState<number | null>(null);
-  const [slotQueries, setSlotQueries] = useState<Record<number, string>>({});
-  const searchInputRefs = useRef<Record<number, HTMLInputElement | null>>({});
+  const searchContainerRefs = useRef<Record<number, HTMLDivElement | null>>({});
 
   // Helper to show auto-dismissing toast
   const showToast = (msg: string) => {
@@ -55,13 +63,111 @@ export function CompareClient({ initialPhones, initialCompareSlugs }: CompareCli
     setTimeout(() => setToastMessage(null), 3500);
   };
 
-  // Helper to get phone product image (using genuine Supabase storage URL)
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (activeSlotSearch !== null) {
+        const ref = searchContainerRefs.current[activeSlotSearch];
+        if (ref && !ref.contains(e.target as Node)) {
+          setActiveSlotSearch(null);
+        }
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [activeSlotSearch]);
+
+  // Helper to get phone product image
   const getPhoneImg = (phone: Phone) => {
     if (phone.image) return getSupabaseImageUrl(phone.image);
     return "/favicon.png";
   };
 
-  // Handle closing modal: returns to exact previous page where user opened it
+  // Safe RAM / Storage helpers
+  const getSafeRam = (p: Phone) => {
+    const rawRam = p.memory?.ram_gb;
+    const rawStorage = p.memory?.storage_gb;
+    return rawRam && rawStorage && rawRam > rawStorage ? rawStorage : rawRam || 4;
+  };
+
+  const getSafeStorage = (p: Phone) => {
+    const rawRam = p.memory?.ram_gb;
+    const rawStorage = p.memory?.storage_gb;
+    return rawRam && rawStorage && rawRam > rawStorage ? rawRam : rawStorage || 64;
+  };
+
+  // Sync URL when slots change
+  const updateUrlWithSlots = (nextSlots: (Phone | null)[]) => {
+    const activeSlugs = nextSlots.filter((p): p is Phone => p !== null).map((p) => p.slug);
+    const params = new URLSearchParams();
+    if (activeSlugs.length > 0) {
+      params.set("phones", activeSlugs.join(","));
+    }
+    if (fromUrl) {
+      params.set("from", fromUrl);
+    }
+    const queryString = params.toString();
+    router.replace(`/compare${queryString ? `?${queryString}` : ""}`, { scroll: false });
+  };
+
+  // Select a phone for a specific slot
+  const handleSelectPhone = (slotIndex: number, phone: Phone) => {
+    setSlots((prev) => {
+      const next = [...prev];
+      next[slotIndex] = phone;
+      updateUrlWithSlots(next);
+      return next;
+    });
+    setSlotQueries((prev) => {
+      const next = [...prev];
+      next[slotIndex] = "";
+      return next;
+    });
+    setActiveSlotSearch(null);
+    showToast(`Added ${phone.model} to Slot ${slotIndex + 1}`);
+  };
+
+  // Remove phone from a slot
+  const handleRemoveSlot = (slotIndex: number) => {
+    setSlots((prev) => {
+      const next = [...prev];
+      next[slotIndex] = null;
+      updateUrlWithSlots(next);
+      return next;
+    });
+    setSlotQueries((prev) => {
+      const next = [...prev];
+      next[slotIndex] = "";
+      return next;
+    });
+    setActiveSlotSearch(null);
+  };
+
+  // Clear all slots
+  const clearAll = () => {
+    setSlots([null, null, null]);
+    setSlotQueries(["", "", ""]);
+    setActiveSlotSearch(null);
+    router.replace(`/compare${fromUrl ? `?from=${encodeURIComponent(fromUrl)}` : ""}`, { scroll: false });
+    showToast("Cleared all comparison slots");
+  };
+
+  // Add from bottom catalog or quick toggle
+  const togglePhone = (phone: Phone) => {
+    const existingIndex = slots.findIndex((p) => p?.id === phone.id);
+    if (existingIndex !== -1) {
+      handleRemoveSlot(existingIndex);
+    } else {
+      const emptyIndex = slots.findIndex((p) => p === null);
+      if (emptyIndex === -1) {
+        showToast("All 3 slots are full. Remove a device to add another.");
+        return;
+      }
+      handleSelectPhone(emptyIndex, phone);
+    }
+  };
+
+  // Handle closing modal
   const handleClose = () => {
     if (fromUrl && fromUrl.startsWith("/")) {
       router.push(fromUrl);
@@ -80,44 +186,12 @@ export function CompareClient({ initialPhones, initialCompareSlugs }: CompareCli
     router.push("/");
   };
 
-  // Compare tray add/remove (strictly 3 slots max)
-  const isInTray = (phone: Phone) => compareList.some((p) => p.id === phone.id);
-
-  const togglePhone = (phone: Phone) => {
-    if (isInTray(phone)) {
-      setCompareList((prev) => prev.filter((p) => p.id !== phone.id));
-    } else {
-      if (compareList.length >= 3) {
-        showToast("Maximum 3 smartphones can be compared at once!");
-        return;
-      }
-      setCompareList((prev) => [...prev, phone]);
-    }
-  };
-
-  const removeSlot = (index: number) => {
-    setCompareList((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const swapSlot = (index: number, newPhone: Phone) => {
-    setCompareList((prev) => {
-      const next = [...prev];
-      const clean = next.filter((p) => p.id !== newPhone.id);
-      clean.splice(index, 0, newPhone);
-      return clean.slice(0, 3);
-    });
-    setActiveSlotSearch(null);
-    setSlotQueries((prev) => ({ ...prev, [index]: "" }));
-  };
-
-  const clearAll = () => {
-    setCompareList([]);
-  };
-
   // Share functionality
   const handleShare = () => {
     const slugs = compareList.map((p) => p.slug).join(",");
-    const url = `${window.location.origin}/compare?phones=${encodeURIComponent(slugs)}`;
+    const url = slugs
+      ? `${window.location.origin}/compare?phones=${encodeURIComponent(slugs)}`
+      : `${window.location.origin}/compare`;
     if (navigator.clipboard) {
       navigator.clipboard.writeText(url);
       showToast("Comparison link copied to clipboard!");
@@ -142,26 +216,339 @@ export function CompareClient({ initialPhones, initialCompareSlugs }: CompareCli
     }).slice(0, 16);
   }, [initialPhones, budgetFilter]);
 
-  // Max benchmark score among compared phones for visual progress bar
+  // Autocomplete search suggestions for a given slot query
+  const getSuggestionsForSlot = (slotIndex: number) => {
+    const q = slotQueries[slotIndex]?.trim() || "";
+    if (!q) {
+      // Return popular curated phones when input is empty
+      const popularModels = ["Galaxy A15", "Redmi Note 13", "iPhone 15", "Spark 20", "Smart 8", "Y27", "C67", "Poco M6"];
+      return initialPhones.filter((p) =>
+        popularModels.some((pop) => p.model.toLowerCase().includes(pop.toLowerCase()))
+      ).slice(0, 8);
+    }
+    return initialPhones
+      .map((p) => ({ phone: p, ...matchPhoneSearch(p, q) }))
+      .filter((res) => res.matches)
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 10)
+      .map((res) => res.phone);
+  };
+
+  // Max Antutu benchmark for progress bars
   const maxAntutu = useMemo(() => {
     const scores = compareList.map((p) => p.platform?.antutu_score || 200000);
     return Math.max(...scores, 450000);
   }, [compareList]);
 
-  // Dynamic score calculator
-  const getDeviceRating = (phone: Phone, index: number) => {
-    const price = phone.lowest_verified_price || phone.price_pkr;
-    if (price <= 25000) {
-      return { score: "8.2", badge: "Under 25K Value", text: `Unmatched storage tier and official local 1-year brand warranty under ${formatPKR(price)}.` };
-    }
-    if (phone.display?.type?.toLowerCase().includes("amoled")) {
-      return { score: "8.6", badge: "Overall Power", text: `Super AMOLED display and responsive processor excel, sitting at competitive ${formatPKR(price)}.` };
-    }
-    if (index === 1) {
-      return { score: "7.9", badge: "Premium Feel", text: `Corning Gorilla Glass front and aesthetic chassis with 90Hz smooth panel.` };
-    }
-    return { score: "8.0", badge: "Balanced Pick", text: `Balanced day-to-day performance, stamina battery, and verified PTA DIRBS clearance.` };
-  };
+  // SPECIFICATION DEFINITIONS: Every device gets its own separate column
+  const SPEC_SECTIONS: SpecSectionDef[] = [
+    {
+      title: "Local Market Pricing & Retailers",
+      icon: "storefront",
+      rows: [
+        {
+          label: "Lowest Verified Price",
+          getValue: (p) => {
+            const price = p.lowest_verified_price || p.price_pkr;
+            const isAvail = price > 0 && Array.isArray(p.retailers) && p.retailers.length > 0 && p.status !== "Discontinued";
+            return isAvail ? (
+              <span className="font-bold text-deal-orange text-sm sm:text-base">{formatPKR(price)}</span>
+            ) : (
+              <span className="text-slate-500 font-semibold text-xs sm:text-sm">Price N/A</span>
+            );
+          },
+          getRawValue: (p) => p.lowest_verified_price || p.price_pkr || 0,
+        },
+        {
+          label: "Official Brand MSRP",
+          getValue: (p) => {
+            const isAvail = p.price_pkr > 0 && p.status !== "Discontinued";
+            return isAvail ? (
+              <span className="font-medium text-on-surface">{formatPKR(p.price_pkr)}</span>
+            ) : (
+              <span className="text-slate-500 text-xs">Discontinued / Unlisted</span>
+            );
+          },
+          getRawValue: (p) => p.price_pkr || 0,
+        },
+        {
+          label: "Hafeez Centre Cash Benchmark",
+          getValue: (p) => {
+            const price = p.lowest_verified_price || p.price_pkr;
+            const isAvail = price > 0 && p.status !== "Discontinued";
+            return isAvail ? (
+              <span className="font-semibold text-primary">{formatPKR(Math.round(price * 0.98))}</span>
+            ) : (
+              <span className="text-slate-500 text-xs">Price N/A</span>
+            );
+          },
+          getRawValue: (p) => (p.lowest_verified_price || p.price_pkr || 0) * 0.98,
+        },
+        {
+          label: "Official Brand Warranty",
+          getValue: (p) => (
+            <span className="text-on-surface">
+              {p.warranty ? `${p.warranty.provider} (${p.warranty.duration_months}M)` : "1-Year Official Brand Warranty"}
+            </span>
+          ),
+          getRawValue: (p) => p.warranty?.provider || "Official",
+        },
+        {
+          label: "Availability & Stock Status",
+          getValue: (p) => {
+            const lowest = p.lowest_verified_price ?? p.price_pkr ?? 0;
+            const isAvail = lowest > 0 && Array.isArray(p.retailers) && p.retailers.length > 0 && p.status !== "Discontinued";
+            return isAvail ? (
+              <span className="inline-flex items-center gap-1 text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full text-[11px] font-bold border border-emerald-200">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Available Across Stores
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1 text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full text-[11px] font-bold border border-slate-200">
+                {p.status || "Discontinued"}
+              </span>
+            );
+          },
+          getRawValue: (p) => p.status || "Active",
+        },
+      ],
+    },
+    {
+      title: "PTA DIRBS Taxes & Duty Rates",
+      icon: "account_balance_wallet",
+      rows: [
+        {
+          label: "PTA DIRBS Status",
+          getValue: (p) => (
+            <span
+              className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
+                p.status === "Discontinued"
+                  ? "bg-slate-100 text-slate-700 border border-slate-200"
+                  : p.pta_status === "approved"
+                  ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                  : "bg-amber-50 text-amber-700 border border-amber-200"
+              }`}
+            >
+              {p.status === "Discontinued" ? "Legacy / Discontinued" : p.pta_status === "approved" ? "✓ PTA Approved" : "⚠️ Non-PTA / JV"}
+            </span>
+          ),
+          getRawValue: (p) => p.pta_status || "approved",
+        },
+        {
+          label: "PTA Tax (Passport)",
+          getValue: (p) => formatPKR(p.pta_tax?.passport || (p.price_pkr > 40000 ? 19500 : 3200)),
+          getRawValue: (p) => p.pta_tax?.passport || (p.price_pkr > 40000 ? 19500 : 3200),
+        },
+        {
+          label: "PTA Tax (CNIC)",
+          getValue: (p) => formatPKR(p.pta_tax?.cnic || (p.price_pkr > 40000 ? 24000 : 4100)),
+          getRawValue: (p) => p.pta_tax?.cnic || (p.price_pkr > 40000 ? 24000 : 4100),
+        },
+      ],
+    },
+    {
+      title: "Display & Screen Quality",
+      icon: "smartphone",
+      rows: [
+        {
+          label: "Screen Size",
+          getValue: (p) => `${p.display?.size || 6.6}" Inches`,
+          getRawValue: (p) => p.display?.size || 6.6,
+        },
+        {
+          label: "Panel Technology",
+          getValue: (p) => {
+            const type = p.display?.type || "HD+ IPS LCD";
+            const isAmoled = type.toLowerCase().includes("amoled") || type.toLowerCase().includes("oled");
+            return (
+              <span className={isAmoled ? "text-deal-orange font-bold" : "text-primary font-medium"}>
+                {type}
+              </span>
+            );
+          },
+          getRawValue: (p) => p.display?.type || "LCD",
+        },
+        {
+          label: "Refresh Rate",
+          getValue: (p) => {
+            const match = (p.display?.type || "").match(/(\d+Hz)/i);
+            return match ? <span className="font-bold text-primary">{match[1]} High Refresh</span> : "60 Hz Standard";
+          },
+          getRawValue: (p) => (p.display?.type || "").match(/(\d+Hz)/i)?.[1] || "60Hz",
+        },
+        {
+          label: "Resolution",
+          getValue: (p) => p.display?.resolution || "1080 x 2400 Pixels (~395 PPI)",
+          getRawValue: (p) => p.display?.resolution || "",
+        },
+        {
+          label: "Glass Protection",
+          getValue: (p) =>
+            p.display?.protection && p.display.protection !== "N/A"
+              ? p.display.protection
+              : "Reinforced Protective Glass",
+          getRawValue: (p) => p.display?.protection || "Glass",
+        },
+      ],
+    },
+    {
+      title: "Processor & Performance",
+      icon: "memory",
+      rows: [
+        {
+          label: "SoC Chipset",
+          getValue: (p) => (
+            <span className="font-bold text-primary">{p.platform?.chipset || "Octa-Core SoC"}</span>
+          ),
+          getRawValue: (p) => p.platform?.chipset || "",
+        },
+        {
+          label: "CPU Architecture",
+          getValue: (p) => p.platform?.cpu || "Octa-Core High-Efficiency Processor",
+          getRawValue: (p) => p.platform?.cpu || "",
+        },
+        {
+          label: "GPU Graphics",
+          getValue: (p) => p.platform?.gpu || "Integrated Graphic Engine",
+          getRawValue: (p) => p.platform?.gpu || "",
+        },
+        {
+          label: "AnTuTu Benchmark",
+          getValue: (p) => {
+            const score =
+              p.platform?.antutu_score || (p.price_pkr > 40000 ? 420000 : p.price_pkr > 25000 ? 150000 : 230000);
+            const pct = Math.min(100, Math.round((score / maxAntutu) * 100));
+            return (
+              <div className="space-y-1">
+                <span className="font-bold text-primary text-xs">~{score.toLocaleString()} Points</span>
+                <div className="w-full bg-surface-container h-1.5 rounded-full overflow-hidden">
+                  <div className="h-full bg-deal-orange rounded-full" style={{ width: `${pct}%` }}></div>
+                </div>
+              </div>
+            );
+          },
+          getRawValue: (p) => p.platform?.antutu_score || 0,
+        },
+        {
+          label: "Operating System & UI",
+          getValue: (p) => p.platform?.os || "Android 14 (Latest Official)",
+          getRawValue: (p) => p.platform?.os || "",
+        },
+      ],
+    },
+    {
+      title: "Memory & Storage",
+      icon: "sd_card",
+      rows: [
+        {
+          label: "RAM Capacity",
+          getValue: (p) => {
+            const safeRam = getSafeRam(p);
+            const vRam = p.memory?.virtual_ram_gb;
+            return `${safeRam}GB Physical${vRam ? ` + ${vRam}GB Virtual` : ""}`;
+          },
+          getRawValue: (p) => getSafeRam(p),
+        },
+        {
+          label: "Internal Storage (ROM)",
+          getValue: (p) => `${getSafeStorage(p)}GB High-Speed Storage`,
+          getRawValue: (p) => getSafeStorage(p),
+        },
+        {
+          label: "MicroSD Expansion",
+          getValue: (p) => (p.memory?.card_slot ? "Yes, MicroSDXC Supported" : "No (Fixed Storage)"),
+          getRawValue: (p) => (p.memory?.card_slot ? "Yes" : "No"),
+        },
+      ],
+    },
+    {
+      title: "Camera Optics & Video",
+      icon: "photo_camera",
+      rows: [
+        {
+          label: "Rear Main Camera",
+          getValue: (p) => {
+            const setup = p.camera?.setup || `${p.camera?.main_mp || 50} MP Primary Sensor`;
+            const hasOis = setup.includes("OIS") || (p.camera?.features || "").includes("OIS");
+            return (
+              <span className="font-semibold text-primary">
+                {setup} {hasOis && <span className="text-deal-orange font-bold">(OIS)</span>}
+              </span>
+            );
+          },
+          getRawValue: (p) => p.camera?.main_mp || 0,
+        },
+        {
+          label: "Camera Features",
+          getValue: (p) => p.camera?.features || "HDR, Night Mode, Portrait AI, LED Flash",
+          getRawValue: (p) => p.camera?.features || "",
+        },
+        {
+          label: "Video Recording",
+          getValue: (p) => p.camera?.video || "1080p@30fps Full HD",
+          getRawValue: (p) => p.camera?.video || "",
+        },
+        {
+          label: "Front Selfie Camera",
+          getValue: (p) => `${p.camera?.selfie_mp || 8} MP AI Beauty Front Camera`,
+          getRawValue: (p) => p.camera?.selfie_mp || 0,
+        },
+      ],
+    },
+    {
+      title: "Battery & Fast Charging",
+      icon: "battery_charging_full",
+      rows: [
+        {
+          label: "Battery Capacity",
+          getValue: (p) => <span className="font-bold text-primary">{p.battery?.capacity_mah || 5000} mAh</span>,
+          getRawValue: (p) => p.battery?.capacity_mah || 5000,
+        },
+        {
+          label: "Charging Speed",
+          getValue: (p) => {
+            const watt = p.battery?.charging_watt || 18;
+            return <span className={watt >= 25 ? "text-deal-orange font-bold" : "font-semibold text-primary"}>{watt}W Fast Charging</span>;
+          },
+          getRawValue: (p) => p.battery?.charging_watt || 18,
+        },
+        {
+          label: "Wireless Charging",
+          getValue: (p) => (p.battery?.wireless_charging ? "Yes, Wireless Qi Supported" : "No"),
+          getRawValue: (p) => (p.battery?.wireless_charging ? "Yes" : "No"),
+        },
+      ],
+    },
+    {
+      title: "Connectivity & Hardware",
+      icon: "cell_tower",
+      rows: [
+        {
+          label: "5G Cellular Network",
+          getValue: (p) => (
+            <span className={`font-bold ${p.connectivity?.five_g ? "text-deal-orange" : "text-primary"}`}>
+              {p.connectivity?.five_g ? "✓ 5G Ready (Multi-Band)" : "4G LTE-A VoLTE"}
+            </span>
+          ),
+          getRawValue: (p) => (p.connectivity?.five_g ? "5G" : "4G"),
+        },
+        {
+          label: "3.5mm Headphone Jack",
+          getValue: (p) => (p.connectivity?.headphone_jack ? "Yes, 3.5mm Port" : "No (Type-C / Wireless)"),
+          getRawValue: (p) => (p.connectivity?.headphone_jack ? "Yes" : "No"),
+        },
+        {
+          label: "NFC Support",
+          getValue: (p) => (p.connectivity?.nfc ? "Yes (Contactless Payments)" : "No"),
+          getRawValue: (p) => (p.connectivity?.nfc ? "Yes" : "No"),
+        },
+        {
+          label: "Fingerprint Security",
+          getValue: (p) => p.connectivity?.fingerprint || "Side-Mounted / Display Scanner",
+          getRawValue: (p) => p.connectivity?.fingerprint || "",
+        },
+      ],
+    },
+  ];
 
   return (
     <div className="flex flex-col w-full font-['Poppins',sans-serif] text-on-surface relative bg-surface min-h-screen pt-20">
@@ -193,7 +580,7 @@ export function CompareClient({ initialPhones, initialCompareSlugs }: CompareCli
           <div className="flex items-center gap-3">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container font-label-sm text-label-sm text-primary font-medium">
               <span className="w-2 h-2 rounded-full bg-deal-orange animate-pulse"></span>
-              Hafeez Centre Live Rates Synced (14 mins ago)
+              Hafeez Centre Live Rates Synced
             </span>
           </div>
         </div>
@@ -250,47 +637,33 @@ export function CompareClient({ initialPhones, initialCompareSlugs }: CompareCli
                   : "bg-surface-container hover:bg-surface-container-high text-on-surface"
               }`}
             >
-              PTA Approved
+              PTA Approved Only
             </button>
           </div>
         </div>
 
-        {/* Grid of Phones */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter mb-28">
+        {/* 16-Grid Catalog Cards with Compare Toggle Buttons */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {filteredCatalog.map((phone) => {
             const lowestPrice = phone.lowest_verified_price || phone.price_pkr;
             const msrp = phone.price_pkr;
             const saveAmount = msrp > lowestPrice ? msrp - lowestPrice : 0;
-            const selected = isInTray(phone);
+            const selected = slots.some((p) => p?.id === phone.id);
 
             return (
               <div
                 key={phone.id}
-                className="bg-surface-container-lowest rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between relative group border border-border-hairline"
+                className={`bg-surface-container-lowest rounded-2xl p-4 shadow-sm transition-all duration-300 hover:shadow-md flex flex-col justify-between border ${
+                  selected ? "border-deal-orange ring-2 ring-deal-orange/20" : "border-border-hairline"
+                }`}
               >
-                <div className="absolute top-4 left-4 z-10 flex flex-col gap-1">
-                  {selected ? (
-                    <span className="px-2 py-0.5 rounded bg-deal-orange text-on-primary font-label-sm text-label-sm font-bold">
-                      In Compare Tray
-                    </span>
-                  ) : saveAmount > 0 ? (
-                    <span className="px-2 py-0.5 rounded bg-surface-container text-primary font-label-sm text-label-sm font-medium">
-                      Save {formatPKR(saveAmount)}
-                    </span>
-                  ) : (
-                    <span className="px-2 py-0.5 rounded bg-surface-container text-primary font-label-sm text-label-sm font-medium">
-                      Verified Rate
-                    </span>
-                  )}
-                </div>
-
                 <Link
                   href={`/phone/${phone.slug}`}
-                  className="relative w-full h-52 flex items-center justify-center p-4 my-2"
+                  className="w-full h-44 bg-surface-subtle rounded-xl p-3 flex items-center justify-center relative overflow-hidden group mb-3"
                 >
                   <img
-                    className="max-h-48 max-w-full object-contain group-hover:scale-105 transition-transform duration-300"
-                    alt={`${phone.brand} ${phone.model} product render`}
+                    className="max-h-36 max-w-full w-auto object-contain mx-auto transition-transform duration-300 group-hover:scale-105"
+                    alt={`${phone.brand} ${phone.model}`}
                     src={getPhoneImg(phone)}
                   />
                 </Link>
@@ -301,8 +674,8 @@ export function CompareClient({ initialPhones, initialCompareSlugs }: CompareCli
                       {phone.brand} Pakistan
                     </span>
                     <span className="w-1 h-1 rounded-full bg-outline"></span>
-                    <span className="text-label-sm font-label-sm text-deal-orange font-semibold">
-                      DIRBS Approved
+                    <span className={`text-label-sm font-label-sm font-semibold ${lowestPrice > 0 ? "text-deal-orange" : "text-slate-500"}`}>
+                      {lowestPrice > 0 ? "DIRBS Approved" : "Discontinued Model"}
                     </span>
                   </div>
 
@@ -318,10 +691,10 @@ export function CompareClient({ initialPhones, initialCompareSlugs }: CompareCli
 
                   <div className="mt-4 pt-3 flex items-baseline justify-between border-t border-border-hairline">
                     <div>
-                      <div className="font-headline-sm text-headline-sm font-bold text-deal-orange">
-                        {formatPKR(lowestPrice)}
+                      <div className={`font-headline-sm text-headline-sm font-bold ${lowestPrice > 0 && phone.status !== "Discontinued" ? "text-deal-orange" : "text-slate-500"}`}>
+                        {lowestPrice > 0 && phone.status !== "Discontinued" ? formatPKR(lowestPrice) : "Price N/A"}
                       </div>
-                      {saveAmount > 0 && (
+                      {saveAmount > 0 && lowestPrice > 0 && (
                         <div className="font-body-sm text-body-sm text-outline line-through">
                           MSRP {formatPKR(msrp)}
                         </div>
@@ -353,15 +726,16 @@ export function CompareClient({ initialPhones, initialCompareSlugs }: CompareCli
       {/* ========================================== */}
       {isModalOpen && (
         <div
-          className="fixed inset-0 z-[60] flex items-center justify-center p-3 sm:p-6 lg:p-8 bg-inverse-surface/65 backdrop-blur-md transition-opacity"
+          className="fixed inset-0 z-[60] flex items-center justify-center p-2 sm:p-4 lg:p-6 bg-inverse-surface/65 backdrop-blur-md transition-opacity"
           id="compare-modal"
           onClick={(e) => {
             if (e.target === e.currentTarget) handleClose();
           }}
         >
-          <div className="bg-surface-container-lowest rounded-2xl w-full max-w-5xl max-h-[92vh] flex flex-col shadow-2xl overflow-hidden transition-all border border-border-hairline">
+          <div className="bg-surface-container-lowest rounded-2xl w-full max-w-6xl max-h-[94vh] flex flex-col shadow-2xl overflow-hidden transition-all border border-border-hairline">
+            
             {/* MODAL HEADER */}
-            <div className="px-6 py-5 bg-surface-container-low flex flex-col md:flex-row md:items-center justify-between gap-4 shrink-0 border-b border-border-hairline">
+            <div className="px-5 py-4 bg-surface-container-low flex flex-col md:flex-row md:items-center justify-between gap-3 shrink-0 border-b border-border-hairline">
               <div>
                 <div className="flex items-center gap-2">
                   <span className="px-2.5 py-0.5 rounded-full bg-deal-orange/10 text-deal-orange font-label-sm text-label-sm font-bold uppercase tracking-wider">
@@ -374,7 +748,7 @@ export function CompareClient({ initialPhones, initialCompareSlugs }: CompareCli
                 <h2 className="font-headline-md text-headline-md font-bold text-primary tracking-tight mt-0.5">
                   {compareList.length > 0
                     ? compareList.map((p) => p.model).join(" vs ")
-                    : "No Phones Selected"}
+                    : "Compare Smartphones Side-by-Side"}
                 </h2>
               </div>
 
@@ -400,587 +774,423 @@ export function CompareClient({ initialPhones, initialCompareSlugs }: CompareCli
                   <span className="material-symbols-outlined text-[18px]">share</span>
                   <span className="hidden sm:inline">Share</span>
                 </button>
-                {/* Cross Button: Navigates back to the page where user opened it */}
+                <button
+                  onClick={clearAll}
+                  className="flex items-center gap-1 px-3 py-1.5 bg-surface-container-lowest hover:bg-red-50 text-slate-600 hover:text-red-600 font-label-md text-label-md rounded-lg shadow-sm transition-colors border border-border-hairline"
+                  title="Clear all comparison slots"
+                >
+                  <span className="material-symbols-outlined text-[18px]">delete_sweep</span>
+                  <span className="hidden sm:inline">Clear All</span>
+                </button>
+                {/* Cross Button */}
                 <button
                   onClick={handleClose}
                   className="w-9 h-9 rounded-lg bg-surface-container hover:bg-surface-container-high text-primary flex items-center justify-center transition-colors"
                   id="close-modal-btn"
-                  title="Close and return to previous page"
+                  title="Close and return"
                 >
                   <span className="material-symbols-outlined text-[20px]">close</span>
                 </button>
               </div>
             </div>
 
-            {/* MODAL SCROLLABLE COMPARISON BODY (STRICTLY 3 SECTIONS) */}
-            <div className="overflow-y-auto flex-1 p-6 space-y-8 divide-y divide-border-hairline">
-              {/* 1. DEVICE CARDS ROW: STRICTLY 3 SLOTS MAX */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
-                {compareList.slice(0, 3).map((phone, index) => {
-                  const lowestPrice = phone.lowest_verified_price || phone.price_pkr;
-                  const rawRam = phone.memory?.ram_gb;
-                  const rawStorage = phone.memory?.storage_gb;
-                  const safeRam = rawRam && rawStorage && rawRam > rawStorage ? rawStorage : rawRam || 4;
-                  const safeStorage = rawRam && rawStorage && rawRam > rawStorage ? rawRam : rawStorage || 64;
-
-                  const currentQuery = slotQueries[index] || "";
-                  const isSearching = activeSlotSearch === index;
-
-                  const suggestions = isSearching && currentQuery.trim().length > 1
-                    ? initialPhones
-                        .filter((p) =>
-                          p.model.toLowerCase().includes(currentQuery.toLowerCase()) ||
-                          p.brand.toLowerCase().includes(currentQuery.toLowerCase())
-                        )
-                        .slice(0, 6)
-                    : [];
+            {/* MODAL SCROLLABLE COMPARISON BODY */}
+            <div className="overflow-y-auto flex-1 p-4 sm:p-6 space-y-6">
+              
+              {/* ========================================================================= */}
+              {/* TOP SLOT CONTROLLERS: 3 INTERACTIVE DEVICE SLOTS WITH DEDICATED SEARCH BARS */}
+              {/* ========================================================================= */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {[0, 1, 2].map((slotIdx) => {
+                  const phone = slots[slotIdx];
+                  const query = slotQueries[slotIdx];
+                  const isSearching = activeSlotSearch === slotIdx;
+                  const suggestions = getSuggestionsForSlot(slotIdx);
 
                   return (
                     <div
-                      key={phone.id}
-                      className="bg-surface-container-lowest rounded-2xl p-4 flex flex-col justify-between relative shadow-xs border border-border-hairline overflow-hidden"
+                      key={slotIdx}
+                      ref={(el) => {
+                        searchContainerRefs.current[slotIdx] = el;
+                      }}
+                      className={`rounded-2xl p-4 flex flex-col justify-between relative shadow-xs border transition-all ${
+                        phone
+                          ? "bg-surface-container-lowest border-border-hairline"
+                          : "bg-surface-subtle/50 border-2 border-dashed border-border-hairline hover:border-deal-orange/50"
+                      }`}
                     >
-                      {/* Search & Swap Header */}
-                      <div className="mb-3 pb-2.5 border-b border-border-hairline relative">
-                        <div className="flex items-center justify-between mb-1.5">
-                          <span className="font-label-sm text-[11px] font-bold tracking-wider uppercase text-on-surface-variant">
-                            COMPARE WITH
-                          </span>
+                      {/* Slot Header Bar */}
+                      <div className="flex items-center justify-between gap-2 mb-2 pb-2 border-b border-border-hairline">
+                        <span className="font-label-sm text-[11px] font-bold tracking-wider uppercase text-deal-orange flex items-center gap-1">
+                          <span className="w-2 h-2 rounded-full bg-deal-orange"></span>
+                          Slot {slotIdx + 1}
+                        </span>
+                        {phone && (
                           <button
-                            onClick={() => removeSlot(index)}
-                            className="w-6 h-6 rounded-md hover:bg-surface-subtle text-outline hover:text-deal-orange flex items-center justify-center transition-colors"
-                            title="Clear slot"
+                            onClick={() => handleRemoveSlot(slotIdx)}
+                            className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-400 hover:text-red-500 hover:bg-red-50 px-2 py-0.5 rounded-md transition-colors"
+                            title="Remove smartphone from this slot"
                           >
-                            <span className="material-symbols-outlined text-[16px]">close</span>
+                            <span className="material-symbols-outlined text-[14px]">close</span>
+                            Remove
                           </button>
-                        </div>
-                        <div className="relative flex items-center">
+                        )}
+                      </div>
+
+                      {/* Interactive Search Bar for this Slot */}
+                      <div className="relative mb-3">
+                        <div className="flex items-center gap-2 bg-surface-container-lowest border border-border-hairline rounded-xl px-3 py-2 shadow-xs focus-within:border-deal-orange focus-within:ring-1 focus-within:ring-deal-orange">
+                          <span className="material-symbols-outlined text-[18px] text-outline">search</span>
                           <input
-                            ref={(el) => {
-                              searchInputRefs.current[index] = el;
-                            }}
-                            className="w-full bg-surface-subtle border border-border-hairline rounded-lg px-2.5 py-1.5 font-body-sm text-body-sm text-on-surface placeholder:text-outline focus:outline-none focus:border-deal-orange transition-colors"
-                            placeholder="Search phone..."
                             type="text"
-                            value={isSearching ? currentQuery : phone.model}
-                            onFocus={() => {
-                              setActiveSlotSearch(index);
-                              setSlotQueries((prev) => ({ ...prev, [index]: "" }));
-                            }}
+                            value={query}
                             onChange={(e) => {
-                              setSlotQueries((prev) => ({ ...prev, [index]: e.target.value }));
+                              const val = e.target.value;
+                              setSlotQueries((prev) => {
+                                const next = [...prev];
+                                next[slotIdx] = val;
+                                return next;
+                              });
+                              setActiveSlotSearch(slotIdx);
                             }}
+                            onFocus={() => setActiveSlotSearch(slotIdx)}
+                            placeholder={phone ? `Switch ${phone.model}...` : `Search phone for Slot ${slotIdx + 1}...`}
+                            className="w-full bg-transparent text-xs sm:text-sm text-primary placeholder:text-outline focus:outline-none"
                           />
-                          <span className="material-symbols-outlined text-outline text-[18px] absolute right-2.5 pointer-events-none">
-                            search
-                          </span>
+                          {query && (
+                            <button
+                              onClick={() => {
+                                setSlotQueries((prev) => {
+                                  const next = [...prev];
+                                  next[slotIdx] = "";
+                                  return next;
+                                });
+                              }}
+                              className="text-outline hover:text-primary"
+                            >
+                              <span className="material-symbols-outlined text-[16px]">cancel</span>
+                            </button>
+                          )}
                         </div>
 
-                        {/* Search Dropdown */}
-                        {isSearching && suggestions.length > 0 && (
-                          <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-surface-container-lowest rounded-xl shadow-xl border border-border-hairline overflow-hidden divide-y divide-border-hairline max-h-60 overflow-y-auto">
-                            {suggestions.map((sug) => (
-                              <button
-                                key={sug.id}
-                                onClick={() => swapSlot(index, sug)}
-                                className="w-full p-2.5 flex items-center justify-between text-left hover:bg-surface-subtle transition-colors"
-                              >
-                                <span className="font-label-md text-label-md font-semibold text-primary truncate">
-                                  {sug.brand} {sug.model}
-                                </span>
-                                <span className="font-body-sm text-body-sm text-deal-orange font-bold shrink-0 ml-2">
-                                  {formatPKR(sug.lowest_verified_price || sug.price_pkr)}
-                                </span>
-                              </button>
-                            ))}
+                        {/* Search Dropdown Results */}
+                        {isSearching && (
+                          <div className="absolute top-full left-0 right-0 mt-1 z-50 bg-surface-container-lowest rounded-xl shadow-2xl border border-border-hairline max-h-64 overflow-y-auto divide-y divide-border-hairline animate-in fade-in slide-in-from-top-1 duration-150">
+                            <div className="px-3 py-1.5 bg-surface-container-low text-[10px] font-bold text-outline uppercase tracking-wider">
+                              {query.trim() ? `Search Results for "${query}"` : "Suggested Smartphones"}
+                            </div>
+                            {suggestions.length > 0 ? (
+                              suggestions.map((sug) => {
+                                const lowest = sug.lowest_verified_price || sug.price_pkr;
+                                return (
+                                  <div
+                                    key={sug.id}
+                                    onClick={() => handleSelectPhone(slotIdx, sug)}
+                                    className="p-2.5 flex items-center gap-2.5 hover:bg-surface-subtle cursor-pointer transition-colors"
+                                  >
+                                    <div className="w-9 h-9 shrink-0 bg-surface-container rounded-lg flex items-center justify-center p-0.5 overflow-hidden">
+                                      <img
+                                        src={getPhoneImg(sug)}
+                                        alt={sug.model}
+                                        className="max-h-8 max-w-full object-contain"
+                                      />
+                                    </div>
+                                    <div className="min-w-0 flex-1">
+                                      <div className="text-xs font-bold text-primary truncate">{sug.model}</div>
+                                      <div className="text-[10px] text-outline truncate">{sug.brand}</div>
+                                    </div>
+                                    <div className="text-right shrink-0">
+                                      <div className="text-xs font-bold text-deal-orange">
+                                        {lowest > 0 && sug.status !== "Discontinued" ? formatPKR(lowest) : "Price N/A"}
+                                      </div>
+                                    </div>
+                                  </div>
+                                );
+                              })
+                            ) : (
+                              <div className="p-4 text-center text-xs text-outline">
+                                No phones matching &ldquo;{query}&rdquo;
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>
 
-                      {/* Model Name & Slot Badge */}
-                      <div className="flex items-center justify-between gap-2 mb-3 min-w-0">
-                        <h3 className="font-headline-sm text-headline-sm font-bold text-primary leading-tight truncate">
-                          <Link 
-                            href={`/phone/${phone.slug || phone.id}`}
-                            className="hover:text-deal-orange transition-colors"
-                            title={`View details for ${phone.brand} ${phone.model}`}
-                          >
-                            {phone.model}
-                          </Link>
-                        </h3>
-                        <span
-                          className={`px-2 py-0.5 rounded-full font-label-sm text-[10px] font-bold shrink-0 ${
-                            index === 0
-                              ? "bg-deal-orange text-on-primary"
-                              : "bg-surface-container text-primary"
-                          }`}
-                        >
-                          {index === 0 ? "Selected" : `Slot ${index + 1}`}
-                        </span>
-                      </div>
-
-                      {/* Device Image Presentation Box */}
-                      <Link
-                        href={`/phone/${phone.slug}`}
-                        className="w-full h-44 bg-surface-subtle rounded-xl p-3 flex items-center justify-center relative overflow-hidden group mb-3 border border-border-hairline/60"
-                      >
-                        <img
-                          className="max-h-36 max-w-full w-auto object-contain mx-auto transition-transform duration-300 group-hover:scale-105"
-                          alt={`${phone.brand} ${phone.model}`}
-                          src={getPhoneImg(phone)}
-                        />
-                      </Link>
-
-                      {/* Quick Action Navigation Buttons (2x2 Clean Grid) */}
-                      <div className="grid grid-cols-2 gap-1.5 mb-3 text-[11px] font-bold uppercase">
-                        <Link
-                          className="px-2 py-1.5 bg-primary text-on-primary rounded-lg text-center transition-colors hover:bg-primary/85 text-xs font-semibold flex items-center justify-center"
-                          href={`/phone/${phone.slug}#verdict`}
-                        >
-                          Review
-                        </Link>
-                        <Link
-                          className="px-2 py-1.5 bg-surface-container hover:bg-surface-container-high text-on-surface rounded-lg text-center transition-colors text-xs font-semibold flex items-center justify-center"
-                          href={`/phone/${phone.slug}#specs`}
-                        >
-                          Specs
-                        </Link>
-                        <Link
-                          className="px-2 py-1.5 bg-surface-container hover:bg-surface-container-high text-on-surface rounded-lg text-center transition-colors text-xs font-semibold flex items-center justify-center"
-                          href={`/phone/${phone.slug}#opinions`}
-                        >
-                          Opinions
-                        </Link>
-                        <Link
-                          className="px-2 py-1.5 bg-surface-container hover:bg-surface-container-high text-on-surface rounded-lg text-center transition-colors text-xs font-semibold flex items-center justify-center"
-                          href={`/phone/${phone.slug}#gallery`}
-                        >
-                          Pictures
-                        </Link>
-                      </div>
-
-                      {/* Specs & Pricing */}
-                      <div className="pt-2.5 border-t border-border-hairline">
-                        <span className="text-[11px] text-outline block font-medium">
-                          {safeStorage}GB Storage • {safeRam}GB RAM
-                        </span>
-                        <div className="flex items-baseline justify-between mt-1">
-                          <span className="font-headline-sm text-headline-sm font-bold text-deal-orange">
-                            {formatPKR(lowestPrice)}
-                          </span>
+                      {/* Slot Body: Either Selected Phone or Empty Slot Prompt */}
+                      {phone ? (
+                        <div className="flex flex-col items-center text-center">
                           <Link
-                            className="font-label-sm text-[11px] font-bold text-deal-orange hover:underline uppercase tracking-wide"
-                            href={`/phone/${phone.slug}#retailers`}
+                            href={`/phone/${phone.slug}`}
+                            className="w-full h-36 bg-surface-subtle rounded-xl p-2.5 flex items-center justify-center relative overflow-hidden group mb-2.5 border border-border-hairline/60"
                           >
-                            All Prices
+                            <img
+                              className="max-h-32 max-w-full w-auto object-contain mx-auto transition-transform duration-300 group-hover:scale-105"
+                              alt={`${phone.brand} ${phone.model}`}
+                              src={getPhoneImg(phone)}
+                            />
                           </Link>
-                        </div>
-                      </div>
 
-                      {/* Store Deal CTA */}
-                      <a
-                        className="mt-3 w-full py-2 bg-deal-orange hover:bg-deal-orange/90 text-on-primary font-label-md text-label-md font-bold rounded-xl flex items-center justify-center gap-1.5 transition-colors shadow-xs"
-                        href={phone.retailers?.[0]?.url || `https://priceoye.pk`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        <span>View Store Deal</span>
-                        <span className="material-symbols-outlined text-[16px]">arrow_outward</span>
-                      </a>
-                    </div>
-                  );
-                })}
+                          <span className="text-[11px] font-bold text-deal-orange uppercase tracking-wider block">
+                            {phone.brand}
+                          </span>
+                          <h3 className="font-headline-sm text-sm sm:text-base font-bold text-primary line-clamp-1 mb-1">
+                            <Link href={`/phone/${phone.slug}`} className="hover:underline">
+                              {phone.model}
+                            </Link>
+                          </h3>
 
-                {/* Empty Slot Fillers up to STRICTLY 3 slots */}
-                {Array.from({ length: Math.max(0, 3 - compareList.length) }).map((_, i) => (
-                  <div
-                    key={`empty-slot-${i}`}
-                    onClick={() => {
-                      const candidate = initialPhones.find((p) => !isInTray(p));
-                      if (candidate) togglePhone(candidate);
-                    }}
-                    className="rounded-2xl p-6 border-2 border-dashed border-border-hairline flex flex-col items-center justify-center text-center cursor-pointer hover:border-deal-orange hover:bg-surface-subtle transition-all h-full min-h-[360px]"
-                  >
-                    <div className="w-12 h-12 rounded-full bg-surface-container flex items-center justify-center text-deal-orange mb-3">
-                      <span className="material-symbols-outlined text-[26px]">add</span>
-                    </div>
-                    <h4 className="font-headline-sm text-headline-sm font-bold text-primary">
-                      Add Smartphone
-                    </h4>
-                    <p className="font-body-sm text-body-sm text-on-surface-variant mt-1">
-                      Compare up to 3 devices side-by-side
-                    </p>
-                  </div>
-                ))}
-              </div>
-
-              {/* 2. VERDICT & BENCHMARK SCORE SECTION (3 SECTIONS ALIGNED) */}
-              <div className="pt-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="material-symbols-outlined text-deal-orange text-[22px]">workspace_premium</span>
-                  <h3 className="font-headline-sm text-headline-sm font-bold text-primary">
-                    Benchmark Score & Verdict
-                  </h3>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {compareList.slice(0, 3).map((phone, idx) => {
-                    const rating = getDeviceRating(phone, idx);
-                    return (
-                      <div
-                        key={`rating-${phone.id}`}
-                        className="p-4 rounded-xl bg-surface-container-low flex flex-col justify-between border border-border-hairline"
-                      >
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="w-12 h-12 rounded-xl bg-primary text-on-primary flex flex-col items-center justify-center">
-                            <span className="font-headline-sm text-headline-sm font-bold leading-none">
-                              {rating.score}
+                          <div className="flex items-center gap-2 mb-3">
+                            <span className={`font-bold text-sm sm:text-base ${(phone.lowest_verified_price ?? phone.price_pkr ?? 0) > 0 && phone.status !== "Discontinued" ? "text-deal-orange" : "text-slate-500"}`}>
+                              {(phone.lowest_verified_price ?? phone.price_pkr ?? 0) > 0 && phone.status !== "Discontinued" ? formatPKR(phone.lowest_verified_price ?? phone.price_pkr!) : "Price N/A"}
                             </span>
-                            <span className="text-[9px] text-outline-variant font-medium">/ 10</span>
+                            <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-surface-container text-primary">
+                              {phone.status === "Discontinued" ? "Discontinued" : phone.pta_status === "approved" ? "PTA Approved" : "Non-PTA"}
+                            </span>
                           </div>
-                          <span className="px-2.5 py-1 rounded-full bg-deal-orange/15 text-deal-orange font-label-sm text-label-sm font-bold">
-                            {rating.badge}
-                          </span>
-                        </div>
-                        <h4 className="font-headline-sm text-headline-sm font-bold text-primary mb-1 truncate">
-                          {phone.model}
-                        </h4>
-                        <p className="font-body-sm text-body-sm text-on-surface-variant">
-                          {rating.text}
-                        </p>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
 
-              {/* 3. DETAILED SPECIFICATION SHOOTOUT TABLES (3 COLUMNS ALIGNED) */}
-              <div className="pt-6 space-y-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-deal-orange text-[22px]">tune</span>
-                    <h3 className="font-headline-sm text-headline-sm font-bold text-primary">
-                      Direct Specification Shootout
-                    </h3>
-                  </div>
-                  <span className="font-label-sm text-label-sm text-outline">
-                    Pakistani Market Spec Standards
-                  </span>
-                </div>
-
-                {/* Table 1: Market & PTA DIRBS Matrix */}
-                <div className="rounded-xl overflow-hidden shadow-sm bg-surface-container-lowest border border-border-hairline">
-                  <div className="bg-surface-container-high px-4 py-2.5 font-label-lg text-label-lg font-bold text-primary flex items-center gap-2">
-                    <span className="material-symbols-outlined text-[18px]">account_balance_wallet</span>
-                    Local Retail & PTA DIRBS Taxes (FBR Approved)
-                  </div>
-                  <div className="divide-y divide-surface-container">
-                    {/* Row: PriceOye Online */}
-                    {(!diffOnly || new Set(compareList.map((p) => p.lowest_verified_price || p.price_pkr)).size > 1) && (
-                      <div className="grid grid-cols-1 md:grid-cols-4 p-3.5 items-center hover:bg-surface-subtle transition-colors">
-                        <span className="font-label-md text-label-md text-outline font-semibold">
-                          PriceOye Online
-                        </span>
-                        {compareList.slice(0, 3).map((p, i) => (
-                          <span
-                            key={p.id}
-                            className={`font-body-md text-body-md ${
-                              i === 0 ? "text-deal-orange font-bold" : "text-primary font-medium"
-                            }`}
-                          >
-                            {formatPKR(p.lowest_verified_price || p.price_pkr)}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Row: Hafeez Centre Wholesale Benchmark */}
-                    <div className="grid grid-cols-1 md:grid-cols-4 p-3.5 items-center bg-deal-orange/5 hover:bg-deal-orange/10 transition-colors">
-                      <div className="flex items-center gap-1.5">
-                        <span className="font-label-md text-label-md text-primary font-bold">
-                          Hafeez Centre Cash
-                        </span>
-                        <span className="material-symbols-outlined text-deal-orange text-[16px]">store</span>
-                      </div>
-                      {compareList.slice(0, 3).map((p, i) => {
-                        const price = p.lowest_verified_price || p.price_pkr;
-                        const wholesale = Math.round(price * 0.98);
-                        return (
-                          <div key={p.id} className="flex flex-col">
-                            <span
-                              className={`font-body-md text-body-md ${
-                                i === 0 ? "text-deal-orange font-bold" : "text-primary font-medium"
-                              }`}
+                          <div className="w-full grid grid-cols-2 gap-1.5 text-[11px] font-semibold">
+                            <Link
+                              href={`/phone/${phone.slug}#specs`}
+                              className="py-1.5 px-2 rounded-lg bg-surface-container hover:bg-surface-container-high text-primary transition-colors text-center"
                             >
-                              {formatPKR(wholesale)}
-                            </span>
-                            {i === 0 && (
-                              <span className="text-[10px] text-outline font-semibold">
-                                Lowest physical benchmark
+                              Full Specs
+                            </Link>
+                            {(phone.lowest_verified_price ?? phone.price_pkr ?? 0) > 0 && phone.status !== "Discontinued" ? (
+                              <a
+                                href={phone.retailers?.[0]?.url || `https://priceoye.pk`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="py-1.5 px-2 rounded-lg bg-deal-orange hover:bg-deal-orange/90 text-on-primary transition-colors text-center font-bold flex items-center justify-center gap-1"
+                              >
+                                View Deal ↗
+                              </a>
+                            ) : (
+                              <span className="py-1.5 px-2 rounded-lg bg-slate-100 text-slate-500 text-center font-medium">
+                                Unlisted
                               </span>
                             )}
                           </div>
-                        );
-                      })}
-                    </div>
-
-                    {/* Row: PTA DIRBS on Passport */}
-                    {(!diffOnly || new Set(compareList.map((p) => p.pta_tax?.passport)).size > 1) && (
-                      <div className="grid grid-cols-1 md:grid-cols-4 p-3.5 items-center hover:bg-surface-subtle transition-colors">
-                        <span className="font-label-md text-label-md text-outline font-semibold">
-                          PTA Tax (Passport)
-                        </span>
-                        {compareList.slice(0, 3).map((p) => (
-                          <span key={p.id} className="font-body-md text-body-md text-primary font-medium">
-                            {formatPKR(p.pta_tax?.passport || (p.price_pkr > 40000 ? 19500 : 3200))}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Row: PTA DIRBS on CNIC */}
-                    {(!diffOnly || new Set(compareList.map((p) => p.pta_tax?.cnic)).size > 1) && (
-                      <div className="grid grid-cols-1 md:grid-cols-4 p-3.5 items-center hover:bg-surface-subtle transition-colors">
-                        <span className="font-label-md text-label-md text-outline font-semibold">
-                          PTA Tax (CNIC)
-                        </span>
-                        {compareList.slice(0, 3).map((p) => (
-                          <span key={p.id} className="font-body-md text-body-md text-primary font-medium">
-                            {formatPKR(p.pta_tax?.cnic || (p.price_pkr > 40000 ? 24000 : 4100))}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Table 2: Display Specs */}
-                <div className="rounded-xl overflow-hidden shadow-sm bg-surface-container-lowest border border-border-hairline">
-                  <div className="bg-surface-container-high px-4 py-2.5 font-label-lg text-label-lg font-bold text-primary flex items-center gap-2">
-                    <span className="material-symbols-outlined text-[18px]">smartphone</span>
-                    Display & Panel Quality
-                  </div>
-                  <div className="divide-y divide-surface-container">
-                    <div className="grid grid-cols-1 md:grid-cols-4 p-3.5 items-center hover:bg-surface-subtle transition-colors">
-                      <span className="font-label-md text-label-md text-outline font-semibold">
-                        Screen Technology
-                      </span>
-                      {compareList.slice(0, 3).map((p) => {
-                        const isAmoled = p.display?.type?.toLowerCase().includes("amoled");
-                        return (
-                          <span
-                            key={p.id}
-                            className={`font-body-md text-body-md ${
-                              isAmoled ? "text-deal-orange font-bold" : "text-primary font-medium"
-                            }`}
-                          >
-                            {p.display?.size || 6.6}&quot; {p.display?.type || "HD+ IPS LCD"}
-                            {isAmoled ? " (Winner)" : ""}
-                          </span>
-                        );
-                      })}
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-4 p-3.5 items-center hover:bg-surface-subtle transition-colors">
-                      <span className="font-label-md text-label-md text-outline font-semibold">
-                        Resolution
-                      </span>
-                      {compareList.slice(0, 3).map((p) => {
-                        const isFhd = p.display?.resolution?.includes("1080") || p.display?.resolution?.includes("2340");
-                        return (
-                          <span
-                            key={p.id}
-                            className={`font-body-md text-body-md ${
-                              isFhd ? "text-primary font-bold" : "text-primary font-medium"
-                            }`}
-                          >
-                            {p.display?.resolution || "720 x 1612 px (HD+)"}
-                          </span>
-                        );
-                      })}
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-4 p-3.5 items-center hover:bg-surface-subtle transition-colors">
-                      <span className="font-label-md text-label-md text-outline font-semibold">
-                        Glass Protection
-                      </span>
-                      {compareList.slice(0, 3).map((p) => (
-                        <span
-                          key={p.id}
-                          className={`font-body-md text-body-md ${
-                            p.display?.protection && p.display.protection !== "N/A"
-                              ? "text-primary font-semibold"
-                              : "text-outline font-medium"
-                          }`}
-                        >
-                          {p.display?.protection && p.display.protection !== "N/A"
-                            ? p.display.protection
-                            : "Reinforced Glass"}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Table 3: Processor & Memory Architecture */}
-                <div className="rounded-xl overflow-hidden shadow-sm bg-surface-container-lowest border border-border-hairline">
-                  <div className="bg-surface-container-high px-4 py-2.5 font-label-lg text-label-lg font-bold text-primary flex items-center gap-2">
-                    <span className="material-symbols-outlined text-[18px]">memory</span>
-                    Processor & Memory Architecture
-                  </div>
-                  <div className="divide-y divide-surface-container">
-                    <div className="grid grid-cols-1 md:grid-cols-4 p-3.5 items-center hover:bg-surface-subtle transition-colors">
-                      <span className="font-label-md text-label-md text-outline font-semibold">
-                        SoC Chipset
-                      </span>
-                      {compareList.slice(0, 3).map((p) => {
-                        const isG99 = p.platform?.chipset?.includes("G99") || p.platform?.chipset?.includes("Snapdragon");
-                        return (
-                          <span
-                            key={p.id}
-                            className={`font-body-md text-body-md ${
-                              isG99 ? "text-deal-orange font-bold" : "text-primary font-semibold"
-                            }`}
-                          >
-                            {p.platform?.chipset || "Octa-core Processor"}
-                          </span>
-                        );
-                      })}
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-4 p-3.5 items-center hover:bg-surface-subtle transition-colors">
-                      <span className="font-label-md text-label-md text-outline font-semibold">
-                        AnTuTu v10 Benchmark
-                      </span>
-                      {compareList.slice(0, 3).map((p) => {
-                        const score = p.platform?.antutu_score || (p.price_pkr > 40000 ? 420000 : p.price_pkr > 25000 ? 150000 : 230000);
-                        const pct = Math.min(100, Math.round((score / maxAntutu) * 100));
-                        const isTop = score === Math.max(...compareList.map(x => x.platform?.antutu_score || 0));
-
-                        return (
-                          <div key={p.id} className="pr-2">
-                            <div className="flex items-center justify-between text-label-sm font-label-sm mb-1">
-                              <span className={`font-bold ${isTop ? "text-deal-orange" : "text-primary"}`}>
-                                ~{score.toLocaleString()}
-                              </span>
-                            </div>
-                            <div className="w-full bg-surface-container h-2 rounded-full overflow-hidden">
-                              <div
-                                className={`h-full rounded-full transition-all duration-500 ${
-                                  isTop ? "bg-deal-orange" : "bg-primary"
-                                }`}
-                                style={{ width: `${pct}%` }}
-                              ></div>
-                            </div>
+                        </div>
+                      ) : (
+                        <div className="flex-1 flex flex-col items-center justify-center p-6 text-center">
+                          <div className="w-12 h-12 rounded-full bg-deal-orange/10 text-deal-orange flex items-center justify-center mb-2.5">
+                            <span className="material-symbols-outlined text-[24px]">add_circle</span>
                           </div>
-                        );
-                      })}
-                    </div>
+                          <h4 className="font-bold text-primary text-sm mb-1">
+                            No Phone Selected
+                          </h4>
+                          <p className="text-xs text-outline mb-3 max-w-[200px]">
+                            Type a phone model above to compare its technical specs in Slot {slotIdx + 1}
+                          </p>
 
-                    <div className="grid grid-cols-1 md:grid-cols-4 p-3.5 items-center hover:bg-surface-subtle transition-colors">
-                      <span className="font-label-md text-label-md text-outline font-semibold">
-                        Base Config / Expansion
-                      </span>
-                      {compareList.slice(0, 3).map((p) => {
-                        const rawRam = p.memory?.ram_gb;
-                        const rawStorage = p.memory?.storage_gb;
-                        const safeRam = rawRam && rawStorage && rawRam > rawStorage ? rawStorage : rawRam || 4;
-                        const safeStorage = rawRam && rawStorage && rawRam > rawStorage ? rawRam : rawStorage || 64;
-
-                        return (
-                          <span key={p.id} className="font-body-md text-body-md text-primary font-medium">
-                            {safeStorage}GB Storage + {safeRam}GB RAM ({p.memory?.card_slot ? "microSD" : "Dedicated Slot"})
-                          </span>
-                        );
-                      })}
+                          {/* Quick Pick Chips */}
+                          <div className="flex flex-wrap items-center justify-center gap-1.5">
+                            {(slotIdx === 0
+                              ? ["Galaxy A15", "Redmi Note 13"]
+                              : slotIdx === 1
+                              ? ["Redmi A3", "iPhone 15"]
+                              : ["Infinix Smart 8", "Spark 20"]
+                            ).map((modelName) => {
+                              const match = initialPhones.find((p) =>
+                                p.model.toLowerCase().includes(modelName.toLowerCase())
+                              );
+                              if (!match) return null;
+                              return (
+                                <button
+                                  key={modelName}
+                                  onClick={() => handleSelectPhone(slotIdx, match)}
+                                  className="text-[10px] font-semibold px-2 py-1 rounded-md bg-surface-container hover:bg-deal-orange hover:text-on-primary transition-colors text-primary border border-border-hairline"
+                                >
+                                  + {modelName}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
                     </div>
+                  );
+                })}
+              </div>
+
+              {/* ========================================================================= */}
+              {/* SPECIFICATION COMPARISON TABLE: SEPARATE DEDICATED COLUMN FOR EACH DEVICE */}
+              {/* ========================================================================= */}
+              <div className="pt-2">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="material-symbols-outlined text-deal-orange text-[20px]">table_chart</span>
+                    <h3 className="font-headline-sm text-base sm:text-lg font-bold text-primary">
+                      Side-By-Side Specification Shootout
+                    </h3>
                   </div>
+                  <span className="text-xs text-outline font-medium hidden sm:inline">
+                    Dedicated specification column for each device
+                  </span>
                 </div>
 
-                {/* Table 4: Battery & Charging */}
-                <div className="rounded-xl overflow-hidden shadow-sm bg-surface-container-lowest border border-border-hairline">
-                  <div className="bg-surface-container-high px-4 py-2.5 font-label-lg text-label-lg font-bold text-primary flex items-center gap-2">
-                    <span className="material-symbols-outlined text-[18px]">battery_charging_full</span>
-                    Battery & Charging Rates
-                  </div>
-                  <div className="divide-y divide-surface-container">
-                    <div className="grid grid-cols-1 md:grid-cols-4 p-3.5 items-center hover:bg-surface-subtle transition-colors">
-                      <span className="font-label-md text-label-md text-outline font-semibold">
-                        Battery Capacity
-                      </span>
-                      {compareList.slice(0, 3).map((p) => (
-                        <span key={p.id} className="font-body-md text-body-md text-primary font-medium">
-                          {p.battery?.capacity_mah || 5000} mAh
-                        </span>
-                      ))}
-                    </div>
+                {/* Unified Shootout Table with Dedicated Device Columns */}
+                <div className="overflow-x-auto w-full border border-border-hairline rounded-2xl bg-surface-container-lowest shadow-sm">
+                  <table className="w-full text-left border-collapse min-w-[780px]">
+                    
+                    {/* Sticky Table Header Showing Device Columns */}
+                    <thead className="sticky top-0 z-20 bg-surface-container-low shadow-xs border-b border-border-hairline">
+                      <tr>
+                        <th className="py-3 px-4 font-bold text-xs uppercase tracking-wider text-outline w-1/4 min-w-[190px] align-middle">
+                          Specifications
+                        </th>
+                        {[0, 1, 2].map((slotIdx) => {
+                          const phone = slots[slotIdx];
+                          return (
+                            <th
+                              key={slotIdx}
+                              className="py-3 px-4 w-1/4 min-w-[210px] align-middle border-l border-border-hairline"
+                            >
+                              <div className="flex items-center justify-between gap-2">
+                                <div className="flex items-center gap-2 min-w-0">
+                                  {phone ? (
+                                    <>
+                                      <div className="w-8 h-8 rounded-lg bg-surface-container-lowest p-0.5 shrink-0 flex items-center justify-center overflow-hidden border border-border-hairline">
+                                        <img
+                                          src={getPhoneImg(phone)}
+                                          alt={phone.model}
+                                          className="max-h-7 max-w-full object-contain"
+                                        />
+                                      </div>
+                                      <div className="min-w-0">
+                                        <div className="font-bold text-xs text-primary truncate">{phone.model}</div>
+                                        <div className="text-[10px] font-semibold text-deal-orange">
+                                          {(phone.lowest_verified_price ?? phone.price_pkr ?? 0) > 0 && phone.status !== "Discontinued"
+                                            ? formatPKR(phone.lowest_verified_price ?? phone.price_pkr!)
+                                            : "Price N/A"}
+                                        </div>
+                                      </div>
+                                    </>
+                                  ) : (
+                                    <div className="text-xs font-semibold text-outline italic">
+                                      Slot {slotIdx + 1} (Empty)
+                                    </div>
+                                  )}
+                                </div>
+                                {phone && (
+                                  <button
+                                    onClick={() => handleRemoveSlot(slotIdx)}
+                                    className="text-slate-400 hover:text-red-500 p-1"
+                                    title={`Clear Slot ${slotIdx + 1}`}
+                                  >
+                                    <span className="material-symbols-outlined text-[15px]">close</span>
+                                  </button>
+                                )}
+                              </div>
+                            </th>
+                          );
+                        })}
+                      </tr>
+                    </thead>
 
-                    <div className="grid grid-cols-1 md:grid-cols-4 p-3.5 items-center hover:bg-surface-subtle transition-colors">
-                      <span className="font-label-md text-label-md text-outline font-semibold">
-                        Charging Speed
-                      </span>
-                      {compareList.slice(0, 3).map((p) => {
-                        const watt = p.battery?.charging_watt || 18;
-                        const inBox = watt === 18 ? "18W Fast Charge In-Box" : watt >= 25 ? "25W Fast (Adapter Sold Separately)" : "10W Standard Type-C";
-                        const isFast = watt === 18;
+                    {/* Table Body: Category Sections and Spec Rows */}
+                    <tbody className="divide-y divide-border-hairline">
+                      {SPEC_SECTIONS.map((section, sIdx) => {
+                        // If "Differences Only" is checked, filter out rows where all selected phones match
+                        const filteredRows = section.rows.filter((row) => {
+                          if (!diffOnly || compareList.length < 2) return true;
+                          if (!row.getRawValue) return true;
+                          const values = compareList.map((p) => String(row.getRawValue!(p)).trim().toLowerCase());
+                          const allSame = values.every((v) => v === values[0]);
+                          return !allSame;
+                        });
+
+                        if (filteredRows.length === 0) return null;
+
                         return (
-                          <span
-                            key={p.id}
-                            className={`font-body-md text-body-md ${
-                              isFast
-                                ? "text-deal-orange font-bold"
-                                : watt >= 25
-                                ? "text-primary font-semibold"
-                                : "text-outline font-medium"
-                            }`}
-                          >
-                            {inBox}
-                          </span>
+                          <React.Fragment key={sIdx}>
+                            {/* Section Banner Header */}
+                            <tr className="bg-surface-container-high/60 border-t-2 border-border-hairline">
+                              <td
+                                colSpan={4}
+                                className="py-2.5 px-4 font-bold text-xs uppercase tracking-wider text-primary bg-surface-container-low"
+                              >
+                                <div className="flex items-center gap-1.5">
+                                  <span className="material-symbols-outlined text-[17px] text-deal-orange">
+                                    {section.icon}
+                                  </span>
+                                  <span>{section.title}</span>
+                                </div>
+                              </td>
+                            </tr>
+
+                            {/* Detailed Rows for this Section */}
+                            {filteredRows.map((row, rIdx) => (
+                              <tr
+                                key={rIdx}
+                                className="hover:bg-surface-container-lowest/60 transition-colors border-b border-border-hairline/80"
+                              >
+                                {/* Spec Title / Label Column */}
+                                <td className="py-3 px-4 font-semibold text-xs text-outline bg-surface-container-lowest align-middle">
+                                  {row.label}
+                                </td>
+
+                                {/* Device 1 Column */}
+                                <td className="py-3 px-4 text-xs border-l border-border-hairline align-middle">
+                                  {slots[0] ? (
+                                    row.getValue(slots[0])
+                                  ) : (
+                                    <span className="text-outline/30 font-normal select-none">—</span>
+                                  )}
+                                </td>
+
+                                {/* Device 2 Column */}
+                                <td className="py-3 px-4 text-xs border-l border-border-hairline align-middle">
+                                  {slots[1] ? (
+                                    row.getValue(slots[1])
+                                  ) : (
+                                    <span className="text-outline/30 font-normal select-none">—</span>
+                                  )}
+                                </td>
+
+                                {/* Device 3 Column */}
+                                <td className="py-3 px-4 text-xs border-l border-border-hairline align-middle">
+                                  {slots[2] ? (
+                                    row.getValue(slots[2])
+                                  ) : (
+                                    <span className="text-outline/30 font-normal select-none">—</span>
+                                  )}
+                                </td>
+                              </tr>
+                            ))}
+                          </React.Fragment>
                         );
                       })}
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-4 p-3.5 items-center hover:bg-surface-subtle transition-colors">
-                      <span className="font-label-md text-label-md text-outline font-semibold">
-                        Jazz / Zong 4G Band Compatibility
-                      </span>
-                      {compareList.slice(0, 3).map((p) => (
-                        <span key={p.id} className="font-body-md text-body-md text-primary font-medium">
-                          {p.connectivity?.five_g
-                            ? "Full Multi-Carrier LTE-A / 5G"
-                            : "Band 1/3/5/8/40/41 (Verified)"}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>
 
             {/* MODAL FOOTER */}
-            <div className="px-6 py-4 bg-surface-container-low flex flex-col sm:flex-row items-center justify-between gap-4 shrink-0 border-t border-border-hairline">
-              <div className="flex items-center gap-2 text-on-surface-variant text-body-sm font-body-sm">
-                <span className="material-symbols-outlined text-deal-orange text-[18px]">verified</span>
-                <span>
-                  All phones PTA approved under FBR Pakistan DIRBS guidelines with active manufacturer warranties.
-                </span>
+            <div className="px-5 py-3.5 bg-surface-container-low flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0 border-t border-border-hairline">
+              <div className="flex items-center gap-2 text-on-surface-variant text-xs">
+                <span className="material-symbols-outlined text-deal-orange text-[16px]">verified</span>
+                <span>All prices verified across Pakistan markets (PriceOye, Telemart, Hafeez Centre).</span>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2.5">
                 <button
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 bg-surface-container-lowest hover:bg-surface-container text-primary font-label-md text-label-md rounded-lg shadow-sm transition-colors border border-border-hairline"
+                  className="px-3.5 py-1.5 bg-surface-container-lowest hover:bg-surface-container text-primary font-label-md text-xs sm:text-sm rounded-lg shadow-sm transition-colors border border-border-hairline"
                   id="minimize-modal-btn"
                 >
                   Dock to Tray
                 </button>
                 <button
                   onClick={handlePrint}
-                  className="px-5 py-2 bg-deal-orange hover:bg-deal-orange/90 text-on-primary font-label-md text-label-md font-bold rounded-lg shadow-md transition-colors flex items-center gap-1.5"
+                  className="px-4 py-1.5 bg-deal-orange hover:bg-deal-orange/90 text-on-primary font-label-md text-xs sm:text-sm font-bold rounded-lg shadow-md transition-colors flex items-center gap-1.5"
                 >
-                  <span>Download PDF Spec Sheet</span>
-                  <span className="material-symbols-outlined text-[18px]">download</span>
+                  <span>Download Spec Sheet</span>
+                  <span className="material-symbols-outlined text-[16px]">download</span>
                 </button>
               </div>
             </div>
+
           </div>
         </div>
       )}
@@ -988,94 +1198,100 @@ export function CompareClient({ initialPhones, initialCompareSlugs }: CompareCli
       {/* ========================================== */}
       {/* FLOATING / DOCKED COMPARE TRAY (3 SLOTS MAX) */}
       {/* ========================================== */}
-      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-4xl bg-surface-container-lowest/95 backdrop-blur-xl rounded-2xl shadow-2xl p-4 transition-all border border-border-hairline">
-        <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
+      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-4xl bg-surface-container-lowest/95 backdrop-blur-xl rounded-2xl shadow-2xl p-3 sm:p-4 transition-all border border-border-hairline">
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-3">
           {/* Tray Header & Count */}
-          <div className="flex items-center gap-3 shrink-0 self-start lg:self-center">
-            <div className="w-10 h-10 rounded-xl bg-deal-orange/10 text-deal-orange flex items-center justify-center font-bold">
-              <span className="material-symbols-outlined text-[22px]">compare</span>
+          <div className="flex items-center gap-2.5 shrink-0 self-start lg:self-center">
+            <div className="w-9 h-9 rounded-xl bg-deal-orange/10 text-deal-orange flex items-center justify-center font-bold">
+              <span className="material-symbols-outlined text-[20px]">compare</span>
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h4 className="font-label-lg text-label-lg font-bold text-primary">Compare Tray</h4>
-                <span className="px-2 py-0.5 rounded-full bg-deal-orange text-on-primary font-label-sm text-label-sm font-bold">
+                <h4 className="font-label-lg text-sm sm:text-base font-bold text-primary">Compare Tray</h4>
+                <span className="px-2 py-0.5 rounded-full bg-deal-orange text-on-primary font-label-sm text-[11px] font-bold">
                   {compareList.length} of 3
                 </span>
               </div>
-              <p className="font-body-sm text-body-sm text-outline">
-                {compareList.length < 3
-                  ? `Add ${3 - compareList.length} more smartphone to fill`
+              <p className="font-body-sm text-[11px] text-outline">
+                {compareList.length === 0
+                  ? "Select up to 3 smartphones to compare"
+                  : compareList.length < 3
+                  ? `Add ${3 - compareList.length} more device`
                   : "All 3 comparison slots filled"}
               </p>
             </div>
           </div>
 
-          {/* Selected Device Pills / Cards (3 SLOTS MAX) */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 w-full lg:w-auto flex-1 max-w-xl">
-            {compareList.slice(0, 3).map((phone, idx) => {
+          {/* Selected Device Pills / Cards (3 SLOTS) */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 w-full lg:w-auto flex-1 max-w-xl">
+            {[0, 1, 2].map((slotIdx) => {
+              const phone = slots[slotIdx];
+              if (!phone) {
+                return (
+                  <button
+                    key={`tray-empty-${slotIdx}`}
+                    onClick={() => {
+                      setIsModalOpen(true);
+                      setActiveSlotSearch(slotIdx);
+                    }}
+                    className="flex items-center justify-center gap-1.5 p-2 rounded-xl bg-surface-subtle hover:bg-surface-container transition-colors cursor-pointer text-outline hover:text-primary border border-dashed border-border-hairline text-xs font-semibold"
+                  >
+                    <span className="material-symbols-outlined text-[16px]">add_circle</span>
+                    <span>Slot {slotIdx + 1}: Add</span>
+                  </button>
+                );
+              }
+
               const lowestPrice = phone.lowest_verified_price || phone.price_pkr;
               return (
                 <div
                   key={phone.id}
-                  className="flex items-center gap-2 p-2 bg-surface-container rounded-xl relative group border border-border-hairline"
+                  className="flex items-center gap-2 p-1.5 bg-surface-container rounded-xl relative group border border-border-hairline"
                 >
-                  <div className="w-10 h-10 shrink-0 bg-surface-container-lowest rounded-lg flex items-center justify-center p-0.5 overflow-hidden">
+                  <div className="w-8 h-8 shrink-0 bg-surface-container-lowest rounded-lg flex items-center justify-center p-0.5 overflow-hidden">
                     <img
-                      className="h-full max-h-9 max-w-full object-contain"
+                      className="h-full max-h-7 max-w-full object-contain"
                       alt={`${phone.brand} ${phone.model}`}
                       src={getPhoneImg(phone)}
                     />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <span className="font-label-sm text-label-sm font-bold text-primary block truncate">
+                    <span className="font-label-sm text-xs font-bold text-primary block truncate">
                       {phone.model}
                     </span>
-                    <span className="font-body-sm text-body-sm text-deal-orange font-bold truncate block">
-                      {formatPKR(lowestPrice)}
+                    <span className="font-body-sm text-[11px] text-deal-orange font-bold truncate block">
+                      {lowestPrice > 0 && phone.status !== "Discontinued" ? formatPKR(lowestPrice) : "Price N/A"}
                     </span>
                   </div>
                   <button
-                    onClick={() => removeSlot(idx)}
+                    onClick={() => handleRemoveSlot(slotIdx)}
                     className="text-outline hover:text-deal-orange transition-colors p-1"
                     title="Remove device"
                   >
-                    <span className="material-symbols-outlined text-[16px]">close</span>
+                    <span className="material-symbols-outlined text-[15px]">close</span>
                   </button>
                 </div>
               );
             })}
-
-            {/* Empty Slots */}
-            {Array.from({ length: Math.max(0, 3 - compareList.length) }).map((_, i) => (
-              <button
-                key={`tray-empty-${i}`}
-                onClick={() => {
-                  const candidate = initialPhones.find((p) => !isInTray(p));
-                  if (candidate) togglePhone(candidate);
-                }}
-                className="flex items-center justify-center gap-1.5 p-2 rounded-xl bg-surface-subtle hover:bg-surface-container transition-colors cursor-pointer text-outline hover:text-primary border border-dashed border-border-hairline"
-              >
-                <span className="material-symbols-outlined text-[18px]">add_circle</span>
-                <span className="font-label-sm text-label-sm font-semibold truncate">+ Add Device</span>
-              </button>
-            ))}
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center gap-2.5 shrink-0 self-end lg:self-center">
-            <button
-              onClick={clearAll}
-              className="px-3 py-2 text-outline hover:text-primary font-label-md text-label-md transition-colors font-medium"
-            >
-              Clear All
-            </button>
+          <div className="flex items-center gap-2 shrink-0 self-end lg:self-center">
+            {compareList.length > 0 && (
+              <button
+                onClick={clearAll}
+                className="px-2.5 py-1.5 text-outline hover:text-red-500 font-label-md text-xs transition-colors font-medium"
+              >
+                Clear
+              </button>
+            )}
             <button
               onClick={() => setIsModalOpen(true)}
-              className="px-5 py-2.5 bg-deal-orange hover:bg-deal-orange/90 text-on-primary font-label-md text-label-md font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center gap-2 active:scale-95"
+              className="px-4 py-2 bg-deal-orange hover:bg-deal-orange/90 text-on-primary font-label-md text-xs sm:text-sm font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center gap-1.5 active:scale-95"
               id="open-modal-btn"
             >
-              <span>Compare Now ({compareList.length})</span>
-              <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+              <span>{isModalOpen ? "Viewing Compare" : `Compare Now (${compareList.length})`}</span>
+              <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
             </button>
           </div>
         </div>
@@ -1152,11 +1368,6 @@ export function CompareClient({ initialPhones, initialCompareSlugs }: CompareCli
             <p className="font-body-sm text-body-sm text-outline">
               © 2025 CompareIt.pk. All rights reserved. Prices verified across local Pakistan markets.
             </p>
-            <div className="flex items-center gap-space-md">
-              <span className="font-label-sm text-label-sm text-outline uppercase tracking-wider">
-                Lahore • Karachi • Islamabad
-              </span>
-            </div>
           </div>
         </div>
       </footer>

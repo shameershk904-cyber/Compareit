@@ -88,48 +88,17 @@ export function ProductClient({ phone, competitors }: ProductClientProps) {
   };
 
   // Calculations for pricing
-  const lowestPrice = phone.lowest_verified_price || phone.price_pkr;
-  const officialMsrp = phone.price_pkr;
+  const lowestPrice = (phone.lowest_verified_price && phone.lowest_verified_price > 0)
+    ? phone.lowest_verified_price
+    : (phone.price_pkr && phone.price_pkr > 0 ? phone.price_pkr : 0);
+  const officialMsrp = phone.price_pkr && phone.price_pkr > 0 ? phone.price_pkr : lowestPrice;
   const savings = officialMsrp > lowestPrice ? officialMsrp - lowestPrice : 0;
   const savingsPercent = officialMsrp > 0 && savings > 0 ? Math.round((savings / officialMsrp) * 100) : 0;
 
-  // Retailers list
-  const defaultRetailers: Retailer[] = [
-    {
-      store: "PriceOye.pk",
-      price: lowestPrice,
-      in_stock: true,
-      condition: "Official PTA Approved (Brand New)",
-      delivery: "Free 2-3 Days Delivery",
-      url: "https://priceoye.pk",
-    },
-    {
-      store: "Daraz Mall",
-      price: officialMsrp,
-      in_stock: true,
-      condition: "Official Flagship Brand Warranty",
-      delivery: "Express 1-2 Days",
-      url: "https://daraz.pk",
-    },
-    {
-      store: "Telemart.pk",
-      price: Math.round(lowestPrice * 1.02),
-      in_stock: true,
-      condition: "1-Year Official Warranty Box Pack",
-      delivery: "2-4 Business Days",
-      url: "https://telemart.pk",
-    },
-    {
-      store: "Hafeez Centre / Saddar Physical",
-      price: Math.round(lowestPrice * 0.98),
-      in_stock: true,
-      condition: "Physical Market Sealed Cash Deal",
-      delivery: "Walk-in Market (LHR/KHI/ISB)",
-      url: "https://whatmobile.com.pk",
-    },
-  ];
-  const retailers = phone.retailers && phone.retailers.length > 0 ? phone.retailers : defaultRetailers;
-  const minRetailerPrice = Math.min(...retailers.map((r) => r.price));
+  // Retailers list: ONLY show authentic verified retailers, NEVER fabricate fake listings for discontinued phones!
+  const retailers = phone.retailers && phone.retailers.length > 0 ? phone.retailers : [];
+  const minRetailerPrice = retailers.length > 0 ? Math.min(...retailers.map((r) => r.price)) : 0;
+  const hasVerifiedPricing = lowestPrice > 0 && retailers.length > 0 && phone.status !== "Discontinued";
 
   // PTA Tax values
   const tax = phone.pta_tax || {
@@ -143,7 +112,7 @@ export function ProductClient({ phone, competitors }: ProductClientProps) {
     pros: [
       `${phone.battery?.capacity_mah || 4000}mAh Battery with ${phone.battery?.charging_watt || 18}W Fast Charging`,
       `${phone.display?.type || 'HD+ IPS'} Display offering broad sunlight visibility`,
-      `Full official PTA DIRBS approval under ${formatPKR(lowestPrice)}`,
+      `Full official PTA DIRBS approval${hasVerifiedPricing ? ` under ${formatPKR(lowestPrice)}` : " status registered"}`,
       `Dedicated MicroSD slot for expandable storage up to 256GB`,
     ],
     cons: [
@@ -435,7 +404,7 @@ export function ProductClient({ phone, competitors }: ProductClientProps) {
                 <div className="flex flex-col gap-2">
                   <div className="flex items-center justify-between flex-wrap gap-2">
                     <span className="font-label-sm text-label-sm uppercase tracking-wider text-deal-orange font-bold bg-orange-100 px-3 py-0.5 rounded-full">
-                      {lowestPrice < 35000 ? "Entry-Level Value King" : lowestPrice < 100000 ? "Mid-Range Powerhouse" : "Premium Flagship"}
+                      {!hasVerifiedPricing ? "Discontinued / Unlisted Device" : lowestPrice < 35000 ? "Entry-Level Value King" : lowestPrice < 100000 ? "Mid-Range Powerhouse" : "Premium Flagship"}
                     </span>
                     <span className="font-label-md text-label-md text-on-surface-variant">
                       Released {phone.release_date} • Global MSRP: ${phone.usd_price}
@@ -458,25 +427,46 @@ export function ProductClient({ phone, competitors }: ProductClientProps) {
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-border-hairline">
                     <div className="flex flex-col">
                       <div className="flex items-center gap-2">
-                        <span className="font-label-sm text-label-sm text-deal-orange font-bold uppercase tracking-wider">
-                          Lowest Verified Market Price in Pakistan
-                        </span>
-                        <span className="w-2 h-2 rounded-full bg-deal-orange animate-pulse"></span>
+                        {hasVerifiedPricing ? (
+                          <>
+                            <span className="font-label-sm text-label-sm text-deal-orange font-bold uppercase tracking-wider">
+                              Lowest Verified Market Price in Pakistan
+                            </span>
+                            <span className="w-2 h-2 rounded-full bg-deal-orange animate-pulse"></span>
+                          </>
+                        ) : (
+                          <>
+                            <span className="font-label-sm text-label-sm text-slate-500 font-bold uppercase tracking-wider">
+                              Market Status & Availability
+                            </span>
+                            <span className="w-2 h-2 rounded-full bg-slate-400"></span>
+                          </>
+                        )}
                       </div>
-                      <div className="flex items-baseline gap-3 mt-1">
-                        <span className="font-headline-xl text-headline-xl font-bold text-on-surface tracking-tight">
-                          {formatPKR(lowestPrice)}
+                      <div className="flex items-baseline gap-3 mt-1 flex-wrap">
+                        <span className={`font-headline-xl text-headline-xl font-bold tracking-tight ${hasVerifiedPricing ? "text-on-surface" : "text-slate-600"}`}>
+                          {hasVerifiedPricing ? formatPKR(lowestPrice) : "Price N/A"}
                         </span>
-                        {savings > 0 && (
+                        {hasVerifiedPricing && savings > 0 && (
                           <span className="font-label-lg text-label-lg line-through text-outline">
                             Official MSRP: {formatPKR(officialMsrp)}
                           </span>
                         )}
+                        {!hasVerifiedPricing && (
+                          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                            {phone.status || "Discontinued / Unlisted"}
+                          </span>
+                        )}
                       </div>
+                      {!hasVerifiedPricing && (
+                        <p className="text-sm text-slate-500 mt-1.5 max-w-lg">
+                          This model is discontinued and no longer listed for sale by official retail stores across Pakistan.
+                        </p>
+                      )}
                     </div>
 
                     {/* Savings Pill */}
-                    {savings > 0 && (
+                    {hasVerifiedPricing && savings > 0 && (
                       <div className="flex items-center gap-2 self-start md:self-auto bg-orange-100 px-3 py-2 rounded-xl text-deal-orange">
                         <span className="material-symbols-outlined text-[20px]">trending_down</span>
                         <div className="text-left">
@@ -493,13 +483,23 @@ export function ProductClient({ phone, competitors }: ProductClientProps) {
 
                   {/* Quick Action CTAs */}
                   <div className="pt-6 flex flex-wrap items-center gap-3">
-                    <a
-                      className="flex-1 min-w-[200px] flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-deal-orange text-surface-container-lowest hover:bg-orange-600 font-label-lg text-label-lg transition shadow-md hover:shadow-lg font-bold"
-                      href="#market-prices"
-                    >
-                      <span className="material-symbols-outlined text-[18px]">shopping_cart</span>
-                      View Stores & Buy Now ⬇
-                    </a>
+                    {hasVerifiedPricing ? (
+                      <a
+                        className="flex-1 min-w-[200px] flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-deal-orange text-surface-container-lowest hover:bg-orange-600 font-label-lg text-label-lg transition shadow-md hover:shadow-lg font-bold"
+                        href="#market-prices"
+                      >
+                        <span className="material-symbols-outlined text-[18px]">shopping_cart</span>
+                        View Stores & Buy Now ⬇
+                      </a>
+                    ) : (
+                      <a
+                        className="flex-1 min-w-[200px] flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-slate-800 text-surface-container-lowest hover:bg-slate-700 font-label-lg text-label-lg transition shadow-md hover:shadow-lg font-bold"
+                        href="#market-prices"
+                      >
+                        <span className="material-symbols-outlined text-[18px]">inventory_2</span>
+                        Check Market Availability ⬇
+                      </a>
+                    )}
                     <button
                       className={`flex items-center justify-center gap-1.5 px-4 py-3.5 rounded-xl font-label-lg text-label-lg transition ${
                         isInCompareTray
@@ -576,17 +576,31 @@ export function ProductClient({ phone, competitors }: ProductClientProps) {
                 </div>
 
                 {/* Retailer Quick Snippet */}
-                <div className="rounded-xl bg-surface-container-high/40 p-3.5 flex items-center justify-between gap-4 border border-border-hairline">
-                  <div className="flex items-center gap-3">
-                    <span className="w-2.5 h-2.5 rounded-full bg-deal-orange"></span>
-                    <p className="font-body-sm text-body-sm text-on-surface">
-                      <strong>Karachi Saddar & Hafeez Centre:</strong> Physical cash wholesale ready from <strong>{formatPKR(minRetailerPrice)}</strong>.
-                    </p>
+                {retailers.length > 0 && minRetailerPrice > 0 ? (
+                  <div className="rounded-xl bg-surface-container-high/40 p-3.5 flex items-center justify-between gap-4 border border-border-hairline">
+                    <div className="flex items-center gap-3">
+                      <span className="w-2.5 h-2.5 rounded-full bg-deal-orange"></span>
+                      <p className="font-body-sm text-body-sm text-on-surface">
+                        <strong>Karachi Saddar & Hafeez Centre:</strong> Physical cash wholesale ready from <strong>{formatPKR(minRetailerPrice)}</strong>.
+                      </p>
+                    </div>
+                    <a className="font-label-sm text-label-sm text-deal-orange font-bold hover:underline whitespace-nowrap" href="#market-prices">
+                      Compare {retailers.length} Sellers →
+                    </a>
                   </div>
-                  <a className="font-label-sm text-label-sm text-deal-orange font-bold hover:underline whitespace-nowrap" href="#market-prices">
-                    Compare {retailers.length} Sellers →
-                  </a>
-                </div>
+                ) : (
+                  <div className="rounded-xl bg-surface-container-high/40 p-3.5 flex items-center justify-between gap-4 border border-border-hairline">
+                    <div className="flex items-center gap-3">
+                      <span className="w-2.5 h-2.5 rounded-full bg-slate-400"></span>
+                      <p className="font-body-sm text-body-sm text-on-surface">
+                        <strong>Market Status:</strong> Discontinued / Unlisted across official online merchants.
+                      </p>
+                    </div>
+                    <span className="font-label-sm text-label-sm text-slate-500 font-bold whitespace-nowrap">
+                      Price N/A
+                    </span>
+                  </div>
+                )}
 
               </div>
             </div>
@@ -608,7 +622,11 @@ export function ProductClient({ phone, competitors }: ProductClientProps) {
                   Compare {phone.model} With Rivals
                 </h2>
                 <p className="font-body-md text-body-md text-on-surface-variant mt-1">
-                  Direct real-time hardware shootout with top Pakistan market competitors under {formatPKR(Math.max(lowestPrice, comp1.price_pkr, comp2.price_pkr) * 1.1)}.
+                  {lowestPrice > 0 ? (
+                    <>Direct real-time hardware shootout with top Pakistan market competitors under {formatPKR(Math.max(lowestPrice, comp1.price_pkr, comp2.price_pkr) * 1.1)}.</>
+                  ) : (
+                    <>Direct real-time hardware shootout with top category competitors and alternatives.</>
+                  )}
                 </p>
               </div>
 
@@ -975,85 +993,109 @@ export function ProductClient({ phone, competitors }: ProductClientProps) {
               </div>
             </div>
 
-            {/* Price Comparison Table */}
-            <div className="overflow-x-auto rounded-2xl border border-border-hairline shadow-sm bg-surface-container-lowest">
-              <table className="w-full text-left border-collapse">
-                <thead>
-                  <tr className="bg-surface-container-low font-label-sm text-label-sm text-on-surface uppercase tracking-wider border-b border-border-hairline">
-                    <th className="py-3.5 px-4 font-bold">Store / Seller</th>
-                    <th className="py-3.5 px-4 font-bold">Condition & Warranty</th>
-                    <th className="py-3.5 px-4 font-bold">Delivery Time</th>
-                    <th className="py-3.5 px-4 font-bold">Verified Price</th>
-                    <th className="py-3.5 px-4 text-right font-bold">Direct Action</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-border-hairline font-body-md text-body-md">
-                  {retailers.map((r, idx) => {
-                    const isLowest = r.price === minRetailerPrice;
-                    return (
-                      <tr
-                        key={idx}
-                        className={`hover:bg-surface transition ${isLowest ? "bg-orange-100/30" : ""}`}
-                      >
-                        <td className="py-4 px-4">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-surface-container-lowest flex items-center justify-center font-bold text-blue-600 shadow-xs border border-border-hairline">
-                              {r.store.slice(0, 2).toUpperCase()}
-                            </div>
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <span className="font-headline-sm text-headline-sm font-bold text-on-surface">
-                                  {r.store}
-                                </span>
-                                {isLowest && (
-                                  <span className="px-2 py-0.5 rounded-full bg-deal-orange text-surface-container-lowest font-label-sm text-[10px] font-extrabold uppercase">
-                                    Best Online Deal
-                                  </span>
-                                )}
+            {/* Price Comparison Table or Discontinued State */}
+            {retailers.length > 0 ? (
+              <div className="overflow-x-auto rounded-2xl border border-border-hairline shadow-sm bg-surface-container-lowest">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-surface-container-low font-label-sm text-label-sm text-on-surface uppercase tracking-wider border-b border-border-hairline">
+                      <th className="py-3.5 px-4 font-bold">Store / Seller</th>
+                      <th className="py-3.5 px-4 font-bold">Condition & Warranty</th>
+                      <th className="py-3.5 px-4 font-bold">Delivery Time</th>
+                      <th className="py-3.5 px-4 font-bold">Verified Price</th>
+                      <th className="py-3.5 px-4 text-right font-bold">Direct Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border-hairline font-body-md text-body-md">
+                    {retailers.map((r, idx) => {
+                      const isLowest = r.price === minRetailerPrice;
+                      return (
+                        <tr
+                          key={idx}
+                          className={`hover:bg-surface transition ${isLowest ? "bg-orange-100/30" : ""}`}
+                        >
+                          <td className="py-4 px-4">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-xl bg-surface-container-lowest flex items-center justify-center font-bold text-blue-600 shadow-xs border border-border-hairline">
+                                {r.store.slice(0, 2).toUpperCase()}
                               </div>
-                              <span className="font-body-sm text-body-sm text-deal-orange flex items-center gap-1">
-                                <span className="material-symbols-outlined text-[14px]">bolt</span> Instant Dispatch Available
-                              </span>
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <span className="font-headline-sm text-headline-sm font-bold text-on-surface">
+                                    {r.store}
+                                  </span>
+                                  {isLowest && (
+                                    <span className="px-2 py-0.5 rounded-full bg-deal-orange text-surface-container-lowest font-label-sm text-[10px] font-extrabold uppercase">
+                                      Best Online Deal
+                                    </span>
+                                  )}
+                                </div>
+                                <span className="font-body-sm text-body-sm text-deal-orange flex items-center gap-1">
+                                  <span className="material-symbols-outlined text-[14px]">bolt</span> Instant Dispatch Available
+                                </span>
+                              </div>
                             </div>
-                          </div>
-                        </td>
-                        <td className="py-4 px-4">
-                          <span className="font-medium text-on-surface">{r.condition}</span>
-                          <span className="block font-body-sm text-body-sm text-on-surface-variant">Brand New Factory Sealed Box</span>
-                        </td>
-                        <td className="py-4 px-4">
-                          <span className="flex items-center gap-1 text-on-surface font-medium">
-                            <span className="material-symbols-outlined text-[18px] text-blue-600">local_shipping</span>
-                            {r.delivery}
-                          </span>
-                          <span className="font-body-sm text-body-sm text-blue-600 font-medium">Nationwide Tracked</span>
-                        </td>
-                        <td className="py-4 px-4">
-                          <div className={`font-headline-sm text-headline-sm font-bold ${isLowest ? "text-deal-orange" : "text-on-surface"}`}>
-                            {formatPKR(r.price)}
-                          </div>
-                          {officialMsrp > r.price && (
-                            <div className="font-body-sm text-body-sm text-outline line-through">
-                              MSRP {formatPKR(officialMsrp)}
+                          </td>
+                          <td className="py-4 px-4">
+                            <span className="font-medium text-on-surface">{r.condition}</span>
+                            <span className="block font-body-sm text-body-sm text-on-surface-variant">Brand New Factory Sealed Box</span>
+                          </td>
+                          <td className="py-4 px-4">
+                            <span className="flex items-center gap-1 text-on-surface font-medium">
+                              <span className="material-symbols-outlined text-[18px] text-blue-600">local_shipping</span>
+                              {r.delivery}
+                            </span>
+                            <span className="font-body-sm text-body-sm text-blue-600 font-medium">Nationwide Tracked</span>
+                          </td>
+                          <td className="py-4 px-4">
+                            <div className={`font-headline-sm text-headline-sm font-bold ${isLowest ? "text-deal-orange" : "text-on-surface"}`}>
+                              {formatPKR(r.price)}
                             </div>
-                          )}
-                        </td>
-                        <td className="py-4 px-4 text-right">
-                          <a
-                            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-900 text-surface-container-lowest hover:bg-on-surface font-label-md text-label-md font-bold transition shadow-sm"
-                            href={r.url}
-                            rel="noopener noreferrer"
-                            target="_blank"
-                          >
-                            View Deal ↗
-                          </a>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+                            {officialMsrp > r.price && (
+                              <div className="font-body-sm text-body-sm text-outline line-through">
+                                MSRP {formatPKR(officialMsrp)}
+                              </div>
+                            )}
+                          </td>
+                          <td className="py-4 px-4 text-right">
+                            <a
+                              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-900 text-surface-container-lowest hover:bg-on-surface font-label-md text-label-md font-bold transition shadow-sm"
+                              href={r.url}
+                              rel="noopener noreferrer"
+                              target="_blank"
+                            >
+                              View Deal ↗
+                            </a>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="p-8 md:p-12 rounded-2xl border border-border-hairline bg-surface-container-lowest shadow-sm text-center flex flex-col items-center justify-center">
+                <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-500 mb-4">
+                  <span className="material-symbols-outlined text-[36px]">inventory_2</span>
+                </div>
+                <h3 className="font-headline-md text-headline-md font-bold text-on-surface mb-2">
+                  No Active Online Retailers in Pakistan
+                </h3>
+                <p className="font-body-md text-body-md text-on-surface-variant max-w-lg mb-6">
+                  {phone.brand} {phone.model} is a discontinued or unlisted model. Certified online merchants (PriceOye, Daraz, Telemart) no longer maintain active brand-new inventory for this device.
+                </p>
+                <div className="flex flex-wrap items-center justify-center gap-3">
+                  <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface-container-low border border-border-hairline text-body-sm font-semibold text-on-surface">
+                    <span className="w-2.5 h-2.5 rounded-full bg-slate-400"></span>
+                    Verified Retail Price: <strong>N/A</strong>
+                  </div>
+                  <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface-container-low border border-border-hairline text-body-sm font-semibold text-on-surface">
+                    <span className="material-symbols-outlined text-[18px] text-amber-600">store</span>
+                    Availability: <strong>Used / Secondary Market Only</strong>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Trust Assurance Strip */}
             <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-body-sm font-body-sm text-on-surface-variant px-2">

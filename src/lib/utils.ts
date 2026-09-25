@@ -5,8 +5,10 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatPKR(amount?: number) {
-  if (amount === undefined || amount === null) return "N/A";
+export function formatPKR(amount?: number | null) {
+  if (amount === undefined || amount === null || amount <= 0 || isNaN(amount)) {
+    return "Price N/A";
+  }
   return "Rs. " + Math.round(amount).toLocaleString("en-PK");
 }
 

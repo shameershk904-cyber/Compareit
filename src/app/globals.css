@@ -173,7 +173,7 @@ button {
   color: #ffffff;
   padding: 3px 11px;
   border-radius: var(--radius-full);
-  font-weight: 800;
+  font-weight: 600;
   font-size: 0.70rem;
   letter-spacing: 0.03em;
 }
@@ -234,13 +234,34 @@ button {
   align-items: center;
 }
 
-.search-icon {
+.search-icon,
+.search-icon-btn {
   position: absolute;
-  left: 15px;
+  left: 14px;
+  background: none;
+  border: none;
+  padding: 0;
   font-size: 0.90rem;
   opacity: 0.5;
   filter: grayscale(100%);
-  pointer-events: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  z-index: 2;
+}
+
+.search-icon-btn:hover {
+  opacity: 0.85;
+  filter: grayscale(0%);
+  transform: scale(1.08);
+}
+
+#phones-section,
+#products-section,
+.products-section {
+  scroll-margin-top: 85px;
 }
 
 .search-input-wrapper input {
@@ -290,19 +311,22 @@ button {
 }
 
 .action-btn {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 0.45rem;
-  padding: 0.58rem 1.05rem;
+  white-space: nowrap;
+  gap: 0.4rem;
+  height: 2.25rem;
+  padding: 0 1rem;
   border-radius: var(--radius-full);
   font-family: inherit;
   font-size: 0.82rem;
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
   border: 1px solid var(--border-medium);
   background: #ffffff;
   color: var(--text-primary);
+  letter-spacing: 0;
 }
 
 .action-btn:hover {
@@ -312,28 +336,29 @@ button {
 }
 
 .advisor-btn {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  white-space: nowrap;
+  gap: 0.45rem;
   background: var(--accent-orange);
   color: #fff;
   border: 1px solid transparent;
   padding: 0 1.25rem;
-  height: 2.75rem;
+  height: 2.4rem;
   border-radius: var(--radius-full);
-  font-weight: 700;
-  font-size: 0.88rem;
+  font-weight: 500;
+  font-size: 0.85rem;
   cursor: pointer;
-  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-  letter-spacing: -0.01em;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  letter-spacing: 0;
 }
 
 .advisor-btn:hover {
   background: #ffffff;
   color: #000000;
-  border: 1px solid var(--accent-orange);
+  border-color: var(--accent-orange);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(244, 120, 32, 0.15);
+  box-shadow: 0 4px 12px rgba(244, 120, 32, 0.12);
 }
 
 .tax-btn {
@@ -433,21 +458,80 @@ button {
 }
 
 .advisor-badge-pill {
-  background: var(--accent-orange);
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);
   color: #ffffff;
   font-size: 0.68rem;
-  font-weight: 800;
-  padding: 3px 9px;
+  font-weight: 700;
+  padding: 3.5px 10px;
   border-radius: var(--radius-full);
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   display: inline-flex;
   align-items: center;
+  gap: 3px;
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+  animation: aiBadgeBlink 2.2s infinite ease-in-out;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.advisor-badge-pill:hover {
+  animation-play-state: paused;
+  transform: scale(1.08);
+  box-shadow: 0 0 16px rgba(249, 115, 22, 0.7);
+}
+
+.ai-pill-icon {
+  display: inline-block;
+  font-size: 0.75rem;
+  animation: aiIconTwinkle 2.2s infinite ease-in-out;
+}
+
+@keyframes aiBadgeBlink {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.75), 0 2px 6px rgba(249, 115, 22, 0.3);
+    opacity: 0.95;
+    filter: brightness(1);
+  }
+  30% {
+    transform: scale(1.06);
+    box-shadow: 0 0 0 7px rgba(249, 115, 22, 0), 0 4px 16px rgba(249, 115, 22, 0.6);
+    opacity: 1;
+    filter: brightness(1.22);
+  }
+  60% {
+    transform: scale(0.97);
+    box-shadow: 0 0 0 0 rgba(249, 115, 22, 0), 0 1px 4px rgba(249, 115, 22, 0.2);
+    opacity: 0.76;
+    filter: brightness(0.88);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.75), 0 2px 6px rgba(249, 115, 22, 0.3);
+    opacity: 0.95;
+    filter: brightness(1);
+  }
+}
+
+@keyframes aiIconTwinkle {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+  }
+  30% {
+    transform: scale(1.28) rotate(-8deg);
+    filter: drop-shadow(0 0 4px #ffffff);
+  }
+  60% {
+    transform: scale(0.9) rotate(4deg);
+    filter: none;
+  }
 }
 
 .advisor-title-compact {
   font-size: 1.05rem;
-  font-weight: 800;
+  font-weight: 700;
   color: #000000;
   letter-spacing: -0.02em;
 }
@@ -470,7 +554,7 @@ button {
   border-radius: var(--radius-full);
   padding: 4px 12px;
   font-size: 0.74rem;
-  font-weight: 700;
+  font-weight: 500;
   color: #111111;
   cursor: pointer;
   display: inline-flex;
@@ -510,7 +594,7 @@ button {
 
 .adv-row-label {
   font-size: 0.75rem;
-  font-weight: 800;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--text-muted);
@@ -533,7 +617,7 @@ button {
   border-radius: var(--radius-full);
   padding: 6px 12px;
   font-size: 0.78rem;
-  font-weight: 700;
+  font-weight: 500;
   color: #222222;
   cursor: pointer;
   display: inline-flex;
@@ -566,14 +650,14 @@ button {
 }
 
 .adv-tile-name {
-  font-weight: 700;
+  font-weight: 500;
 }
 
 .adv-tile-badge-inline {
   background: #f0f0f2;
   color: #000000;
   font-size: 0.60rem;
-  font-weight: 800;
+  font-weight: 600;
   padding: 1px 5px;
   border-radius: 4px;
   letter-spacing: 0.03em;
@@ -610,18 +694,18 @@ button {
   background: #000000;
   color: #ffffff;
   border: 1.5px solid #000000;
-  height: 38px;
+  height: 2.5rem;
   padding: 0 1.35rem;
   border-radius: var(--radius-full);
   font-size: 0.82rem;
-  font-weight: 800;
+  font-weight: 500;
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   white-space: nowrap;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.14);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
 }
 
 .advisor-cta-btn:hover {
@@ -725,7 +809,7 @@ button {
   background: var(--accent-orange);
   color: #ffffff;
   font-size: 0.70rem;
-  font-weight: 800;
+  font-weight: 600;
   padding: 3px 12px;
   border-radius: var(--radius-full);
   letter-spacing: 0.04em;
@@ -748,14 +832,14 @@ button {
 
 .rec-winner-hero h3 {
   font-size: 1.35rem;
-  font-weight: 800;
+  font-weight: 700;
   color: #000000;
   letter-spacing: -0.02em;
 }
 
 .rec-price {
   font-size: 1.45rem;
-  font-weight: 900;
+  font-weight: 700;
   color: #000000;
   margin: 0.2rem 0;
   font-variant-numeric: tabular-nums;
@@ -767,7 +851,7 @@ button {
   color: #000000;
   border: 1px solid #000000;
   font-size: 0.68rem;
-  font-weight: 800;
+  font-weight: 600;
   padding: 2px 8px;
   border-radius: var(--radius-full);
 }
@@ -793,7 +877,7 @@ button {
 
 .rec-rivals-box h4 {
   font-size: 0.88rem;
-  font-weight: 800;
+  font-weight: 600;
   color: #000000;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -838,13 +922,13 @@ button {
 
 .rival-info h5 {
   font-size: 0.88rem;
-  font-weight: 800;
+  font-weight: 600;
   color: #000000;
 }
 
 .rival-price {
   font-size: 0.82rem;
-  font-weight: 800;
+  font-weight: 600;
   color: #000000;
   font-variant-numeric: tabular-nums;
 }
@@ -868,7 +952,7 @@ button {
 
 .quick-title {
   font-size: 0.78rem;
-  font-weight: 800;
+  font-weight: 600;
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -887,7 +971,7 @@ button {
   color: var(--text-primary);
   font-family: inherit;
   font-size: 0.78rem;
-  font-weight: 600;
+  font-weight: 500;
   padding: 0.42rem 0.95rem;
   border-radius: var(--radius-full);
   cursor: pointer;
@@ -904,7 +988,7 @@ button {
   background: var(--accent-orange);
   border-color: var(--accent-orange);
   color: #fff;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .quick-pta-filter {
@@ -918,7 +1002,7 @@ button {
   gap: 0.5rem;
   cursor: pointer;
   font-size: 0.80rem;
-  font-weight: 700;
+  font-weight: 500;
   color: var(--text-primary);
 }
 
@@ -995,7 +1079,7 @@ button {
 
 .filters-header h3 {
   font-size: 1.05rem;
-  font-weight: 800;
+  font-weight: 700;
   color: #000000;
   letter-spacing: -0.01em;
 }
@@ -1005,7 +1089,7 @@ button {
   border: none;
   color: var(--text-muted);
   font-size: 0.78rem;
-  font-weight: 600;
+  font-weight: 400;
   cursor: pointer;
   transition: color 0.2s;
 }
@@ -1029,7 +1113,7 @@ button {
 
 .filter-label {
   font-size: 0.80rem;
-  font-weight: 800;
+  font-weight: 600;
   color: #000000;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -1042,7 +1126,7 @@ button {
 .filter-val-badge {
   font-size: 0.74rem;
   color: #000000;
-  font-weight: 800;
+  font-weight: 500;
   font-variant-numeric: tabular-nums;
 }
 
@@ -1116,7 +1200,7 @@ button {
   color: #000000;
   font-family: inherit;
   font-size: 0.82rem;
-  font-weight: 700;
+  font-weight: 400;
   outline: none;
   font-variant-numeric: tabular-nums;
 }
@@ -1148,7 +1232,7 @@ button {
 .radio-pill span {
   display: block;
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 500;
   color: var(--text-secondary);
   padding: 0.35rem 0.2rem;
   border-radius: 6px;
@@ -1158,7 +1242,7 @@ button {
 .radio-pill input:checked + span {
   background: #000000;
   color: #ffffff;
-  font-weight: 800;
+  font-weight: 600;
 }
 
 /* Brand Checkbox List */
@@ -1198,7 +1282,7 @@ button {
 
 .brand-check-item.selected {
   color: #000000;
-  font-weight: 800;
+  font-weight: 600;
 }
 
 .brand-check-item input[type="checkbox"] {
@@ -1254,7 +1338,7 @@ button {
   color: var(--text-secondary);
   font-family: inherit;
   font-size: 0.76rem;
-  font-weight: 600;
+  font-weight: 500;
   padding: 0.35rem 0.75rem;
   border-radius: var(--radius-full);
   cursor: pointer;
@@ -1271,7 +1355,7 @@ button {
   background: #000000;
   color: #ffffff;
   border-color: #000000;
-  font-weight: 800;
+  font-weight: 600;
 }
 
 /* Checkbox List (Features) */
@@ -1346,7 +1430,7 @@ button {
 
 .toolbar-info h2 {
   font-size: 1.15rem;
-  font-weight: 800;
+  font-weight: 700;
   color: #000000;
   letter-spacing: -0.02em;
 }
@@ -1363,7 +1447,7 @@ button {
   border: 1px solid var(--border-medium);
   color: #000000;
   font-size: 0.72rem;
-  font-weight: 700;
+  font-weight: 500;
   padding: 2px 9px;
   border-radius: var(--radius-full);
   display: inline-flex;
@@ -1395,7 +1479,7 @@ button {
   color: #000000;
   font-family: inherit;
   font-size: 0.82rem;
-  font-weight: 600;
+  font-weight: 400;
   padding: 0.5rem 1.25rem 0.5rem 0.85rem;
   border-radius: var(--radius-full);
   cursor: pointer;
@@ -1547,7 +1631,7 @@ button {
 
 .card-brand {
   font-size: 0.68rem;
-  font-weight: 800;
+  font-weight: 600;
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -1566,7 +1650,7 @@ button {
 
 .card-title {
   font-size: 1.05rem;
-  font-weight: 800;
+  font-weight: 700;
   color: #000000;
   letter-spacing: -0.02em;
   line-height: 1.35;
@@ -1592,7 +1676,7 @@ button {
 
 .price-pkr-official {
   font-size: 1.25rem;
-  font-weight: 900;
+  font-weight: 700;
   color: #000000;
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
@@ -1611,7 +1695,7 @@ button {
   border: 1px solid var(--border-subtle);
   color: var(--text-primary);
   font-size: 0.68rem;
-  font-weight: 600;
+  font-weight: 500;
   padding: 1px 7px;
   border-radius: var(--radius-full);
 }
@@ -1629,7 +1713,7 @@ button {
   border: 1px solid var(--border-subtle);
   color: var(--text-secondary);
   font-size: 0.70rem;
-  font-weight: 600;
+  font-weight: 400;
   padding: 3px 6px;
   border-radius: 6px;
   display: flex;
@@ -1689,19 +1773,24 @@ button {
   color: #fff;
   border: 1px solid transparent;
   height: 2.25rem;
-  padding: 0 1.25rem;
+  padding: 0 1.1rem;
   border-radius: var(--radius-md);
-  font-weight: 600;
-  font-size: 0.85rem;
+  font-family: inherit;
+  font-weight: 500;
+  font-size: 0.82rem;
+  white-space: nowrap;
   cursor: pointer;
-  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn-spec:hover {
   background: #ffffff;
   color: #000000;
-  border: 1px solid var(--accent-orange);
-  box-shadow: 0 4px 12px rgba(244, 120, 32, 0.15);
+  border-color: var(--accent-orange);
+  box-shadow: 0 4px 12px rgba(244, 120, 32, 0.12);
 }
 
 .btn-compare-card {
@@ -1710,9 +1799,9 @@ button {
   color: var(--text-primary);
   font-family: inherit;
   font-size: 0.78rem;
-  font-weight: 600;
-  height: 38px;
-  padding: 0 0.9rem;
+  font-weight: 500;
+  height: 2.25rem;
+  padding: 0 0.85rem;
   border-radius: var(--radius-full);
   cursor: pointer;
   display: inline-flex;
@@ -1720,6 +1809,7 @@ button {
   justify-content: center;
   white-space: nowrap;
   transition: all 0.2s;
+  letter-spacing: 0;
 }
 
 .btn-compare-card:hover {
@@ -1732,7 +1822,7 @@ button {
   background: #000000;
   color: #ffffff;
   border-color: #000000;
-  font-weight: 800;
+  font-weight: 500;
 }
 
 /* Pagination / Load More */
@@ -1755,20 +1845,25 @@ button {
   border: 1px solid #000000;
   color: #ffffff;
   font-family: inherit;
-  font-size: 0.90rem;
-  font-weight: 800;
-  padding: 0.85rem 2.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  height: 2.75rem;
+  padding: 0 2.25rem;
   border-radius: var(--radius-full);
   cursor: pointer;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-  letter-spacing: -0.01em;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  letter-spacing: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
 }
 
 .load-more-btn:hover {
   background: #27272a;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
 .show-all-btn {
@@ -1777,9 +1872,13 @@ button {
   color: var(--text-primary);
   font-family: inherit;
   font-size: 0.80rem;
-  font-weight: 700;
-  padding: 0.5rem 1.25rem;
+  font-weight: 500;
+  height: 2.25rem;
+  padding: 0 1.1rem;
   border-radius: var(--radius-full);
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
   cursor: pointer;
   transition: all 0.2s;
 }
@@ -1808,7 +1907,7 @@ button {
 
 .empty-state h3 {
   font-size: 1.35rem;
-  font-weight: 800;
+  font-weight: 700;
   color: #000000;
   margin-bottom: 0.5rem;
 }
@@ -1843,14 +1942,16 @@ button {
   color: #000000;
   font-family: inherit;
   font-size: 0.82rem;
-  font-weight: 700;
-  padding: 0.5rem 1.15rem;
+  font-weight: 500;
+  height: 2.25rem;
+  padding: 0 1rem;
   border-radius: var(--radius-full);
   cursor: pointer;
   transition: all 0.2s;
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  white-space: nowrap;
+  gap: 0.35rem;
 }
 
 .back-btn:hover {
@@ -1866,7 +1967,7 @@ button {
 
 .breadcrumbs span {
   color: var(--text-primary);
-  font-weight: 600;
+  font-weight: 500;
 }
 
 /* Product Hero Card */
@@ -1908,7 +2009,7 @@ button {
   background: #ffffff;
   color: #111111;
   font-size: 0.68rem;
-  font-weight: 800;
+  font-weight: 600;
   padding: 3px 10px;
   border-radius: var(--radius-full);
   border: 1.5px solid #111111;
@@ -1938,7 +2039,7 @@ button {
 
 .colors-label {
   font-size: 0.72rem;
-  font-weight: 800;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--text-muted);
@@ -1956,7 +2057,7 @@ button {
   border-radius: var(--radius-full);
   padding: 4px 12px;
   font-size: 0.76rem;
-  font-weight: 700;
+  font-weight: 500;
   color: #111111;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
@@ -1986,7 +2087,7 @@ button {
 
 .thumbs-label {
   font-size: 0.72rem;
-  font-weight: 800;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--text-muted);
@@ -2112,7 +2213,7 @@ button {
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  font-weight: 700;
+  font-weight: 500;
 }
 
 .best-price-amount {
@@ -2135,7 +2236,7 @@ button {
   background: #000000;
   color: #ffffff;
   font-size: 0.70rem;
-  font-weight: 800;
+  font-weight: 600;
   padding: 2px 10px;
   border-radius: var(--radius-full);
 }
@@ -2158,26 +2259,32 @@ button {
 .primary-btn {
   background: #000000;
   color: #ffffff;
-  border: none;
+  border: 1px solid transparent;
   font-family: inherit;
-  font-size: 0.86rem;
-  font-weight: 800;
-  padding: 0.7rem 1.5rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  height: 2.5rem;
+  padding: 0 1.5rem;
   border-radius: var(--radius-full);
   cursor: pointer;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-  letter-spacing: -0.01em;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+  letter-spacing: 0;
 }
 
 .primary-btn:hover {
   background: #27272a;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
 .primary-btn.sm {
-  padding: 0.45rem 1rem;
+  height: 2rem;
+  padding: 0 1rem;
   font-size: 0.78rem;
 }
 
@@ -2187,11 +2294,17 @@ button {
   color: var(--text-primary);
   font-family: inherit;
   font-size: 0.82rem;
-  font-weight: 600;
-  padding: 0.65rem 1.25rem;
+  font-weight: 500;
+  height: 2.5rem;
+  padding: 0 1.25rem;
   border-radius: var(--radius-full);
   cursor: pointer;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   transition: all 0.2s;
+  letter-spacing: 0;
 }
 
 .btn-ghost:hover {
@@ -2201,7 +2314,8 @@ button {
 }
 
 .btn-ghost.sm {
-  padding: 0.4rem 0.9rem;
+  height: 2rem;
+  padding: 0 0.9rem;
   font-size: 0.76rem;
 }
 
@@ -2226,7 +2340,7 @@ button {
 
 .section-title {
   font-size: 1.35rem;
-  font-weight: 800;
+  font-weight: 700;
   color: #000000;
   letter-spacing: -0.02em;
 }
@@ -2236,7 +2350,7 @@ button {
   border: 1px solid var(--border-medium);
   color: #000000;
   font-size: 0.70rem;
-  font-weight: 800;
+  font-weight: 600;
   padding: 3px 10px;
   border-radius: var(--radius-full);
   text-transform: uppercase;
@@ -2265,7 +2379,7 @@ button {
   background: #fafafa;
   color: var(--text-muted);
   font-size: 0.74rem;
-  font-weight: 800;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.06em;
   padding: 0.85rem 1.25rem;
@@ -2291,7 +2405,7 @@ button {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  font-weight: 800;
+  font-weight: 600;
   color: #000000;
 }
 
@@ -2299,7 +2413,7 @@ button {
   background: #000000;
   color: #ffffff;
   font-size: 0.65rem;
-  font-weight: 800;
+  font-weight: 600;
   padding: 2px 8px;
   border-radius: var(--radius-full);
   letter-spacing: 0.03em;
@@ -2308,7 +2422,7 @@ button {
 
 .store-price {
   font-size: 1.05rem;
-  font-weight: 800;
+  font-weight: 700;
   color: #000000;
   font-variant-numeric: tabular-nums;
 }
@@ -2319,8 +2433,10 @@ button {
   color: #ffffff;
   font-family: inherit;
   font-size: 0.80rem;
-  font-weight: 700;
-  padding: 0.45rem 1rem;
+  font-weight: 500;
+  white-space: nowrap;
+  height: 2.25rem;
+  padding: 0 1rem;
   border-radius: var(--radius-full);
   text-decoration: none;
   display: inline-flex;
@@ -2331,7 +2447,7 @@ button {
 
 .btn-store:hover {
   background: #27272a;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
 }
 
 /* Competitors Grid */

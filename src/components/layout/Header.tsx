@@ -5,6 +5,8 @@ import Image from "next/image";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 
+const BRANDS = ["Samsung", "Apple", "Oppo", "Huawei"];
+
 export function Header() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -12,28 +14,131 @@ export function Header() {
   const initialQuery = searchParams.get("q") || "";
   
   const [query, setQuery] = useState(initialQuery);
+  const [brandIndex, setBrandIndex] = useState(0);
+  const [subIndex, setSubIndex] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
+  
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    setQuery(searchParams.get("q") || "");
-  }, [searchParams]);
+    // Only sync from searchParams when user is NOT actively typing/focused
+    if (!isFocused) {
+      setQuery(searchParams.get("q") || "");
+    }
+  }, [searchParams, isFocused]);
+
+  // Typewriter animation: cycles through Samsung -> Apple -> Oppo -> Huawei
+  useEffect(() => {
+    if (isFocused || query) return;
+
+    const currentBrand = BRANDS[brandIndex];
+
+    // Pause when brand is fully typed out
+    if (!isDeleting && subIndex === currentBrand.length) {
+      const pauseTimer = setTimeout(() => {
+        setIsDeleting(true);
+      }, 1600);
+      return () => clearTimeout(pauseTimer);
+    }
+
+    // Finished deleting, move to next brand
+    if (isDeleting && subIndex === 0) {
+      setIsDeleting(false);
+      setBrandIndex((prev) => (prev + 1) % BRANDS.length);
+      const pauseTimer = setTimeout(() => {}, 300);
+      return () => clearTimeout(pauseTimer);
+    }
+
+    const speed = isDeleting ? 45 : 100;
+    const timer = setTimeout(() => {
+      setSubIndex((prev) => prev + (isDeleting ? -1 : 1));
+    }, speed);
+
+    return () => clearTimeout(timer);
+  }, [subIndex, isDeleting, brandIndex, isFocused, query]);
+
+  const scrollToPhones = () => {
+    requestAnimationFrame(() => {
+      const target = document.getElementById("products-section") || document.getElementById("phones-section") || document.querySelector(".products-section");
+      if (target) {
+        const headerOffset = 85;
+        const elementPosition = target.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+        window.scrollTo({
+          top: Math.max(0, offsetPosition),
+          behavior: "smooth"
+        });
+      }
+    });
+  };
+
+  const handleSearchSubmit = () => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+    
+    const trimmed = query.trim();
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("phone-search", { detail: trimmed }));
+      const currentParams = new URLSearchParams(window.location.search);
+      if (trimmed) {
+        currentParams.set("q", trimmed);
+      } else {
+        currentParams.delete("q");
+      }
+      const search = currentParams.toString();
+      const url = search ? `/?${search}` : "/";
+      window.history.replaceState(null, "", url);
+    }
+    
+    if (trimmed.length >= 2) {
+      try {
+        const sid = typeof window !== "undefined" ? window.sessionStorage?.getItem("compareit_session_id") : null;
+        fetch("/api/search/log", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query: trimmed, sessionId: sid }),
+          keepalive: true,
+        }).catch(() => {});
+      } catch {}
+    }
+
+    inputRef.current?.blur();
+
+    if (pathname !== "/") {
+      const search = trimmed ? `?q=${encodeURIComponent(trimmed)}&scroll=phones` : "?scroll=phones";
+      router.push(`/${search}`);
+    } else {
+      scrollToPhones();
+    }
+  };
 
   const handleSearch = (val: string) => {
     setQuery(val);
+
+    // Instant custom event so catalog filters with 0 lag
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("phone-search", { detail: val }));
+    }
+
     if (debounceTimerRef.current) {
       clearTimeout(debounceTimerRef.current);
     }
     
     debounceTimerRef.current = setTimeout(() => {
-      const currentParams = new URLSearchParams(Array.from(searchParams.entries()));
-      if (val.trim()) {
-        currentParams.set("q", val.trim());
-      } else {
-        currentParams.delete("q");
+      if (typeof window !== "undefined") {
+        const currentParams = new URLSearchParams(window.location.search);
+        if (val.trim()) {
+          currentParams.set("q", val.trim());
+        } else {
+          currentParams.delete("q");
+        }
+        const search = currentParams.toString();
+        const url = search ? `/?${search}` : "/";
+        window.history.replaceState(null, "", url);
       }
-      
-      const search = currentParams.toString();
-      const url = search ? `/?${search}` : "/";
       
       // Telemetry: Log search query to search monitoring
       if (val.trim().length >= 2) {
@@ -47,28 +152,34 @@ export function Header() {
           }).catch(() => {});
         } catch {}
       }
-
-      if (pathname !== "/") {
-        router.push(url);
-      } else {
-        router.replace(url, { scroll: false });
-      }
-    }, 400);
+    }, 250);
   };
 
-
-  const handleClear = () => {
-    setQuery("");
-    const currentParams = new URLSearchParams(Array.from(searchParams.entries()));
-    currentParams.delete("q");
-    const search = currentParams.toString();
-    const url = search ? `/?${search}` : "/";
-    if (pathname !== "/") {
-      router.push(url);
-    } else {
-      router.replace(url, { scroll: false });
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleSearchSubmit();
     }
   };
+
+  const handleClear = () => {
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+    setQuery("");
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("phone-search", { detail: "" }));
+      const currentParams = new URLSearchParams(window.location.search);
+      currentParams.delete("q");
+      const search = currentParams.toString();
+      const url = search ? `/?${search}` : "/";
+      window.history.replaceState(null, "", url);
+    }
+    inputRef.current?.focus();
+  };
+
+  const displayedBrand = BRANDS[brandIndex].substring(0, subIndex);
+  const placeholderText = isFocused || query ? "" : `Search for ${displayedBrand}`;
 
   return (
     <header className="site-header">
@@ -83,19 +194,37 @@ export function Header() {
         {/* MAIN SEARCH BAR */}
         <div className="header-search">
           <div className="search-input-wrapper">
-            <span className="search-icon">🔍</span>
+            <button 
+              type="button" 
+              className="search-icon-btn" 
+              onClick={handleSearchSubmit} 
+              title="Search phones"
+              aria-label="Search phones"
+            >
+              🔍
+            </button>
             <input 
+              ref={inputRef}
               type="text" 
               id="global-search" 
-              placeholder="Search phone name, brand (e.g. Note 40, S24 Ultra, Camon 30, Poco F6)..." 
+              placeholder={placeholderText} 
               autoComplete="off" 
               value={query}
               onChange={(e) => handleSearch(e.target.value)}
+              onKeyDown={handleKeyDown}
+              onFocus={() => setIsFocused(true)}
+              onBlur={() => setIsFocused(false)}
             />
             <button 
               id="clear-search-btn" 
+              type="button"
               className={`clear-btn ${!query ? 'hidden' : ''}`} 
-              title="Clear"
+              title="Clear search"
+              aria-label="Clear search"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                handleClear();
+              }}
               onClick={handleClear}
             >
               ✕
