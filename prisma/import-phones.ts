@@ -17,7 +17,7 @@
 
 import path from "path";
 import fs from "fs";
-import { PrismaClient } from "../node_modules/.prisma/import-client/index.js";
+import { PrismaClient } from "@prisma/client";
 
 // ─── CLI args ────────────────────────────────────────────────────────────────
 const args = process.argv.slice(2);
