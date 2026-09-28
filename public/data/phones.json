@@ -2728,17 +2728,17 @@
     "platform": {
       "chipset": "Apple A17 Pro (3nm)",
       "cpu": "Hexa-core 3.78 GHz",
-      "antutu_score": 1590000,
+      "antutu_score": 1600000,
       "os": "iOS 17, upgradable to iOS 18",
       "gpu": "Apple GPU 6-core"
     },
     "brand": "Apple",
     "camera": {
-      "features": "ProRes Log 4K60, Action Button",
       "main_mp": 48,
-      "setup": "48MP (sensor-shift OIS) + 12MP (5x Periscope) + 12MP (UW) + LiDAR",
-      "video": "4K@60fps Dolby Vision",
-      "selfie_mp": 12
+      "selfie_mp": 12,
+      "setup": "Triple Camera: 48MP Main (f/1.78) + 12MP Periscope Tele (5x) + 12MP Ultra Wide",
+      "features": "4K@60fps ProRes Video, OIS, PDAF, Titanium frame",
+      "video": "4K@60fps (ProRes)"
     },
     "popular": true,
     "competitor_ids": [
@@ -3064,17 +3064,17 @@
     "platform": {
       "chipset": "Apple A17 Pro (3nm)",
       "cpu": "Hexa-core 3.78 GHz",
-      "antutu_score": 1570000,
+      "antutu_score": 1600000,
       "os": "iOS 17, upgradable to iOS 18",
       "gpu": "Apple GPU 6-core"
     },
     "brand": "Apple",
     "camera": {
-      "features": "ProRes Log, Action Button",
       "main_mp": 48,
-      "setup": "48MP (OIS) + 12MP (3x Tele) + 12MP (UW) + LiDAR",
-      "video": "4K@60fps",
-      "selfie_mp": 12
+      "selfie_mp": 12,
+      "setup": "Triple Camera: 48MP Main (f/1.78) + 12MP Tele (3x) + 12MP Ultra Wide",
+      "features": "4K@60fps ProRes Video, OIS, PDAF, Titanium frame",
+      "video": "4K@60fps (ProRes)"
     },
     "popular": false,
     "competitor_ids": [
@@ -57643,20 +57643,20 @@
       "os": "iOS",
       "cpu": "Octa-core",
       "gpu": "Apple GPU",
-      "antutu_score": 500000
+      "antutu_score": 1700000
     },
     "display": {
-      "type": "Retina Display",
+      "type": "LTPO Super Retina XDR OLED, 120Hz ProMotion",
       "size": 6.9,
-      "resolution": "FHD+",
-      "protection": "Ceramic Shield"
+      "resolution": "1320 x 2868 px (~460 ppi)",
+      "protection": "Ceramic Shield front, Titanium frame"
     },
     "camera": {
-      "main_mp": 12,
+      "main_mp": 48,
       "selfie_mp": 12,
-      "setup": "Dual/Triple Camera",
-      "features": "4K Video, OIS",
-      "video": "4K@60fps"
+      "setup": "Triple Camera: 48MP Main (f/1.8) + 12MP Periscope Tele (5x) + 48MP Ultra Wide",
+      "features": "4K@120fps Video, OIS, PDAF, Periscope 5x Optical Zoom",
+      "video": "4K@120fps (ProRes)"
     },
     "connectivity": {
       "five_g": true,
@@ -57726,20 +57726,20 @@
       "os": "iOS",
       "cpu": "Octa-core",
       "gpu": "Apple GPU",
-      "antutu_score": 500000
+      "antutu_score": 1700000
     },
     "display": {
-      "type": "Retina Display",
+      "type": "LTPO Super Retina XDR OLED, 120Hz ProMotion",
       "size": 6.3,
-      "resolution": "FHD+",
-      "protection": "Ceramic Shield"
+      "resolution": "1206 x 2622 px (~460 ppi)",
+      "protection": "Ceramic Shield front, Titanium frame"
     },
     "camera": {
-      "main_mp": 12,
+      "main_mp": 48,
       "selfie_mp": 12,
-      "setup": "Dual/Triple Camera",
-      "features": "4K Video, OIS",
-      "video": "4K@60fps"
+      "setup": "Triple Camera: 48MP Main (f/1.8) + 12MP Periscope Tele (5x) + 48MP Ultra Wide",
+      "features": "4K@120fps Video, OIS, PDAF",
+      "video": "4K@120fps (ProRes)"
     },
     "connectivity": {
       "five_g": true,
@@ -57809,19 +57809,19 @@
       "os": "iOS",
       "cpu": "Octa-core",
       "gpu": "Apple GPU",
-      "antutu_score": 500000
+      "antutu_score": 1500000
     },
     "display": {
-      "type": "Retina Display",
+      "type": "Super Retina XDR OLED, 60Hz",
       "size": 6.7,
-      "resolution": "FHD+",
-      "protection": "Ceramic Shield"
+      "resolution": "1290 x 2796 px (~460 ppi)",
+      "protection": "Ceramic Shield front, Aluminum frame"
     },
     "camera": {
-      "main_mp": 12,
+      "main_mp": 48,
       "selfie_mp": 12,
-      "setup": "Dual/Triple Camera",
-      "features": "4K Video, OIS",
+      "setup": "Dual Camera: 48MP Main (f/1.6) + 12MP Ultra Wide",
+      "features": "4K@60fps Video, OIS, PDAF, Action Button",
       "video": "4K@60fps"
     },
     "connectivity": {

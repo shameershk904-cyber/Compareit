@@ -102,7 +102,11 @@ function HomeClientInner({ initialPhones }: HomeClientProps) {
 
   const runSmartAdvisor = () => {
     let candidates = initialPhones.filter(p => {
-      const price = p.lowest_verified_price || p.price_pkr;
+      // Must have a confirmed price — never include Price N/A phones in budget searches
+      const price = (p.lowest_verified_price && p.lowest_verified_price > 0)
+        ? p.lowest_verified_price
+        : (p.price_pkr && p.price_pkr > 0 ? p.price_pkr : 0);
+      if (price === 0) return false; // Exclude unknown-price phones entirely
       return price >= advisorMinBudget * 0.9 && price <= advisorMaxBudget * 1.1;
     });
 
