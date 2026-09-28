@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
         },
       }
     );
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("Public banners query error:", err);
     return NextResponse.json({ banners: [] }, { status: 200 });
   }

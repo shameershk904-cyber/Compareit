@@ -137,8 +137,8 @@ export function BannersClient({ initialBanners }: { initialBanners: BannerRecord
         setPriority(0);
         setFormSuccess("");
       }, 1000);
-    } catch (err: any) {
-      setFormError(err.message || "An error occurred");
+    } catch (err: unknown) {
+      setFormError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setUploading(false);
     }

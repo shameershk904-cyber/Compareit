@@ -25,6 +25,11 @@ export function AdminSidebar({ user, userRole }: AdminSidebarProps) {
       icon: "analytics",
     },
     {
+      title: "Phone Catalog",
+      href: "/admin/phones",
+      icon: "smartphone",
+    },
+    {
       title: "Search & Query Intelligence",
       href: "/admin/search",
       icon: "query_stats",

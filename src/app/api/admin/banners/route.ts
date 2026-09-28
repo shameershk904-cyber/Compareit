@@ -32,7 +32,7 @@ export async function GET(req: NextRequest) {
     });
 
     return NextResponse.json({ banners });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("List banners error:", err);
     return NextResponse.json({ error: "Failed to list banners" }, { status: 500 });
   }
@@ -100,7 +100,7 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json({ success: true, banner }, { status: 201 });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("Create banner error:", err);
     return NextResponse.json({ error: "Failed to create banner" }, { status: 500 });
   }

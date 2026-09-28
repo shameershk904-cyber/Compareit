@@ -44,7 +44,7 @@ export async function GET(req: NextRequest) {
       activePages,
       timestamp: new Date().toISOString(),
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("Live analytics error:", err);
     return NextResponse.json(
       { activeUsers: 0, activePages: [], error: "Database error" },

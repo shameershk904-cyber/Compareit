@@ -22,15 +22,15 @@ export async function GET(req: NextRequest) {
     const dbStart = Date.now();
     await prisma.$queryRaw`SELECT 1`;
     dbLatencyMs = Date.now() - dbStart;
-  } catch (err: any) {
+  } catch (err: unknown) {
     dbStatus = "error";
-    dbError = err.message || "Failed to query database";
+    dbError = err instanceof Error ? err.message : "Failed to query database";
   }
 
   // 2. Check Supabase Storage banners bucket
   let storageStatus = "healthy";
   let storageLatencyMs = 0;
-  let storageDetails = {
+  const storageDetails = {
     bucketName: "banners",
     exists: false,
     public: true,
@@ -57,9 +57,9 @@ export async function GET(req: NextRequest) {
         storageError = "Bucket 'banners' not found in project. Run upload or create in Supabase.";
       }
     }
-  } catch (err: any) {
+  } catch (err: unknown) {
     storageStatus = "warning";
-    storageError = err.message || "Could not connect to Supabase Storage";
+    storageError = err instanceof Error ? err.message : "Could not connect to Supabase Storage";
   }
 
   // 3. Counts summary

@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 
@@ -25,7 +24,9 @@ export function Header() {
   useEffect(() => {
     // Only sync from searchParams when user is NOT actively typing/focused
     if (!isFocused) {
-      setQuery(searchParams.get("q") || "");
+      const q = searchParams.get("q") || "";
+      const timer = setTimeout(() => setQuery(q), 0);
+      return () => clearTimeout(timer);
     }
   }, [searchParams, isFocused]);
 
@@ -45,9 +46,10 @@ export function Header() {
 
     // Finished deleting, move to next brand
     if (isDeleting && subIndex === 0) {
-      setIsDeleting(false);
-      setBrandIndex((prev) => (prev + 1) % BRANDS.length);
-      const pauseTimer = setTimeout(() => {}, 300);
+      const pauseTimer = setTimeout(() => {
+        setIsDeleting(false);
+        setBrandIndex((prev) => (prev + 1) % BRANDS.length);
+      }, 300);
       return () => clearTimeout(pauseTimer);
     }
 

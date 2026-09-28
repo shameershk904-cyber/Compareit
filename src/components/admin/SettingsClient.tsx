@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import {
-  Settings,
   Shield,
   KeyRound,
   Users,
@@ -139,8 +138,8 @@ export function SettingsClient({
       setTeam((prev) => [...prev, data.user]);
       setIsInviteModalOpen(false);
       setInviteForm({ name: "", email: "", password: "", role: "EDITOR" });
-    } catch (err: any) {
-      setInviteError(err.message);
+    } catch (err: unknown) {
+      setInviteError(err instanceof Error ? err.message : "Failed to create team member");
     } finally {
       setInviteLoading(false);
     }
@@ -199,8 +198,8 @@ export function SettingsClient({
       } else {
         setPasswordMessage({ type: "error", text: result.error || "Failed to update password." });
       }
-    } catch (err: any) {
-      setPasswordMessage({ type: "error", text: err.message || "An unexpected error occurred." });
+    } catch (err: unknown) {
+      setPasswordMessage({ type: "error", text: err instanceof Error ? err.message : "An unexpected error occurred." });
     } finally {
       setPasswordLoading(false);
     }

@@ -15,8 +15,6 @@ export function parseUserAgent(ua: string | null | undefined): ParsedUA {
     return { device: "desktop", browser: "Unknown", os: "Unknown", isBot: false };
   }
 
-  const uaLower = ua.toLowerCase();
-
   // 1. Detect Bots & Crawlers
   const isBot =
     /bot|crawler|spider|crawling|googlebot|bingbot|yandex|duckduckbot|slurp|baiduspider|headlesschrome|facebookexternalhit|whatsapp|telegram/i.test(

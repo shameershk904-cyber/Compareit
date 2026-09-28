@@ -21,7 +21,7 @@ export const authConfig: NextAuthConfig = {
     session({ session, token }) {
       if (token && session.user) {
         session.user.id = (token.id as string) || (token.sub as string);
-        session.user.role = (token.role as any) || "VIEWER";
+        session.user.role = (token.role as "ADMIN" | "EDITOR" | "VIEWER") || "VIEWER";
         session.user.mustChangePassword = Boolean(token.mustChangePassword);
       }
       return session;

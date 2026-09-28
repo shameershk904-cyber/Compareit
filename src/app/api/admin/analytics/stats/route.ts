@@ -191,7 +191,7 @@ export async function GET(req: NextRequest) {
       osList,
       topReferrers,
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("Analytics stats error:", err);
     return NextResponse.json(
       { error: "Failed to query analytics data from database" },

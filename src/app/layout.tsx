@@ -13,13 +13,12 @@ export const metadata: Metadata = {
   description: "Find, Compare, Get the Best Phone in Pakistan",
   icons: {
     icon: [
-      { url: "https://cevetoazfcbjmodmjzyh.supabase.co/storage/v1/object/public/phones/favicon-rounded.png?v=rounded", type: "image/png" },
-      { url: "/favicon.png?v=rounded", type: "image/png" },
-      { url: "/favicon.ico?v=rounded" },
+      { url: "/favicon.png", type: "image/png" },
+      { url: "/favicon.ico" },
     ],
-    shortcut: ["https://cevetoazfcbjmodmjzyh.supabase.co/storage/v1/object/public/phones/favicon-rounded.png?v=rounded"],
+    shortcut: ["/favicon.png"],
     apple: [
-      { url: "https://cevetoazfcbjmodmjzyh.supabase.co/storage/v1/object/public/phones/apple-touch-icon.png?v=rounded" },
+      { url: "/icon.png" },
     ],
   },
 };
@@ -32,15 +31,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link
-          rel="icon"
-          href="https://cevetoazfcbjmodmjzyh.supabase.co/storage/v1/object/public/phones/favicon-rounded.png?v=rounded"
-          type="image/png"
-        />
-        <link
-          rel="apple-touch-icon"
-          href="https://cevetoazfcbjmodmjzyh.supabase.co/storage/v1/object/public/phones/apple-touch-icon.png?v=rounded"
-        />
+        <link rel="icon" href="/favicon.png" type="image/png" />
+        <link rel="apple-touch-icon" href="/icon.png" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link

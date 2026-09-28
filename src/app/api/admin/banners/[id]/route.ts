@@ -40,12 +40,12 @@ export async function PUT(
       );
     }
 
-    const data: any = { ...parsed.data };
+    const data: Record<string, unknown> = { ...parsed.data };
     if ("startDate" in data) {
-      data.startDate = data.startDate ? new Date(data.startDate) : null;
+      data.startDate = data.startDate ? new Date(data.startDate as string) : null;
     }
     if ("endDate" in data) {
-      data.endDate = data.endDate ? new Date(data.endDate) : null;
+      data.endDate = data.endDate ? new Date(data.endDate as string) : null;
     }
 
     const updated = await prisma.banner.update({
@@ -65,7 +65,7 @@ export async function PUT(
     });
 
     return NextResponse.json({ success: true, banner: updated });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("Update banner error:", err);
     return NextResponse.json({ error: "Failed to update banner" }, { status: 500 });
   }
@@ -102,7 +102,7 @@ export async function DELETE(
     });
 
     return NextResponse.json({ success: true, message: "Banner deleted" });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("Delete banner error:", err);
     return NextResponse.json({ error: "Failed to delete banner" }, { status: 500 });
   }

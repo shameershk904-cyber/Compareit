@@ -62,7 +62,10 @@ export function SearchClient({ initialData }: { initialData: SearchStats | null 
   }, []);
 
   useEffect(() => {
-    fetchStats(range);
+    const timer = setTimeout(() => {
+      fetchStats(range);
+    }, 0);
+    return () => clearTimeout(timer);
   }, [range, fetchStats]);
 
   const summary = data?.summary || {

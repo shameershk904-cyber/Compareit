@@ -78,13 +78,21 @@ export function AnalyticsClient({ initialData }: { initialData: AnalyticsData | 
   }, []);
 
   useEffect(() => {
-    fetchStats(range);
+    const timer = setTimeout(() => {
+      fetchStats(range);
+    }, 0);
+    return () => clearTimeout(timer);
   }, [range, fetchStats]);
 
   useEffect(() => {
-    fetchLive();
+    const timer = setTimeout(() => {
+      fetchLive();
+    }, 0);
     const interval = setInterval(fetchLive, 15000); // Pulse every 15s
-    return () => clearInterval(interval);
+    return () => {
+      clearTimeout(timer);
+      clearInterval(interval);
+    };
   }, [fetchLive]);
 
   const summary = data?.summary || {

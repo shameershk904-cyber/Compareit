@@ -1,5 +1,4 @@
 import { DefaultSession } from "next-auth";
-import { JWT as DefaultJWT } from "next-auth/jwt";
 
 export type UserRole = "ADMIN" | "EDITOR" | "VIEWER";
 

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { type Phone, type Retailer } from "@/types";
+import { type Phone } from "@/types";
 import { formatPKR, getSupabaseImageUrl } from "@/lib/utils";
 import { getPhoneDetailedSpecs } from "@/lib/specs";
 

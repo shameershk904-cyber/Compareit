@@ -1,8 +1,7 @@
-import fs from "fs";
-import path from "path";
 import { Suspense } from "react";
 import { type Phone } from "@/types";
 import { CompareClient } from "@/components/compare/CompareClient";
+import { getPhones } from "@/lib/phones";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -10,12 +9,6 @@ export const metadata: Metadata = {
   description:
     "Compare latest smartphones side-by-side in Pakistan. Real-time Hafeez Centre rates, PriceOye deals, PTA DIRBS tax calculations, benchmark scores, and comprehensive spec shootout.",
 };
-
-async function getPhones(): Promise<Phone[]> {
-  const filePath = path.join(process.cwd(), "public", "data", "phones.json");
-  const fileContents = fs.readFileSync(filePath, "utf8");
-  return JSON.parse(fileContents);
-}
 
 export default async function ComparePage(props: {
   searchParams?: Promise<{ phones?: string }>;

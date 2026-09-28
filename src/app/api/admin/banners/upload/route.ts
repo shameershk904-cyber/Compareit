@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
       url: result.url,
       path: result.path,
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("Banner image upload route error:", err);
     return NextResponse.json({ error: "An unexpected error occurred during upload" }, { status: 500 });
   }

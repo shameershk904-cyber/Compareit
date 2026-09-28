@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
   const isExport = searchParams.get("export") === "csv";
 
   try {
-    const where: any = {};
+    const where: Record<string, unknown> = {};
 
     if (action && action !== "ALL") {
       where.action = action;
@@ -87,7 +87,7 @@ export async function GET(req: NextRequest) {
         totalPages: Math.ceil(totalCount / limit) || 1,
       },
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("Activity logs query error:", err);
     return NextResponse.json({ error: "Failed to fetch activity logs" }, { status: 500 });
   }

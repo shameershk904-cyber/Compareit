@@ -84,7 +84,7 @@ export async function changePasswordAction(formData: {
       success: true,
       message: "Your password has been successfully updated.",
     };
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("changePasswordAction error:", err);
     return {
       success: false,

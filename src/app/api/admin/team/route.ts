@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
     });
 
     return NextResponse.json({ users });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("List users error:", err);
     return NextResponse.json({ error: "Failed to list team members" }, { status: 500 });
   }
@@ -117,7 +117,7 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json({ success: true, user: newUser }, { status: 201 });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("Create user error:", err);
     return NextResponse.json({ error: "Failed to create team member" }, { status: 500 });
   }
@@ -156,7 +156,7 @@ export async function PATCH(req: NextRequest) {
       }
     }
 
-    const updateData: any = {};
+    const updateData: Record<string, unknown> = {};
     if (role) updateData.role = role;
     if (name) updateData.name = name;
     if (typeof mustChangePassword === "boolean") updateData.mustChangePassword = mustChangePassword;
@@ -190,7 +190,7 @@ export async function PATCH(req: NextRequest) {
     });
 
     return NextResponse.json({ success: true, user: updatedUser });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("Update user error:", err);
     return NextResponse.json({ error: "Failed to update team member" }, { status: 500 });
   }
@@ -239,7 +239,7 @@ export async function DELETE(req: NextRequest) {
     });
 
     return NextResponse.json({ success: true, message: "User removed successfully" });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("Delete user error:", err);
     return NextResponse.json({ error: "Failed to remove user" }, { status: 500 });
   }

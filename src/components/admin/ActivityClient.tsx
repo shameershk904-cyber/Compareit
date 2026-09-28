@@ -20,7 +20,7 @@ export interface ActivityRecord {
   action: string;
   entity: string;
   entityId?: string | null;
-  details?: any;
+  details?: unknown;
   createdAt: string;
 }
 

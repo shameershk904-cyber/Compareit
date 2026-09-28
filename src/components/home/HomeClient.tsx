@@ -52,8 +52,9 @@ function HomeClientInner({ initialPhones }: HomeClientProps) {
   const [query, setQuery] = useState(searchParams.get("q") || "");
 
   useEffect(() => {
-    const handlePhoneSearch = (e: any) => {
-      setQuery(e.detail ?? "");
+    const handlePhoneSearch = (e: Event) => {
+      const customEvent = e as CustomEvent<string>;
+      setQuery(customEvent.detail ?? "");
     };
     window.addEventListener("phone-search", handlePhoneSearch);
     return () => {
@@ -62,7 +63,9 @@ function HomeClientInner({ initialPhones }: HomeClientProps) {
   }, []);
 
   useEffect(() => {
-    setQuery(searchParams.get("q") || "");
+    const q = searchParams.get("q") || "";
+    const timer = setTimeout(() => setQuery(q), 0);
+    return () => clearTimeout(timer);
   }, [searchParams]);
 
   useEffect(() => {
@@ -251,8 +254,8 @@ function HomeClientInner({ initialPhones }: HomeClientProps) {
       return b.score - a.score;
     }
 
-    const aTrending = (a.phone as any).is_trending || a.phone.popular ? 1 : 0;
-    const bTrending = (b.phone as any).is_trending || b.phone.popular ? 1 : 0;
+    const aTrending = a.phone.is_trending || a.phone.popular ? 1 : 0;
+    const bTrending = b.phone.is_trending || b.phone.popular ? 1 : 0;
     if (bTrending !== aTrending) return bTrending - aTrending;
 
     // Devices with active verified prices should appear ahead of discontinued unpriced models
@@ -271,7 +274,7 @@ function HomeClientInner({ initialPhones }: HomeClientProps) {
     const brandStats = new Map<string, number>();
     for (const phone of initialPhones) {
       const current = brandStats.get(phone.brand) || 0;
-      const weight = phone.popular || (phone as any).is_trending ? 3 : 1;
+      const weight = phone.popular || phone.is_trending ? 3 : 1;
       brandStats.set(phone.brand, current + weight);
     }
 

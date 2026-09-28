@@ -100,7 +100,7 @@ export async function GET(req: NextRequest) {
       zeroResults,
       recentSearches,
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("Search stats query error:", err);
     return NextResponse.json(
       { error: "Failed to query search telemetry" },

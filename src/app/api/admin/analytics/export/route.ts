@@ -80,7 +80,7 @@ export async function GET(req: NextRequest) {
         "Cache-Control": "no-store",
       },
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("Export CSV error:", err);
     return NextResponse.json({ error: "Failed to generate CSV export" }, { status: 500 });
   }

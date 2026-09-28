@@ -134,3 +134,90 @@ model ActivityLog {
   @@index([entity])
   @@map("activity_logs")
 }
+
+// ----------------------------------------------------
+// 6. Phone Catalog
+// ----------------------------------------------------
+
+model Phone {
+  id                  String   @id @default(cuid())
+  legacyId            String?  @unique   // original id from phones.json
+  slug                String   @unique
+  brand               String
+  model               String
+
+  // Pricing (PKR)
+  pricePkr            Int      @default(0)
+  lowestVerifiedPrice Int      @default(0)
+  usdPrice            Float    @default(0)
+
+  // Images
+  image               String   @default("")
+  images              Json     @default("[]")
+
+  // Status
+  releaseDate         String   @default("")
+  status              String   @default("Available")
+  isActive            Boolean  @default(true)
+  popular             Boolean  @default(false)
+  trendingRank        Int      @default(0)
+
+  // PTA
+  ptaStatus           String   @default("")
+  ptaTax              Json?
+
+  // Warranty
+  warranty            Json?
+
+  // Specs (Json — always fetched as a unit, never queried relationally)
+  memory              Json     @default("{}")
+  battery             Json     @default("{}")
+  display             Json     @default("{}")
+  platform            Json     @default("{}")
+  camera              Json     @default("{}")
+  connectivity        Json     @default("{}")
+
+  // Rich / editorial content
+  expertVerdict       Json?
+  colorVariants       Json     @default("[]")
+  detailedSpecs       Json     @default("{}")
+  competitorIds       Json     @default("[]")
+  banners             Json     @default("[]")
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  retailers           PhoneRetailer[]
+
+  @@index([slug])
+  @@index([brand])
+  @@index([brand, isActive])
+  @@index([pricePkr])
+  @@index([lowestVerifiedPrice])
+  @@index([popular])
+  @@index([trendingRank])
+  @@index([isActive])
+  @@index([isActive, popular])
+  @@index([isActive, trendingRank])
+  @@index([ptaStatus])
+  @@index([createdAt])
+  @@map("phones")
+}
+
+// Separate table so retailer prices can be updated independently.
+model PhoneRetailer {
+  id        String  @id @default(cuid())
+  phoneId   String
+  phone     Phone   @relation(fields: [phoneId], references: [id], onDelete: Cascade)
+
+  store     String
+  price     Int
+  delivery  String  @default("")
+  inStock   Boolean @default(true)
+  condition String  @default("")
+  url       String  @default("")
+
+  @@index([phoneId])
+  @@index([store])
+  @@map("phone_retailers")
+}

@@ -36,21 +36,31 @@ export function TaxCalculatorModal() {
 
   useEffect(() => {
     if (isOpen && phones.length === 0) {
-      fetch("/data/phones.json")
-        .then((res) => res.json())
+      fetch("/api/phones")
+        .then((res) => {
+          if (!res.ok) throw new Error("API failed");
+          return res.json();
+        })
         .then((data) => setPhones(data))
-        .catch((err) => console.error("Failed to fetch phones for tax calc", err));
+        .catch(() => {
+          fetch("/data/phones.json")
+            .then((res) => res.json())
+            .then((data) => setPhones(data))
+            .catch((err) => console.error("Failed to fetch phones for tax calc", err));
+        });
     }
   }, [isOpen, phones.length]);
 
   useEffect(() => {
     if (initialPhoneId && initialPhoneId !== "open") {
-      setSelectedPhoneId(initialPhoneId);
-      
-      const phone = phones.find(p => p.id === initialPhoneId);
-      if (phone) {
-        setSearchQuery(`${phone.brand} ${phone.model}`);
-      }
+      const timer = setTimeout(() => {
+        setSelectedPhoneId(initialPhoneId);
+        const phone = phones.find((p) => p.id === initialPhoneId);
+        if (phone) {
+          setSearchQuery(`${phone.brand} ${phone.model}`);
+        }
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [initialPhoneId, phones]);
 
