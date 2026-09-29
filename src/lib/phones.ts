@@ -188,17 +188,31 @@ export async function getPhones(): Promise<Phone[]> {
     const chunkResults = await Promise.all(chunkPromises);
     const combined = chunkResults.flat();
 
-    if (combined.length === 0) {
-      const local = readLocalPhones();
-      memoryPhonesCache = { data: local, expiresAt: now + MEMORY_CACHE_TTL_MS };
-      return local;
+    // If all or virtually all phones loaded successfully from DB, cache and return them
+    if (combined.length >= 4000) {
+      memoryPhonesCache = { data: combined, expiresAt: now + MEMORY_CACHE_TTL_MS };
+      return combined;
+    }
+
+    // Safeguard: If DB returned a partial list (e.g. serverless PgBouncer pooler dropped chunks to 1500),
+    // merge with the complete 4,434 catalog so the website NEVER displays an incomplete catalog!
+    console.warn(`[lib/phones] Incomplete catalog from DB (${combined.length} phones). Merging with complete local catalog.`);
+    const local = readLocalPhones();
+    if (local.length > combined.length) {
+      const localSlugs = new Set(local.map((p) => p.slug));
+      const newFromDb = combined.filter((p) => !localSlugs.has(p.slug));
+      const full = [...newFromDb, ...local];
+      memoryPhonesCache = { data: full, expiresAt: now + MEMORY_CACHE_TTL_MS };
+      return full;
     }
 
     memoryPhonesCache = { data: combined, expiresAt: now + MEMORY_CACHE_TTL_MS };
     return combined;
   } catch (err) {
     console.error("[lib/phones] getPhones error, falling back to JSON:", err);
-    return readLocalPhones();
+    const local = readLocalPhones();
+    memoryPhonesCache = { data: local, expiresAt: now + MEMORY_CACHE_TTL_MS };
+    return local;
   }
 }
 
