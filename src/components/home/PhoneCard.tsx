@@ -74,7 +74,7 @@ export function PhoneCard({ phone, isCompared, toggleCompare }: { phone: Phone; 
     ? phone.lowest_verified_price
     : (phone.price_pkr && phone.price_pkr > 0 ? phone.price_pkr : 0);
   const storeCount = Array.isArray(phone.retailers) ? phone.retailers.length : 0;
-  const isAvailableWithPrice = lowestPrice > 0 && storeCount > 0;
+  const isAvailableWithPrice = lowestPrice > 0 && phone.status !== "Discontinued";
 
   const ptaBadge = isAvailableWithPrice
     ? (phone.pta_status === 'approved'
@@ -118,7 +118,7 @@ export function PhoneCard({ phone, isCompared, toggleCompare }: { phone: Phone; 
 
       {/* Clicking photo navigates to product page */}
       <Link 
-        href={productUrl}
+        href={productUrl} 
         className="card-top" 
         style={{ textDecoration: 'none', display: 'flex', cursor: 'pointer' }}
         title={`View details for ${phone.brand} ${phone.model}`}
@@ -148,13 +148,17 @@ export function PhoneCard({ phone, isCompared, toggleCompare }: { phone: Phone; 
         <div className="card-pricing">
           {isAvailableWithPrice ? (
             <>
-              <span className="price-lowest-badge">Lowest Verified Price:</span>
+              <span className="price-lowest-badge">{storeCount > 0 ? "Lowest Verified Price:" : "Price in Pakistan:"}</span>
               <div className="price-pkr-official">{formatPKR(lowestPrice)}</div>
               <div className="price-sub">
                 {phone.price_pkr && phone.price_pkr > lowestPrice && (
                   <span>List: <del>{formatPKR(phone.price_pkr)}</del></span>
                 )}
-                <span className="retailers-count-tag">{storeCount} Stores Tracked</span>
+                {storeCount > 0 ? (
+                  <span className="retailers-count-tag">{storeCount} Stores Tracked</span>
+                ) : (
+                  <span className="retailers-count-tag">Verified Market</span>
+                )}
               </div>
             </>
           ) : (

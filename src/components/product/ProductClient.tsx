@@ -1,10 +1,29 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import Link from "next/link";
+import { ZoomIn } from "lucide-react";
 import { type Phone } from "@/types";
 import { formatPKR, getSupabaseImageUrl } from "@/lib/utils";
-import { getPhoneDetailedSpecs } from "@/lib/specs";
+import { getPhoneDetailedSpecs, type SpecCategory } from "@/lib/specs";
+
+function getVariantDotColor(colorName: string): string {
+  const c = colorName.toLowerCase();
+  if (c.includes("natural") || c.includes("desert") || c.includes("sand")) return "#a8a29e";
+  if (c.includes("white") || c.includes("silver") || c.includes("starlight") || c.includes("pearl")) return "#e2e8f0";
+  if (c.includes("black") || c.includes("onyx") || c.includes("midnight") || c.includes("dark") || c.includes("phantom")) return "#0f172a";
+  if (c.includes("gray") || c.includes("grey") || c.includes("graphite") || c.includes("space")) return "#64748b";
+  if (c.includes("blue") || c.includes("navy") || c.includes("sky") || c.includes("cyan")) return "#2563eb";
+  if (c.includes("green") || c.includes("mint") || c.includes("olive") || c.includes("emerald")) return "#059669";
+  if (c.includes("gold") || c.includes("champagne")) return "#d97706";
+  if (c.includes("yellow") || c.includes("lemon") || c.includes("amber")) return "#eab308";
+  if (c.includes("violet") || c.includes("purple") || c.includes("lilac") || c.includes("lavender")) return "#8b5cf6";
+  if (c.includes("pink") || c.includes("rose") || c.includes("coral") || c.includes("peach")) return "#ec4899";
+  if (c.includes("red") || c.includes("crimson") || c.includes("burgundy")) return "#ef4444";
+  if (c.includes("orange") || c.includes("copper") || c.includes("bronze")) return "#f97316";
+  if (c.includes("brown") || c.includes("tan")) return "#78350f";
+  return "#475569";
+}
 
 interface ProductClientProps {
   phone: Phone;
@@ -20,27 +39,115 @@ function formatPhoneName(brand?: string, model?: string): string {
   return `${brand} ${model}`;
 }
 
+// ─── Shared UI Components ──────────────────────────────────────────────────────
+
+function SectionHeading({
+  title,
+  subtitle,
+  action,
+}: {
+  title: string;
+  subtitle?: string;
+  action?: React.ReactNode;
+}) {
+  return (
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 mb-4 border-b border-gray-200 gap-2">
+      <div>
+        <h2 className="text-lg font-semibold text-gray-900 tracking-tight">{title}</h2>
+        {subtitle && <p className="text-xs text-gray-500 font-normal mt-0.5">{subtitle}</p>}
+      </div>
+      {action && <div className="self-start sm:self-auto">{action}</div>}
+    </div>
+  );
+}
+
+function SpecRow({ label, value, isZebra }: { label: string; value: string; isZebra?: boolean }) {
+  return (
+    <div
+      className={`grid grid-cols-12 px-4 py-2 text-sm border-b border-gray-100 last:border-b-0 min-h-[38px] items-center ${
+        isZebra ? "bg-gray-50/50" : "bg-white"
+      }`}
+    >
+      <span className="col-span-12 sm:col-span-4 text-[13px] text-gray-500 font-normal">
+        {label}
+      </span>
+      <span className="col-span-12 sm:col-span-8 text-sm text-gray-900 font-normal break-words leading-relaxed">
+        {value}
+      </span>
+    </div>
+  );
+}
+
+function SpecTable({
+  category,
+  isOpen,
+  onToggle,
+}: {
+  category: SpecCategory;
+  isOpen: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <div className="rounded-xl border border-gray-200 overflow-hidden bg-white shadow-xs">
+      <button
+        type="button"
+        onClick={onToggle}
+        className="w-full px-4 py-3 bg-gray-50/75 hover:bg-gray-100/75 flex items-center justify-between transition-colors text-left"
+      >
+        <div className="flex items-center gap-2.5">
+          <span className="text-sm font-semibold text-gray-900">{category.title}</span>
+          <span className="text-xs text-gray-500 font-normal hidden sm:inline">• {category.subtitle}</span>
+        </div>
+        <span
+          className={`material-symbols-outlined text-gray-400 text-lg transition-transform duration-200 ${
+            isOpen ? "rotate-180" : ""
+          }`}
+        >
+          expand_more
+        </span>
+      </button>
+      {isOpen && (
+        <div className="divide-y divide-gray-100 border-t border-gray-200">
+          {category.items.map((item, idx) => (
+            <SpecRow key={idx} label={item.label} value={item.value} isZebra={idx % 2 === 1} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─── Main Product Client ───────────────────────────────────────────────────────
+
 export function ProductClient({ phone, competitors }: ProductClientProps) {
   // Safe RAM and Storage fallback handling
   const rawRam = phone.memory?.ram_gb;
   const rawStorage = phone.memory?.storage_gb;
-  const safeRam = (rawRam && rawStorage && rawRam > rawStorage) ? rawStorage : (rawRam || 4);
-  const safeStorage = (rawRam && rawStorage && rawRam > rawStorage) ? rawRam : (rawStorage || 64);
+  const safeRam = rawRam && rawStorage && rawRam > rawStorage ? rawStorage : rawRam || 4;
+  const safeStorage = rawRam && rawStorage && rawRam > rawStorage ? rawRam : rawStorage || 64;
 
-  // State for image gallery / angle selection
-  const allImages = (phone.images && phone.images.length > 0) ? phone.images : [phone.image];
-  const [selectedImgIndex, setSelectedImgIndex] = useState(0);
-  const [selectedAngle, setSelectedAngle] = useState<string>("front");
+  // Image gallery / color variant selection
+  const initialColorVariant = useMemo(() => {
+    if (!phone.color_variants || phone.color_variants.length === 0) return null;
+    if (phone.image) {
+      const match = phone.color_variants.find(
+        (v) =>
+          v.images?.some((img) => img === phone.image || img.includes(phone.image)) ||
+          phone.image.toLowerCase().includes(v.name.toLowerCase().replace(/\s+/g, "-")) ||
+          (v.name.toLowerCase().includes("natural") && phone.image.toLowerCase().includes("studio"))
+      );
+      if (match) return match;
+    }
+    return phone.color_variants[0];
+  }, [phone.color_variants, phone.image]);
+
   const [selectedColor, setSelectedColor] = useState<string>(
-    phone.color_variants && phone.color_variants.length > 0
-      ? phone.color_variants[0].name
-      : "Nebula Blue"
+    initialColorVariant?.name || "Standard"
   );
+  const [selectedImgIndex, setSelectedImgIndex] = useState(0);
 
-  // 360 Studio Modal State
+  // Modal states
   const [is360ModalOpen, setIs360ModalOpen] = useState(false);
-
-  // Price Drop Alert Modal State
   const [isPriceAlertOpen, setIsPriceAlertOpen] = useState(false);
   const [alertTargetPrice, setAlertTargetPrice] = useState<string>(
     phone.lowest_verified_price
@@ -50,18 +157,18 @@ export function ProductClient({ phone, competitors }: ProductClientProps) {
   const [alertEmail, setAlertEmail] = useState("");
   const [alertSubmitted, setAlertSubmitted] = useState(false);
 
-  // Compare Tray State
+  // Compare tray state
   const [trayItems, setTrayItems] = useState<string[]>([phone.model]);
   const [isTrayVisible, setIsTrayVisible] = useState(true);
-  const [isInCompareTray, setIsInCompareTray] = useState(true);
+  const [isInCompareTray, setIsInCompareTray] = useState(false);
 
-  // Quick Differences vs Full Specs toggle
+  // Quick differences vs Full Specs toggle
   const [diffOnly, setDiffOnly] = useState(false);
 
   // WhatMobile 9-Category Detailed Specifications
   const specCategories = getPhoneDetailedSpecs(phone);
 
-  // Accordion Spec Cards State (Full 9 WhatMobile Categories)
+  // Accordion Spec State
   const [openSpecs, setOpenSpecs] = useState<Record<string, boolean>>({
     build: true,
     frequency: true,
@@ -87,18 +194,34 @@ export function ProductClient({ phone, competitors }: ProductClientProps) {
     setOpenSpecs((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-  // Calculations for pricing
-  const lowestPrice = (phone.lowest_verified_price && phone.lowest_verified_price > 0)
-    ? phone.lowest_verified_price
-    : (phone.price_pkr && phone.price_pkr > 0 ? phone.price_pkr : 0);
+  // Pricing calculations: sort retailers strictly lowest-to-highest so the best deal is always on top
+  const sortedRetailers = useMemo(() => {
+    if (!phone.retailers || phone.retailers.length === 0) return [];
+    return [...phone.retailers].sort((a, b) => {
+      const priceA = a.price && a.price > 0 ? a.price : Infinity;
+      const priceB = b.price && b.price > 0 ? b.price : Infinity;
+      return priceA - priceB;
+    });
+  }, [phone.retailers]);
+
+  const minRetailerPrice =
+    sortedRetailers.length > 0 && sortedRetailers[0].price > 0
+      ? sortedRetailers[0].price
+      : 0;
+
+  const lowestPrice =
+    minRetailerPrice > 0
+      ? minRetailerPrice
+      : phone.lowest_verified_price && phone.lowest_verified_price > 0
+      ? phone.lowest_verified_price
+      : phone.price_pkr && phone.price_pkr > 0
+      ? phone.price_pkr
+      : 0;
+
   const officialMsrp = phone.price_pkr && phone.price_pkr > 0 ? phone.price_pkr : lowestPrice;
   const savings = officialMsrp > lowestPrice ? officialMsrp - lowestPrice : 0;
   const savingsPercent = officialMsrp > 0 && savings > 0 ? Math.round((savings / officialMsrp) * 100) : 0;
-
-  // Retailers list: ONLY show authentic verified retailers, NEVER fabricate fake listings for discontinued phones!
-  const retailers = phone.retailers && phone.retailers.length > 0 ? phone.retailers : [];
-  const minRetailerPrice = retailers.length > 0 ? Math.min(...retailers.map((r) => r.price)) : 0;
-  const hasVerifiedPricing = lowestPrice > 0 && retailers.length > 0 && phone.status !== "Discontinued";
+  const hasVerifiedPricing = lowestPrice > 0 && phone.status !== "Discontinued";
 
   // PTA Tax values
   const tax = phone.pta_tax || {
@@ -108,54 +231,53 @@ export function ProductClient({ phone, competitors }: ProductClientProps) {
 
   // Verdict data
   const verdictData = phone.expert_verdict || {
-    verdict: `Impressive smartphone offering dedicated optimization with smooth performance for social apps, gaming, and streaming in Pakistan. While low-light camera capabilities remain standard, the battery stamina and charging turnaround are virtually unmatched at this benchmark.`,
+    verdict: `A dependable smartphone offering balanced performance for social apps, streaming, and daily cellular connectivity in Pakistan.`,
     pros: [
-      `${phone.battery?.capacity_mah || 4000}mAh Battery with ${phone.battery?.charging_watt || 18}W Fast Charging`,
-      `${phone.display?.type || 'HD+ IPS'} Display offering broad sunlight visibility`,
-      `Full official PTA DIRBS approval${hasVerifiedPricing ? ` under ${formatPKR(lowestPrice)}` : " status registered"}`,
-      `Dedicated MicroSD slot for expandable storage up to 256GB`,
+      `${phone.battery?.capacity_mah || 4000}mAh Battery with ${phone.battery?.charging_watt || 18}W Charging`,
+      `${phone.display?.type || "HD+ IPS"} Display offering clear visibility`,
+      `PTA DIRBS approved registered status`,
+      `MicroSD expansion slot supported`,
     ],
     cons: [
-      `Standard low-light camera sensor experiences noise in ultra low-light indoor shoots`,
-      `High-gloss rear casing is prone to micro-scratches without protective cover`,
-      `${phone.connectivity?.five_g ? 'Moderate 5G battery consumption' : 'No 5G Connectivity (restricted to 4G LTE-A)'}`,
+      `Standard low-light camera capabilities in indoor environments`,
+      `Glossy back casing is prone to micro-scratches`,
+      `${phone.connectivity?.five_g ? "5G active consumption" : "4G LTE connectivity"}`,
     ],
   };
 
-  // Comparison rivals
+  // Comparison rivals fallback
   const comp1 = competitors[0] || {
-    id: "xiaomi-redmi-a3",
-    slug: "xiaomi-redmi-a3",
+    id: "rival-1",
+    slug: "rival-1",
     brand: "Xiaomi",
-    model: "Redmi A3",
-    price_pkr: 25999,
-    lowest_verified_price: 23999,
-    battery: { capacity_mah: 5000, charging_watt: 10, wireless_charging: false },
-    display: { size: 6.71, type: "90Hz LCD", resolution: "720 x 1650", protection: "Gorilla Glass 3" },
-    platform: { chipset: "Helio G36", cpu: "Octa-core 2.2 GHz", antutu_score: 140000, os: "Android 14", gpu: "PowerVR" },
-    camera: { main_mp: 8, setup: "8MP Dual AI", selfie_mp: 5, video: "1080p", features: "HDR" },
-    memory: { ram_gb: 3, storage_gb: 64, card_slot: true },
+    model: "Redmi Note",
+    price_pkr: 35000,
+    lowest_verified_price: 33000,
+    battery: { capacity_mah: 5000, charging_watt: 18, wireless_charging: false },
+    display: { size: 6.67, type: "AMOLED", resolution: "1080 x 2400", protection: "Gorilla Glass" },
+    platform: { chipset: "Snapdragon 685", cpu: "Octa-core", antutu_score: 280000, os: "Android", gpu: "Adreno" },
+    camera: { main_mp: 50, setup: "50MP Dual", selfie_mp: 13, video: "1080p", features: "HDR" },
+    memory: { ram_gb: 4, storage_gb: 128, card_slot: true },
     connectivity: { five_g: false, nfc: false, headphone_jack: true },
-    image: "https://images.priceoye.pk/xiaomi-redmi-a3-pakistan-priceoye-500x500.webp",
+    image: "",
   };
 
   const comp2 = competitors[1] || {
-    id: "infinix-smart-8",
-    slug: "infinix-smart-8",
+    id: "rival-2",
+    slug: "rival-2",
     brand: "Infinix",
-    model: "Smart 8",
-    price_pkr: 24999,
-    lowest_verified_price: 22499,
-    battery: { capacity_mah: 5000, charging_watt: 10, wireless_charging: false },
-    display: { size: 6.6, type: "90Hz Punch-Hole IPS", resolution: "720 x 1612", protection: "N/A" },
-    platform: { chipset: "Unisoc T606", cpu: "Octa-core 1.6 GHz", antutu_score: 210000, os: "Android 13 Go", gpu: "Mali-G57" },
-    camera: { main_mp: 13, setup: "13MP Dual AI", selfie_mp: 8, video: "1080p", features: "Quad Flash" },
-    memory: { ram_gb: 3, storage_gb: 64, card_slot: true },
+    model: "Hot Series",
+    price_pkr: 34000,
+    lowest_verified_price: 32000,
+    battery: { capacity_mah: 5000, charging_watt: 18, wireless_charging: false },
+    display: { size: 6.78, type: "IPS LCD", resolution: "1080 x 2460", protection: "N/A" },
+    platform: { chipset: "Helio G88", cpu: "Octa-core", antutu_score: 240000, os: "Android", gpu: "Mali" },
+    camera: { main_mp: 50, setup: "50MP Dual", selfie_mp: 8, video: "1080p", features: "HDR" },
+    memory: { ram_gb: 4, storage_gb: 128, card_slot: true },
     connectivity: { five_g: false, nfc: false, headphone_jack: true },
-    image: "https://images.priceoye.pk/infinix-smart-8-pakistan-priceoye-500x500.webp",
+    image: "",
   };
 
-  // Actions
   const handleToggleCompare = () => {
     setIsInCompareTray(true);
     setIsTrayVisible(true);
@@ -175,1248 +297,774 @@ export function ProductClient({ phone, competitors }: ProductClientProps) {
     }
   };
 
-  const handleAngleChange = (angle: string, imgIdx?: number) => {
-    setSelectedAngle(angle);
-    if (typeof imgIdx === "number" && allImages[imgIdx]) {
+  const activeVariant = useMemo(() => {
+    if (!phone.color_variants || phone.color_variants.length === 0) return null;
+    return (
+      phone.color_variants.find(
+        (v) => v.name.toLowerCase() === selectedColor.toLowerCase()
+      ) || phone.color_variants[0]
+    );
+  }, [phone.color_variants, selectedColor]);
+
+  const activeImages = useMemo(() => {
+    if (activeVariant?.images && activeVariant.images.length > 0) {
+      return activeVariant.images;
+    }
+    if (phone.images && phone.images.length > 0) {
+      return phone.images;
+    }
+    return phone.image ? [phone.image] : [];
+  }, [activeVariant, phone.images, phone.image]);
+
+  const colorOptions = useMemo(() => {
+    if (!phone.color_variants || phone.color_variants.length === 0) return [];
+    return phone.color_variants.map((v) => ({
+      name: v.name,
+      dotColor: getVariantDotColor(v.name),
+    }));
+  }, [phone.color_variants]);
+
+  const handleColorSelect = (colorName: string) => {
+    setSelectedColor(colorName);
+    setSelectedImgIndex(0);
+  };
+
+  const handleAngleChange = (_angle: string, imgIdx?: number) => {
+    if (typeof imgIdx === "number" && activeImages[imgIdx]) {
       setSelectedImgIndex(imgIdx);
     }
   };
 
-  // Color Finishes options
-  const colorOptions = phone.color_variants && phone.color_variants.length > 0
-    ? phone.color_variants.map((v) => ({ name: v.name, dotColor: v.name.toLowerCase().includes('blue') ? '#2563eb' : v.name.toLowerCase().includes('green') ? '#059669' : v.name.toLowerCase().includes('gold') ? '#d97706' : v.name.toLowerCase().includes('white') || v.name.toLowerCase().includes('silver') ? '#cbd5e1' : '#0f172a' }))
-    : [
-        { name: "Nebula Blue", dotColor: "#2563eb" },
-        { name: "Titanium Silver", dotColor: "#cbd5e1" },
-        { name: "Onyx Black", dotColor: "#0f172a" },
-      ];
-
-  const currentDisplayImage = allImages[selectedImgIndex] || phone.image;
+  const currentDisplayImage = activeImages[selectedImgIndex] || activeImages[0] || phone.image;
 
   return (
-    <main className="w-full bg-surface min-h-screen text-on-surface antialiased pt-2 product-page-wrapper">
-      <div className="flex flex-col w-full">
+    <main className="w-full bg-[#f8f9fa] min-h-screen text-gray-900 antialiased py-4">
+      <div className="max-w-[1140px] mx-auto px-4 sm:px-6 space-y-4">
 
-        {/* ==========================================================================
-            1. TOP BREADCRUMB & LIVE TRACKER RIBBON
-            ========================================================================== */}
-        <section className="w-full bg-surface-container-lowest border-b border-border-hairline">
-          <div className="max-w-7xl mx-auto px-gutter py-3 flex flex-wrap items-center justify-between gap-y-2">
-            {/* Breadcrumbs */}
-            <nav className="flex items-center gap-2 font-label-md text-label-md text-on-surface-variant">
-              <Link className="hover:text-primary transition-colors flex items-center gap-1" href="/">
-                <span className="material-symbols-outlined text-[16px]">home</span> Home
-              </Link>
-              <span>/</span>
-              <Link className="hover:text-primary transition-colors" href="/?q=smartphones">
-                Smartphones
-              </Link>
-              <span>/</span>
-              <Link className="hover:text-primary transition-colors" href={`/?q=${phone.brand}`}>
-                {phone.brand}
-              </Link>
-              <span>/</span>
-              <span className="text-on-surface font-semibold">{phone.model}</span>
-            </nav>
+        {/* ─── 1. BREADCRUMBS & TOP META ────────────────────────────────────────── */}
+        <div className="flex flex-wrap items-center justify-between gap-2 text-[13px] text-gray-500">
+          <nav className="flex items-center gap-1.5 flex-wrap">
+            <Link href="/" className="hover:text-gray-900 transition-colors">
+              Home
+            </Link>
+            <span>/</span>
+            <Link href="/?q=smartphones" className="hover:text-gray-900 transition-colors">
+              Smartphones
+            </Link>
+            <span>/</span>
+            <Link href={`/?q=${phone.brand}`} className="hover:text-gray-900 transition-colors">
+              {phone.brand}
+            </Link>
+            <span>/</span>
+            <span className="text-gray-800 font-medium">{phone.model}</span>
+          </nav>
 
-            {/* Trust Badges Bar */}
-            <div className="flex items-center flex-wrap gap-2 text-label-sm font-label-sm">
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container font-semibold text-on-surface">
-                <span className="material-symbols-outlined text-[15px] text-tertiary-container">verified</span>
-                {phone.pta_status === "approved" ? "PTA Approved (DIRBS)" : "Non-PTA / JV (Tax Required)"}
+          <div className="flex items-center gap-2 text-xs">
+            <span
+              className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-medium ${
+                phone.pta_status === "approved"
+                  ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                  : "bg-gray-100 text-gray-600 border border-gray-200"
+              }`}
+            >
+              <span className="material-symbols-outlined text-[14px]">
+                {phone.pta_status === "approved" ? "verified" : "help_outline"}
               </span>
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-surface-container text-on-surface-variant font-medium">
-                <span className="material-symbols-outlined text-[15px]">format_image_left</span>
-                {phone.warranty ? `${phone.warranty.provider} ${phone.warranty.duration_months}M Warranty` : `${phone.brand} Pakistan 1-Year Warranty`}
-              </span>
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-badge-blue-tint text-tertiary-container font-medium">
-                <span className="w-1.5 h-1.5 rounded-full bg-blue-600 animate-ping"></span>
-                Live Price (Updated 15 mins ago)
-              </span>
-            </div>
+              {phone.pta_status === "approved" ? "PTA Approved (DIRBS)" : "Non-PTA"}
+            </span>
+            <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-600 border border-gray-200 font-normal">
+              1-Year Warranty
+            </span>
           </div>
-        </section>
+        </div>
 
-        {/* ==========================================================================
-            2. PRODUCT HERO SHOWCASE
-            ========================================================================== */}
-        <section className="w-full bg-surface py-space-xl">
-          <div className="max-w-7xl mx-auto px-gutter">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-start">
+        {/* ─── 2. TOP HERO SECTION ──────────────────────────────────────────────── */}
+        <section className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6 shadow-xs">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
 
-              {/* Left: Product Studio Showcase (5 cols) */}
-              <div className="lg:col-span-5 flex flex-col gap-4">
-                <div className="relative w-full rounded-2xl bg-surface-container-lowest p-6 shadow-sm overflow-hidden group border border-border-hairline">
-                  {/* Studio Stage Vignette & Badges */}
-                  <div className="absolute top-4 left-4 z-10 flex flex-col gap-1.5">
-                    <span className="px-3 py-1 rounded-full bg-deal-orange text-surface-container-lowest font-label-sm text-label-sm font-bold uppercase tracking-wider shadow-md flex items-center gap-1">
-                      <span className="material-symbols-outlined text-[14px]">local_fire_department</span>
-                      {phone.trending_rank ? `Trending #${phone.trending_rank}` : "Value Benchmark"}
-                    </span>
-                    <span className="px-2.5 py-1 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm">
-                      Official Studio Photo
-                    </span>
-                  </div>
-
-                  {/* 360 Studio View Trigger */}
-                  <button
-                    className="absolute top-4 right-4 z-10 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface/90 backdrop-blur text-on-surface hover:bg-surface-container transition shadow-sm font-label-sm text-label-sm font-semibold border border-border-hairline"
-                    id="view-360-btn"
-                    onClick={() => setIs360ModalOpen(true)}
-                  >
-                    <span className="material-symbols-outlined text-[18px] text-tertiary-container">360</span>
-                    360° Studio View
-                  </button>
-
-                  {/* Main Product Image */}
-                  <div className="relative w-full aspect-[4/5] flex items-center justify-center p-4">
-                    <img
-                      id="main-product-img"
-                      src={getSupabaseImageUrl(currentDisplayImage)}
-                      alt={`${phone.brand} ${phone.model} studio presentation`}
-                      className="w-full h-full object-contain filter drop-shadow-[0_20px_25px_rgba(0,0,0,0.12)] transition-transform duration-300 group-hover:scale-105"
-                    />
-                  </div>
-
-                  {/* Visual Floating Spec Pill */}
-                  <div className="absolute bottom-4 left-4 right-4 z-10 bg-surface-container-lowest/95 backdrop-blur-md rounded-xl p-3 flex items-center justify-between shadow-sm border border-border-hairline">
-                    <div className="flex items-center gap-2">
-                      <span className="material-symbols-outlined text-blue-600 text-[20px]">verified_user</span>
-                      <div>
-                        <div className="font-label-md text-label-md font-bold text-on-surface">100% Non-Tampered IMEI</div>
-                        <div className="font-body-sm text-body-sm text-on-surface-variant">Validated against PTA DIRBS database</div>
-                      </div>
-                    </div>
-                    <span className="font-label-sm text-label-sm font-bold text-tertiary-container uppercase bg-badge-blue-tint px-2 py-0.5 rounded">
-                      Active
-                    </span>
-                  </div>
-                </div>
-
-                {/* Multi-Angle Perspectives & Thumbnails */}
-                <div className="flex flex-col gap-2">
-                  <span className="font-label-md text-label-md text-on-surface-variant font-semibold flex items-center gap-1">
-                    <span className="material-symbols-outlined text-[16px]">photo_camera</span> Multi-Angle Perspectives:
+            {/* Left: Product Image & Angles (4 cols) */}
+            <div className="md:col-span-4 lg:col-span-4 flex flex-col items-center">
+              <div className="relative w-full max-w-[260px] aspect-[4/5] max-h-[280px] bg-white rounded-xl border border-gray-100 flex items-center justify-center p-3 group shadow-2xs">
+                {/* Status badge */}
+                <div className="absolute top-2.5 left-2.5 z-10">
+                  <span className="px-2 py-0.5 rounded text-[11px] font-medium bg-white/95 text-gray-700 border border-gray-200 shadow-2xs">
+                    {phone.trending_rank ? `#${phone.trending_rank} Trending` : phone.brand}
                   </span>
-                  <div className="grid grid-cols-4 gap-2.5">
-                    {/* Front / Studio Angle */}
-                    <button
-                      className={`angle-thumb relative rounded-xl bg-surface-container-lowest p-2 shadow-sm transition hover:shadow-md border border-border-hairline ${selectedAngle === "front" ? "ring-2 ring-primary" : ""}`}
-                      onClick={() => handleAngleChange("front", 0)}
-                    >
-                      <div className="w-full h-14 flex items-center justify-center">
-                        <img
-                          src={getSupabaseImageUrl(allImages[0] || phone.image)}
-                          alt="Dual Angle Studio View"
-                          className="w-full h-14 object-contain"
-                        />
-                      </div>
-                      <span className="block mt-1 text-center font-label-sm text-[10px] text-on-surface font-semibold truncate">
-                        Dual Angle
-                      </span>
-                    </button>
-
-                    {/* Back Dynamic Angle */}
-                    <button
-                      className={`angle-thumb relative rounded-xl bg-surface-container-lowest p-2 shadow-sm transition hover:shadow-md border border-border-hairline ${selectedAngle === "back" ? "ring-2 ring-primary" : ""}`}
-                      onClick={() => handleAngleChange("back", Math.min(1, allImages.length - 1))}
-                    >
-                      <div className="w-full h-14 rounded-lg bg-surface-subtle flex items-center justify-center">
-                        {allImages[1] ? (
-                          <img src={getSupabaseImageUrl(allImages[1])} alt="Dynamic Back" className="w-full h-14 object-contain" />
-                        ) : (
-                          <span className="material-symbols-outlined text-outline text-[24px]">smartphone</span>
-                        )}
-                      </div>
-                      <span className="block mt-1 text-center font-label-sm text-[10px] text-on-surface-variant truncate">
-                        Dynamic Back
-                      </span>
-                    </button>
-
-                    {/* Camera Module Angle */}
-                    <button
-                      className={`angle-thumb relative rounded-xl bg-surface-container-lowest p-2 shadow-sm transition hover:shadow-md border border-border-hairline ${selectedAngle === "camera" ? "ring-2 ring-primary" : ""}`}
-                      onClick={() => handleAngleChange("camera", Math.min(2, allImages.length - 1))}
-                    >
-                      <div className="w-full h-14 rounded-lg bg-surface-subtle flex items-center justify-center">
-                        {allImages[2] ? (
-                          <img src={getSupabaseImageUrl(allImages[2])} alt="Camera Module" className="w-full h-14 object-contain" />
-                        ) : (
-                          <span className="material-symbols-outlined text-outline text-[24px]">photo_camera_back</span>
-                        )}
-                      </div>
-                      <span className="block mt-1 text-center font-label-sm text-[10px] text-on-surface-variant truncate">
-                        {phone.camera?.main_mp || 8}MP Module
-                      </span>
-                    </button>
-
-                    {/* Edge Profile Angle */}
-                    <button
-                      className={`angle-thumb relative rounded-xl bg-surface-container-lowest p-2 shadow-sm transition hover:shadow-md border border-border-hairline ${selectedAngle === "profile" ? "ring-2 ring-primary" : ""}`}
-                      onClick={() => handleAngleChange("profile", Math.min(3, allImages.length - 1))}
-                    >
-                      <div className="w-full h-14 rounded-lg bg-surface-subtle flex items-center justify-center">
-                        {allImages[3] ? (
-                          <img src={getSupabaseImageUrl(allImages[3])} alt="Edge Profile" className="w-full h-14 object-contain" />
-                        ) : (
-                          <span className="material-symbols-outlined text-outline text-[24px]">edgesensor_high</span>
-                        )}
-                      </div>
-                      <span className="block mt-1 text-center font-label-sm text-[10px] text-on-surface-variant truncate">
-                        Edge Profile
-                      </span>
-                    </button>
-                  </div>
                 </div>
 
-                {/* Color Selector Chips */}
-                <div className="bg-surface-container-lowest rounded-xl p-4 shadow-sm flex items-center justify-between border border-border-hairline flex-wrap gap-2">
-                  <span className="font-label-md text-label-md text-on-surface font-bold">Color Finishes:</span>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    {colorOptions.map((c, i) => {
-                      const isSelected = selectedColor === c.name;
-                      return (
-                        <button
-                          key={i}
-                          onClick={() => setSelectedColor(c.name)}
-                          className={`flex items-center gap-1.5 px-3 py-1 rounded-full font-label-sm text-label-sm font-semibold transition ${
-                            isSelected
-                              ? "bg-badge-blue-tint text-tertiary-container ring-1 ring-tertiary-container/30"
-                              : "bg-surface-subtle text-on-surface-variant hover:bg-surface-container"
-                          }`}
-                        >
-                          <span
-                            className="w-3 h-3 rounded-full shadow-inner"
-                            style={{ backgroundColor: c.dotColor }}
-                          />
-                          {c.name}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
+                {/* Zoom / Fullscreen Trigger */}
+                <button
+                  type="button"
+                  onClick={() => setIs360ModalOpen(true)}
+                  title="Zoom & Fullscreen view"
+                  aria-label="Zoom & Fullscreen view"
+                  className="absolute top-2.5 right-2.5 z-10 flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium bg-white/95 text-gray-700 border border-gray-200 hover:bg-gray-50 hover:text-gray-900 transition shadow-2xs"
+                >
+                  <ZoomIn className="w-3.5 h-3.5 text-orange-600" />
+                  Zoom
+                </button>
+
+                {/* Main Product Image */}
+                <img
+                  src={getSupabaseImageUrl(currentDisplayImage)}
+                  alt={`${phone.brand} ${phone.model} - ${selectedColor}`}
+                  className="max-h-[220px] w-auto object-contain transition-transform duration-200 group-hover:scale-102"
+                />
               </div>
 
-              {/* Right: Device Summary & Benchmark Info (7 cols) */}
-              <div className="lg:col-span-7 flex flex-col gap-6">
-
-                {/* Title & Release Header */}
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-center justify-between flex-wrap gap-2">
-                    <span className="font-label-sm text-label-sm uppercase tracking-wider text-deal-orange font-bold bg-orange-100 px-3 py-0.5 rounded-full">
-                      {!hasVerifiedPricing ? "Discontinued / Unlisted Device" : lowestPrice < 35000 ? "Entry-Level Value King" : lowestPrice < 100000 ? "Mid-Range Powerhouse" : "Premium Flagship"}
-                    </span>
-                    <span className="font-label-md text-label-md text-on-surface-variant">
-                      Released {phone.release_date} • Global MSRP: ${phone.usd_price}
-                    </span>
-                  </div>
-
-                  <h1 className="font-headline-xl text-headline-xl text-on-surface tracking-tight font-extrabold">
-                    {formatPhoneName(phone.brand, phone.model)}
-                  </h1>
-
-                  <p className="font-body-md text-body-md text-on-surface-variant">
-                    {phone.model} engineered with {safeStorage}GB high-speed storage, {phone.platform?.chipset || "Octa-Core architecture"}, and an expansive {phone.display?.size || 6.6}&quot; visual canvas optimized for high-efficiency cellular connectivity in Pakistan.
-                  </p>
-                </div>
-
-                {/* Big Price Highlight Bento Card */}
-                <div className="rounded-2xl bg-surface-container-lowest p-6 shadow-sm relative overflow-hidden border border-border-hairline">
-                  <div className="absolute right-0 top-0 translate-x-8 -translate-y-8 w-44 h-44 rounded-full bg-secondary/5 blur-2xl pointer-events-none"></div>
-
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-border-hairline">
-                    <div className="flex flex-col">
-                      <div className="flex items-center gap-2">
-                        {hasVerifiedPricing ? (
-                          <>
-                            <span className="font-label-sm text-label-sm text-deal-orange font-bold uppercase tracking-wider">
-                              Lowest Verified Market Price in Pakistan
-                            </span>
-                            <span className="w-2 h-2 rounded-full bg-deal-orange animate-pulse"></span>
-                          </>
-                        ) : (
-                          <>
-                            <span className="font-label-sm text-label-sm text-slate-500 font-bold uppercase tracking-wider">
-                              Market Status & Availability
-                            </span>
-                            <span className="w-2 h-2 rounded-full bg-slate-400"></span>
-                          </>
-                        )}
-                      </div>
-                      <div className="flex items-baseline gap-3 mt-1 flex-wrap">
-                        <span className={`font-headline-xl text-headline-xl font-bold tracking-tight ${hasVerifiedPricing ? "text-on-surface" : "text-slate-600"}`}>
-                          {hasVerifiedPricing ? formatPKR(lowestPrice) : "Price N/A"}
-                        </span>
-                        {hasVerifiedPricing && savings > 0 && (
-                          <span className="font-label-lg text-label-lg line-through text-outline">
-                            Official MSRP: {formatPKR(officialMsrp)}
-                          </span>
-                        )}
-                        {!hasVerifiedPricing && (
-                          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200">
-                            {phone.status || "Discontinued / Unlisted"}
-                          </span>
-                        )}
-                      </div>
-                      {!hasVerifiedPricing && (
-                        <p className="text-sm text-slate-500 mt-1.5 max-w-lg">
-                          This model is discontinued and no longer listed for sale by official retail stores across Pakistan.
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Savings Pill */}
-                    {hasVerifiedPricing && savings > 0 && (
-                      <div className="flex items-center gap-2 self-start md:self-auto bg-orange-100 px-3 py-2 rounded-xl text-deal-orange">
-                        <span className="material-symbols-outlined text-[20px]">trending_down</span>
-                        <div className="text-left">
-                          <div className="font-label-sm text-label-sm font-bold leading-tight">
-                            Save {formatPKR(savings)}
-                          </div>
-                          <div className="font-body-sm text-[11px] text-amber-900 leading-tight">
-                            {savingsPercent}% vs Official MSRP
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Quick Action CTAs */}
-                  <div className="pt-6 flex flex-wrap items-center gap-3">
-                    {hasVerifiedPricing ? (
-                      <a
-                        className="flex-1 min-w-[200px] flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-deal-orange text-surface-container-lowest hover:bg-orange-600 font-label-lg text-label-lg transition shadow-md hover:shadow-lg font-bold"
-                        href="#market-prices"
-                      >
-                        <span className="material-symbols-outlined text-[18px]">shopping_cart</span>
-                        View Stores & Buy Now ⬇
-                      </a>
-                    ) : (
-                      <a
-                        className="flex-1 min-w-[200px] flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-slate-800 text-surface-container-lowest hover:bg-slate-700 font-label-lg text-label-lg transition shadow-md hover:shadow-lg font-bold"
-                        href="#market-prices"
-                      >
-                        <span className="material-symbols-outlined text-[18px]">inventory_2</span>
-                        Check Market Availability ⬇
-                      </a>
-                    )}
+              {/* Thumbnails row */}
+              {activeImages.length > 1 && (
+                <div className="flex items-center gap-2 mt-3 overflow-x-auto max-w-full pb-1 no-scrollbar justify-center">
+                  {activeImages.slice(0, 6).map((img, idx) => (
                     <button
-                      className={`flex items-center justify-center gap-1.5 px-4 py-3.5 rounded-xl font-label-lg text-label-lg transition ${
-                        isInCompareTray
-                          ? "bg-badge-emerald-tint text-secondary font-bold"
-                          : "bg-surface-subtle hover:bg-surface-container text-on-surface"
+                      key={idx}
+                      type="button"
+                      onClick={() => handleAngleChange(`angle-${idx}`, idx)}
+                      className={`w-11 h-11 rounded-md border p-1 bg-white transition flex items-center justify-center ${
+                        selectedImgIndex === idx
+                          ? "border-orange-500 ring-1 ring-orange-500"
+                          : "border-gray-200 hover:border-gray-300"
                       }`}
-                      id="add-compare-btn"
-                      onClick={handleToggleCompare}
                     >
-                      <span className="material-symbols-outlined text-[18px]">
-                        {isInCompareTray ? "check" : "balance"}
-                      </span>
-                      {isInCompareTray ? "In Compare Tray" : "+ Add to Compare"}
+                      <img
+                        src={getSupabaseImageUrl(img)}
+                        alt={`Angle ${idx + 1}`}
+                        className="w-full h-full object-contain"
+                      />
                     </button>
-                    <a
-                      className="flex items-center justify-center gap-1.5 px-4 py-3.5 rounded-xl bg-badge-blue-tint text-tertiary-container hover:bg-surface-container font-label-lg text-label-lg transition font-semibold"
-                      href="#pta-tax-section"
-                    >
-                      <span className="material-symbols-outlined text-[18px]">calculate</span>
-                      Calculate PTA Tax
-                    </a>
-                  </div>
+                  ))}
                 </div>
+              )}
 
-                {/* Value Highlights 3-Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  {/* Battery */}
-                  <div className="rounded-xl bg-surface-container-lowest p-4 shadow-sm flex flex-col gap-1 hover:-translate-y-0.5 transition duration-200 border border-border-hairline">
-                    <div className="flex items-center justify-between text-deal-orange">
-                      <span className="material-symbols-outlined text-[24px]">battery_charging_full</span>
-                      <span className="font-label-sm text-label-sm bg-orange-100 px-2 py-0.5 rounded font-bold">
-                        {phone.battery?.capacity_mah && phone.battery.capacity_mah >= 5000 ? "Long Stamina" : "All Day"}
-                      </span>
-                    </div>
-                    <div className="font-headline-sm text-headline-sm font-bold text-on-surface mt-2">
-                      {phone.battery?.capacity_mah || 4000} mAh
-                    </div>
-                    <div className="font-body-sm text-body-sm text-on-surface-variant">
-                      {phone.battery?.charging_watt || 18}W Fast Wired Charging
-                    </div>
-                  </div>
-
-                  {/* Display */}
-                  <div className="rounded-xl bg-surface-container-lowest p-4 shadow-sm flex flex-col gap-1 hover:-translate-y-0.5 transition duration-200 border border-border-hairline">
-                    <div className="flex items-center justify-between text-tertiary-container">
-                      <span className="material-symbols-outlined text-[24px]">aspect_ratio</span>
-                      <span className="font-label-sm text-label-sm bg-badge-blue-tint px-2 py-0.5 rounded font-bold truncate max-w-[90px]">
-                        {phone.display?.type?.split(",")[0] || "IPS HD+"}
-                      </span>
-                    </div>
-                    <div className="font-headline-sm text-headline-sm font-bold text-on-surface mt-2">
-                      {phone.display?.size || 6.6}&quot; Display
-                    </div>
-                    <div className="font-body-sm text-body-sm text-on-surface-variant truncate">
-                      {phone.display?.resolution || "720 x 1612 Pixels Resolution"}
-                    </div>
-                  </div>
-
-                  {/* Processor */}
-                  <div className="rounded-xl bg-surface-container-lowest p-4 shadow-sm flex flex-col gap-1 hover:-translate-y-0.5 transition duration-200 border border-border-hairline">
-                    <div className="flex items-center justify-between text-deal-orange">
-                      <span className="material-symbols-outlined text-[24px]">memory</span>
-                      <span className="font-label-sm text-label-sm bg-orange-100 text-deal-orange px-2 py-0.5 rounded font-bold">
-                        ~{Math.round((phone.platform?.antutu_score || 230000) / 1000)}k AnTuTu
-                      </span>
-                    </div>
-                    <div className="font-headline-sm text-headline-sm font-bold text-on-surface mt-2">
-                      {phone.platform?.chipset?.split(" ")[0] || "Octa-Core"}
-                    </div>
-                    <div className="font-body-sm text-body-sm text-on-surface-variant">
-                      {safeStorage}GB + {safeRam}GB RAM
-                    </div>
-                  </div>
+              {/* Color finishes chips */}
+              {colorOptions.length > 0 && (
+                <div className="flex items-center gap-1.5 mt-3 flex-wrap justify-center">
+                  {colorOptions.map((c, idx) => {
+                    const isSelected = selectedColor.toLowerCase() === c.name.toLowerCase();
+                    return (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => handleColorSelect(c.name)}
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-normal transition ${
+                          isSelected
+                            ? "bg-gray-100 text-gray-900 border border-gray-400 font-medium shadow-2xs"
+                            : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50 hover:text-gray-900"
+                        }`}
+                      >
+                        <span
+                          className="w-2.5 h-2.5 rounded-full border border-gray-300 shadow-2xs shrink-0"
+                          style={{ backgroundColor: c.dotColor }}
+                        />
+                        <span>{c.name}</span>
+                      </button>
+                    );
+                  })}
                 </div>
-
-                {/* Retailer Quick Snippet */}
-                {retailers.length > 0 && minRetailerPrice > 0 ? (
-                  <div className="rounded-xl bg-surface-container-high/40 p-3.5 flex items-center justify-between gap-4 border border-border-hairline">
-                    <div className="flex items-center gap-3">
-                      <span className="w-2.5 h-2.5 rounded-full bg-deal-orange"></span>
-                      <p className="font-body-sm text-body-sm text-on-surface">
-                        <strong>Karachi Saddar & Hafeez Centre:</strong> Physical cash wholesale ready from <strong>{formatPKR(minRetailerPrice)}</strong>.
-                      </p>
-                    </div>
-                    <a className="font-label-sm text-label-sm text-deal-orange font-bold hover:underline whitespace-nowrap" href="#market-prices">
-                      Compare {retailers.length} Sellers →
-                    </a>
-                  </div>
-                ) : (
-                  <div className="rounded-xl bg-surface-container-high/40 p-3.5 flex items-center justify-between gap-4 border border-border-hairline">
-                    <div className="flex items-center gap-3">
-                      <span className="w-2.5 h-2.5 rounded-full bg-slate-400"></span>
-                      <p className="font-body-sm text-body-sm text-on-surface">
-                        <strong>Market Status:</strong> Discontinued / Unlisted across official online merchants.
-                      </p>
-                    </div>
-                    <span className="font-label-sm text-label-sm text-slate-500 font-bold whitespace-nowrap">
-                      Price N/A
-                    </span>
-                  </div>
-                )}
-
-              </div>
+              )}
             </div>
-          </div>
-        </section>
 
-        {/* ==========================================================================
-            3. INTERACTIVE SIDE-BY-SIDE QUICK COMPARISON WIDGET
-            ========================================================================== */}
-        <section className="w-full bg-surface-container-lowest py-space-xl border-y border-border-hairline">
-          <div className="max-w-7xl mx-auto px-gutter">
-            {/* Section Header */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+            {/* Right: Specs Strip & Price CTA (8 cols) */}
+            <div className="md:col-span-8 lg:col-span-8 flex flex-col gap-3">
+              {/* Title & Metadata */}
               <div>
-                <div className="flex items-center gap-2 text-deal-orange font-label-md text-label-md font-bold uppercase tracking-wider mb-1">
-                  <span className="material-symbols-outlined text-[18px]">swap_horiz</span> Benchmark Intelligence
+                <div className="text-xs text-gray-500 font-normal">
+                  {phone.brand} • Released {phone.release_date || "2024"} • Global MSRP: ${phone.usd_price}
                 </div>
-                <h2 className="font-headline-lg text-headline-lg font-bold text-on-surface tracking-tight">
-                  Compare {phone.model} With Rivals
-                </h2>
-                <p className="font-body-md text-body-md text-on-surface-variant mt-1">
-                  {lowestPrice > 0 ? (
-                    <>Direct real-time hardware shootout with top Pakistan market competitors under {formatPKR(Math.max(lowestPrice, comp1.price_pkr, comp2.price_pkr) * 1.1)}.</>
-                  ) : (
-                    <>Direct real-time hardware shootout with top category competitors and alternatives.</>
-                  )}
+                <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 tracking-tight mt-0.5">
+                  {formatPhoneName(phone.brand, phone.model)}
+                </h1>
+                <p className="text-sm text-gray-600 font-normal mt-1 leading-relaxed">
+                  Equipped with {safeStorage}GB storage, {safeRam}GB RAM, {phone.platform?.chipset || "Octa-Core processor"}, and a {phone.display?.size || 6.6}&quot; {phone.display?.type?.split(",")[0] || "display"}.
                 </p>
               </div>
 
-              {/* Toggle Differences Mode */}
-              <div className="flex items-center p-1 bg-surface-subtle rounded-xl border border-border-hairline self-start">
+              {/* Compact Key Highlights Strip (5 core items) */}
+              <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 my-1">
+                <div className="bg-gray-50 rounded-lg border border-gray-200/80 p-2 text-center">
+                  <div className="text-[11px] text-gray-500 font-normal">Display</div>
+                  <div className="text-xs font-medium text-gray-900 truncate mt-0.5">
+                    {phone.display?.size || 6.6}&quot; {phone.display?.type?.split(",")[0] || "HD+"}
+                  </div>
+                </div>
+
+                <div className="bg-gray-50 rounded-lg border border-gray-200/80 p-2 text-center">
+                  <div className="text-[11px] text-gray-500 font-normal">Camera</div>
+                  <div className="text-xs font-medium text-gray-900 truncate mt-0.5">
+                    {phone.camera?.main_mp || 50}MP + {phone.camera?.selfie_mp || 8}MP
+                  </div>
+                </div>
+
+                <div className="bg-gray-50 rounded-lg border border-gray-200/80 p-2 text-center">
+                  <div className="text-[11px] text-gray-500 font-normal">Battery</div>
+                  <div className="text-xs font-medium text-gray-900 truncate mt-0.5">
+                    {phone.battery?.capacity_mah || 5000} mAh
+                  </div>
+                </div>
+
+                <div className="bg-gray-50 rounded-lg border border-gray-200/80 p-2 text-center">
+                  <div className="text-[11px] text-gray-500 font-normal">Storage / RAM</div>
+                  <div className="text-xs font-medium text-gray-900 truncate mt-0.5">
+                    {safeStorage}GB / {safeRam}GB
+                  </div>
+                </div>
+
+                <div className="col-span-2 sm:col-span-1 bg-gray-50 rounded-lg border border-gray-200/80 p-2 text-center">
+                  <div className="text-[11px] text-gray-500 font-normal">Chipset</div>
+                  <div className="text-xs font-medium text-gray-900 truncate mt-0.5">
+                    {phone.platform?.chipset?.split(" ")[0] || "Octa-Core"}
+                  </div>
+                </div>
+              </div>
+
+              {/* Price & Primary Action Box */}
+              <div className="rounded-xl bg-gray-50/75 border border-gray-200 p-4 flex flex-col gap-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <div>
+                    <div className="text-[11px] text-gray-500 font-normal uppercase tracking-wider">
+                      {hasVerifiedPricing ? "Lowest Verified Retail Price in Pakistan" : "Market Status"}
+                    </div>
+                    <div className="flex items-baseline gap-2.5 mt-0.5 flex-wrap">
+                      <span className="text-2xl font-semibold text-orange-600">
+                        {hasVerifiedPricing ? formatPKR(lowestPrice) : "Price N/A"}
+                      </span>
+                      {hasVerifiedPricing && savings > 0 && (
+                        <span className="text-xs text-gray-400 line-through">
+                          MSRP {formatPKR(officialMsrp)}
+                        </span>
+                      )}
+                      {!hasVerifiedPricing && (
+                        <span className="text-xs font-medium text-gray-600 bg-gray-200 px-2 py-0.5 rounded">
+                          {phone.status || "Discontinued"}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {hasVerifiedPricing && savings > 0 && (
+                    <div className="self-start sm:self-auto bg-orange-50 border border-orange-200 text-orange-700 px-2.5 py-1 rounded text-xs font-medium">
+                      Save {formatPKR(savings)} ({savingsPercent}%)
+                    </div>
+                  )}
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex flex-wrap items-center gap-2 pt-1">
+                  {hasVerifiedPricing ? (
+                    <a
+                      href="#prices"
+                      className="h-9 px-4 text-xs font-medium text-white bg-orange-600 hover:bg-orange-700 rounded-lg transition-colors inline-flex items-center justify-center gap-1.5 shadow-xs"
+                    >
+                      <span className="material-symbols-outlined text-[16px]">shopping_cart</span>
+                      View Store Prices ({sortedRetailers.length}) ↓
+                    </a>
+                  ) : (
+                    <a
+                      href="#prices"
+                      className="h-9 px-4 text-xs font-medium text-white bg-gray-800 hover:bg-gray-900 rounded-lg transition-colors inline-flex items-center justify-center gap-1.5 shadow-xs"
+                    >
+                      <span className="material-symbols-outlined text-[16px]">inventory_2</span>
+                      Check Market Status ↓
+                    </a>
+                  )}
+
+                  <button
+                    type="button"
+                    onClick={handleToggleCompare}
+                    className={`h-9 px-3.5 text-xs font-medium rounded-lg border transition-colors inline-flex items-center justify-center gap-1.5 ${
+                      isInCompareTray
+                        ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                        : "bg-white text-gray-700 border-gray-200 hover:bg-gray-50"
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-[16px]">
+                      {isInCompareTray ? "check" : "balance"}
+                    </span>
+                    {isInCompareTray ? "In Compare Tray" : "+ Add to Compare"}
+                  </button>
+
+                  <a
+                    href="#pta-tax"
+                    className="h-9 px-3.5 text-xs font-medium text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 rounded-lg transition-colors inline-flex items-center justify-center gap-1.5"
+                  >
+                    <span className="material-symbols-outlined text-[16px]">calculate</span>
+                    PTA Tax
+                  </a>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        {/* ─── 3. STICKY QUICK-NAV BAR ─────────────────────────────────────────── */}
+        <div className="sticky top-2 z-20 bg-white/95 backdrop-blur border border-gray-200 rounded-xl px-3 py-2 flex items-center gap-2 overflow-x-auto text-xs font-medium text-gray-600 shadow-xs no-scrollbar">
+          <a href="#specs" className="px-2.5 py-1 rounded-md hover:bg-gray-100 hover:text-gray-900 transition-colors whitespace-nowrap">
+            Specifications
+          </a>
+          <span className="text-gray-300">•</span>
+          <a href="#prices" className="px-2.5 py-1 rounded-md hover:bg-gray-100 hover:text-gray-900 transition-colors whitespace-nowrap">
+            Prices ({sortedRetailers.length})
+          </a>
+          <span className="text-gray-300">•</span>
+          <a href="#pta-tax" className="px-2.5 py-1 rounded-md hover:bg-gray-100 hover:text-gray-900 transition-colors whitespace-nowrap">
+            PTA Tax & Duty
+          </a>
+          <span className="text-gray-300">•</span>
+          <a href="#compare-rivals" className="px-2.5 py-1 rounded-md hover:bg-gray-100 hover:text-gray-900 transition-colors whitespace-nowrap">
+            Compare Rivals
+          </a>
+          <span className="text-gray-300">•</span>
+          <a href="#verdict" className="px-2.5 py-1 rounded-md hover:bg-gray-100 hover:text-gray-900 transition-colors whitespace-nowrap">
+            Expert Verdict
+          </a>
+        </div>
+
+        {/* ─── 4. DETAILED SPECIFICATIONS TABLE ─────────────────────────────────── */}
+        <section id="specs" className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6 shadow-xs scroll-mt-14">
+          <SectionHeading
+            title="Technical Specifications"
+            subtitle={`Verified hardware components and architecture for ${phone.brand} ${phone.model}`}
+            action={
+              <button
+                type="button"
+                onClick={toggleAllSpecs}
+                className="h-8 px-3 text-xs font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors inline-flex items-center gap-1"
+              >
+                <span className="material-symbols-outlined text-[16px]">unfold_more</span>
+                Toggle All
+              </button>
+            }
+          />
+
+          <div className="space-y-3">
+            {specCategories.map((cat) => (
+              <SpecTable
+                key={cat.key}
+                category={cat}
+                isOpen={openSpecs[cat.key] !== false}
+                onToggle={() => toggleSpecSection(cat.key)}
+              />
+            ))}
+          </div>
+        </section>
+
+        {/* ─── 5. VERIFIED RETAILERS & PRICES ───────────────────────────────────── */}
+        <section id="prices" className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6 shadow-xs scroll-mt-14">
+          <SectionHeading
+            title="Verified Prices in Pakistan"
+            subtitle="Real-time prices cross-checked across certified stores and authorized dealers"
+            action={
+              <button
+                type="button"
+                onClick={() => setIsPriceAlertOpen(true)}
+                className="h-8 px-3 text-xs font-medium text-orange-700 bg-orange-50 border border-orange-200 hover:bg-orange-100 rounded-lg transition-colors inline-flex items-center gap-1"
+              >
+                <span className="material-symbols-outlined text-[16px]">notifications_active</span>
+                Price Drop Alert
+              </button>
+            }
+          />
+
+          {sortedRetailers.length > 0 ? (
+            <div className="overflow-x-auto rounded-lg border border-gray-200">
+              <table className="w-full text-left border-collapse text-sm">
+                <thead>
+                  <tr className="bg-gray-50 border-b border-gray-200 text-xs font-normal text-gray-500">
+                    <th className="py-2.5 px-4 font-normal">Store / Seller</th>
+                    <th className="py-2.5 px-4 font-normal">Condition</th>
+                    <th className="py-2.5 px-4 font-normal">Delivery</th>
+                    <th className="py-2.5 px-4 font-normal">Verified Price</th>
+                    <th className="py-2.5 px-4 text-right font-normal">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {sortedRetailers.map((r, idx) => {
+                    const isLowest = idx === 0 || (r.price === minRetailerPrice && minRetailerPrice > 0);
+                    return (
+                      <tr key={idx} className={`hover:bg-gray-50/75 transition-colors ${isLowest ? "bg-orange-50/30" : ""}`}>
+                        <td className="py-3 px-4">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium text-gray-900">{r.store}</span>
+                            {isLowest && (
+                              <span className="text-[11px] font-medium text-orange-700 bg-orange-100 px-1.5 py-0.5 rounded">
+                                Lowest Price
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="py-3 px-4 text-gray-600 font-normal text-[13px]">
+                          {r.condition || "Box Pack Sealed"}
+                        </td>
+                        <td className="py-3 px-4 text-gray-600 font-normal text-[13px]">
+                          {r.delivery || "Standard Dispatch"}
+                        </td>
+                        <td className="py-3 px-4">
+                          <span className={`text-sm font-semibold ${isLowest ? "text-orange-600" : "text-gray-900"}`}>
+                            {formatPKR(r.price)}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 text-right">
+                          <a
+                            href={r.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="h-8 px-3 text-xs font-medium text-white bg-gray-900 hover:bg-black rounded-lg transition-colors inline-flex items-center justify-center gap-1 shadow-2xs"
+                          >
+                            Open Store ↗
+                          </a>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="py-8 px-4 rounded-lg bg-gray-50 border border-gray-200 text-center flex flex-col items-center">
+              <span className="material-symbols-outlined text-gray-400 text-3xl mb-2">inventory_2</span>
+              <h3 className="text-sm font-semibold text-gray-900">No Active Online Store Listings</h3>
+              <p className="text-xs text-gray-500 max-w-md mt-1">
+                {phone.brand} {phone.model} is unlisted or discontinued. Certified merchants no longer carry brand-new inventory.
+              </p>
+            </div>
+          )}
+        </section>
+
+        {/* ─── 6. PTA TAX & DIRBS DUTY ─────────────────────────────────────────── */}
+        <section id="pta-tax" className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6 shadow-xs scroll-mt-14">
+          <SectionHeading
+            title="PTA Tax & DIRBS Duty Assessment"
+            subtitle={`Official Pakistan Telecommunication Authority customs duty for ${phone.brand} ${phone.model} ($${phone.usd_price} tier)`}
+          />
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="rounded-lg bg-gray-50 border border-gray-200 p-4 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium text-gray-900">Passport Registration</span>
+                  <span className="text-[11px] font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded">
+                    Traveler Subsidized
+                  </span>
+                </div>
+                <p className="text-xs text-gray-500 font-normal mt-1">
+                  Valid for international travelers registering within 60 days of entry arrival stamp.
+                </p>
+              </div>
+              <div className="mt-4 pt-3 border-t border-gray-200 flex items-baseline justify-between">
+                <span className="text-xs text-gray-500 font-normal">Calculated Duty:</span>
+                <span className="text-lg font-semibold text-gray-900">{formatPKR(tax.passport)}</span>
+              </div>
+            </div>
+
+            <div className="rounded-lg bg-gray-50 border border-gray-200 p-4 flex flex-col justify-between">
+              <div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium text-gray-900">CNIC Registration</span>
+                  <span className="text-[11px] font-medium text-gray-700 bg-gray-200 px-2 py-0.5 rounded">
+                    Citizen Standard
+                  </span>
+                </div>
+                <p className="text-xs text-gray-500 font-normal mt-1">
+                  Standard DIRBS device activation via 13-digit National Identity Card.
+                </p>
+              </div>
+              <div className="mt-4 pt-3 border-t border-gray-200 flex items-baseline justify-between">
+                <span className="text-xs text-gray-500 font-normal">Calculated Duty:</span>
+                <span className="text-lg font-semibold text-gray-900">{formatPKR(tax.cnic)}</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ─── 7. COMPARE WITH RIVALS ──────────────────────────────────────────── */}
+        <section id="compare-rivals" className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6 shadow-xs scroll-mt-14">
+          <SectionHeading
+            title={`Compare ${phone.model} With Rivals`}
+            subtitle="Side-by-side hardware evaluation against popular alternatives in Pakistan"
+            action={
+              <div className="flex items-center bg-gray-100 rounded-lg p-0.5 border border-gray-200 text-xs">
                 <button
-                  className={`px-3.5 py-1.5 rounded-lg font-label-sm text-label-sm font-semibold transition ${
-                    diffOnly
-                      ? "bg-surface-container-lowest text-on-surface shadow-sm"
-                      : "text-on-surface-variant hover:text-on-surface"
-                  }`}
-                  id="filter-diff-btn"
-                  onClick={() => setDiffOnly(true)}
-                >
-                  Quick Differences Only
-                </button>
-                <button
-                  className={`px-3.5 py-1.5 rounded-lg font-label-sm text-label-sm font-semibold transition ${
-                    !diffOnly
-                      ? "bg-surface-container-lowest text-on-surface shadow-sm"
-                      : "text-on-surface-variant hover:text-on-surface"
-                  }`}
-                  id="filter-all-btn"
+                  type="button"
                   onClick={() => setDiffOnly(false)}
+                  className={`px-2.5 py-1 rounded-md font-medium transition ${
+                    !diffOnly ? "bg-white text-gray-900 shadow-2xs" : "text-gray-600 hover:text-gray-900"
+                  }`}
                 >
                   Full Specs
                 </button>
-              </div>
-            </div>
-
-            {/* Comparative Grid of 3 Phones */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-              {/* Target Phone (Current Selection) */}
-              <div className="relative rounded-2xl bg-surface p-5 shadow-sm ring-2 ring-deal-orange flex flex-col border border-border-hairline">
-                <div className="absolute -top-3 left-4 bg-deal-orange text-surface-container-lowest px-3 py-0.5 rounded-full font-label-sm text-label-sm font-bold flex items-center gap-1 shadow-sm">
-                  <span className="material-symbols-outlined text-[14px]">star</span> CURRENT SELECTION
-                </div>
-
-                <div className="flex items-center gap-3 mt-2 mb-4">
-                  <div className="w-14 h-18 bg-surface-container-lowest rounded-lg p-1 flex items-center justify-center shadow-xs border border-border-hairline">
-                    <img
-                      src={getSupabaseImageUrl(phone.image)}
-                      alt={phone.model}
-                      className="h-14 object-contain"
-                    />
-                  </div>
-                  <div>
-                    <h3 className="font-headline-sm text-headline-sm font-bold text-on-surface">{formatPhoneName(phone.brand, phone.model)}</h3>
-                    <p className="font-body-sm text-body-sm text-on-surface-variant">{safeStorage}GB Edition</p>
-                    <div className="font-headline-sm text-headline-sm font-bold text-deal-orange mt-0.5">{formatPKR(lowestPrice)}</div>
-                  </div>
-                </div>
-
-                <div className="rounded-xl bg-surface-container-lowest p-3 mb-4 border border-border-hairline">
-                  <div className="flex justify-between items-center mb-1.5">
-                    <span className="font-label-sm text-label-sm font-semibold text-on-surface-variant">Overall Value Score</span>
-                    <span className="font-label-md text-label-md font-bold text-deal-orange">8.4 / 10</span>
-                  </div>
-                  <div className="w-full h-2 bg-surface-container rounded-full overflow-hidden">
-                    <div className="bg-deal-orange h-full rounded-full" style={{ width: "84%" }}></div>
-                  </div>
-                </div>
-
-                <div className="space-y-2.5 flex-1">
-                  <div className="flex justify-between items-center p-2 rounded-lg bg-surface-container-lowest font-body-sm text-body-sm border border-border-hairline">
-                    <span className="text-on-surface-variant flex items-center gap-1">
-                      <span className="material-symbols-outlined text-[16px]">battery_std</span> Battery
-                    </span>
-                    <span className="font-semibold text-on-surface">{phone.battery?.capacity_mah || 4000} mAh ({phone.battery?.charging_watt || 18}W)</span>
-                  </div>
-                  <div className="flex justify-between items-center p-2 rounded-lg bg-surface-container-lowest font-body-sm text-body-sm border border-border-hairline">
-                    <span className="text-on-surface-variant flex items-center gap-1">
-                      <span className="material-symbols-outlined text-[16px]">tv</span> Display
-                    </span>
-                    <span className="font-semibold text-on-surface">{phone.display?.size || 6.6}&quot; {phone.display?.type?.split(',')[0] || 'IPS HD+'}</span>
-                  </div>
-                  <div className="flex justify-between items-center p-2 rounded-lg bg-surface-container-lowest font-body-sm text-body-sm border border-border-hairline">
-                    <span className="text-on-surface-variant flex items-center gap-1">
-                      <span className="material-symbols-outlined text-[16px]">memory</span> Processor
-                    </span>
-                    <span className="font-semibold text-on-surface">{phone.platform?.chipset?.split('(')[0] || 'Octa-Core'} (~{Math.round((phone.platform?.antutu_score || 230000)/1000)}k)</span>
-                  </div>
-                  <div className="flex justify-between items-center p-2 rounded-lg bg-surface-container-lowest font-body-sm text-body-sm border border-border-hairline">
-                    <span className="text-on-surface-variant flex items-center gap-1">
-                      <span className="material-symbols-outlined text-[16px]">photo_camera</span> Camera
-                    </span>
-                    <span className="font-semibold text-on-surface">{phone.camera?.main_mp || 8}MP + {phone.camera?.selfie_mp || 8}MP Selfie</span>
-                  </div>
-                  <div className="flex justify-between items-center p-2 rounded-lg bg-surface-container-lowest font-body-sm text-body-sm border border-border-hairline">
-                    <span className="text-on-surface-variant flex items-center gap-1">
-                      <span className="material-symbols-outlined text-[16px]">sd_card</span> Storage
-                    </span>
-                    <span className="font-semibold text-deal-orange font-bold">{safeStorage}GB Internal</span>
-                  </div>
-                </div>
-
-                <div className="mt-4 pt-3 border-t border-border-hairline">
-                  <button className="w-full py-2 bg-slate-900 text-surface-container-lowest rounded-xl font-label-md text-label-md font-bold shadow-sm">
-                    Selected in Compare Tray
-                  </button>
-                </div>
-              </div>
-
-              {/* Competitor 1 */}
-              <div className="rounded-2xl bg-surface p-5 shadow-sm border border-border-hairline flex flex-col">
-                <div className="flex items-center gap-3 mb-4">
-                  <Link href={`/phone/${comp1.slug || comp1.id}`} className="w-14 h-18 bg-surface-container-lowest rounded-lg p-1 flex items-center justify-center shadow-xs border border-border-hairline shrink-0 hover:border-deal-orange transition">
-                    {comp1.image ? (
-                      <img src={getSupabaseImageUrl(comp1.image)} alt={comp1.model} className="h-14 object-contain" />
-                    ) : (
-                      <span className="material-symbols-outlined text-outline text-[32px]">smartphone</span>
-                    )}
-                  </Link>
-                  <div>
-                    <h3 className="font-headline-sm text-headline-sm font-bold text-on-surface">
-                      <Link href={`/phone/${comp1.slug || comp1.id}`} className="hover:text-deal-orange transition-colors">
-                        {formatPhoneName(comp1.brand, comp1.model)}
-                      </Link>
-                    </h3>
-                    <p className="font-body-sm text-body-sm text-on-surface-variant">{comp1.memory?.storage_gb || 64}GB Edition</p>
-                    <div className="font-headline-sm text-headline-sm font-bold text-on-surface mt-0.5">{formatPKR(comp1.lowest_verified_price || comp1.price_pkr)}</div>
-                  </div>
-                </div>
-
-                <div className="rounded-xl bg-surface-container-lowest p-3 mb-4 border border-border-hairline">
-                  <div className="flex justify-between items-center mb-1.5">
-                    <span className="font-label-sm text-label-sm font-semibold text-on-surface-variant">Overall Value Score</span>
-                    <span className="font-label-md text-label-md font-bold text-on-surface">8.1 / 10</span>
-                  </div>
-                  <div className="w-full h-2 bg-surface-container rounded-full overflow-hidden">
-                    <div className="bg-primary h-full rounded-full" style={{ width: "81%" }}></div>
-                  </div>
-                </div>
-
-                <div className="space-y-2.5 flex-1">
-                  <div className="flex justify-between items-center p-2 rounded-lg bg-surface-container-lowest font-body-sm text-body-sm border border-border-hairline">
-                    <span className="text-on-surface-variant flex items-center gap-1">
-                      <span className="material-symbols-outlined text-[16px]">battery_std</span> Battery
-                    </span>
-                    <span className="font-semibold text-on-surface">{comp1.battery?.capacity_mah || 5000} mAh ({comp1.battery?.charging_watt || 10}W)</span>
-                  </div>
-                  <div className="flex justify-between items-center p-2 rounded-lg bg-surface-container-lowest font-body-sm text-body-sm border border-border-hairline">
-                    <span className="text-on-surface-variant flex items-center gap-1">
-                      <span className="material-symbols-outlined text-[16px]">tv</span> Display
-                    </span>
-                    <span className="font-semibold text-on-surface">{comp1.display?.size || 6.71}&quot; {comp1.display?.type?.split(',')[0] || '90Hz LCD'}</span>
-                  </div>
-                  <div className="flex justify-between items-center p-2 rounded-lg bg-surface-container-lowest font-body-sm text-body-sm border border-border-hairline">
-                    <span className="text-on-surface-variant flex items-center gap-1">
-                      <span className="material-symbols-outlined text-[16px]">memory</span> Processor
-                    </span>
-                    <span className="font-semibold text-on-surface">{comp1.platform?.chipset?.split('(')[0] || 'Helio G36'} (~{Math.round((comp1.platform?.antutu_score || 140000)/1000)}k)</span>
-                  </div>
-                  <div className="flex justify-between items-center p-2 rounded-lg bg-surface-container-lowest font-body-sm text-body-sm border border-border-hairline">
-                    <span className="text-on-surface-variant flex items-center gap-1">
-                      <span className="material-symbols-outlined text-[16px]">photo_camera</span> Camera
-                    </span>
-                    <span className="font-semibold text-on-surface">{comp1.camera?.main_mp || 8}MP Dual + {comp1.camera?.selfie_mp || 5}MP</span>
-                  </div>
-                  <div className="flex justify-between items-center p-2 rounded-lg bg-surface-container-lowest font-body-sm text-body-sm border border-border-hairline">
-                    <span className="text-on-surface-variant flex items-center gap-1">
-                      <span className="material-symbols-outlined text-[16px]">sd_card</span> Storage
-                    </span>
-                    <span className="font-semibold text-on-surface">{comp1.memory?.storage_gb || 64}GB Internal</span>
-                  </div>
-                </div>
-
-                <div className="mt-4 pt-3 border-t border-border-hairline">
-                  <button
-                    className="w-full py-2 bg-surface-subtle hover:bg-surface-container text-on-surface rounded-xl font-label-md text-label-md font-semibold transition border border-border-hairline"
-                    onClick={() => handleAddRivalToTray(comp1.model)}
-                  >
-                    + Compare Side-by-Side
-                  </button>
-                </div>
-              </div>
-
-              {/* Competitor 2 */}
-              <div className="rounded-2xl bg-surface p-5 shadow-sm border border-border-hairline flex flex-col">
-                <div className="flex items-center gap-3 mb-4">
-                  <Link href={`/phone/${comp2.slug || comp2.id}`} className="w-14 h-18 bg-surface-container-lowest rounded-lg p-1 flex items-center justify-center shadow-xs border border-border-hairline shrink-0 hover:border-deal-orange transition">
-                    {comp2.image ? (
-                      <img src={getSupabaseImageUrl(comp2.image)} alt={comp2.model} className="h-14 object-contain" />
-                    ) : (
-                      <span className="material-symbols-outlined text-outline text-[32px]">smartphone</span>
-                    )}
-                  </Link>
-                  <div>
-                    <h3 className="font-headline-sm text-headline-sm font-bold text-on-surface">
-                      <Link href={`/phone/${comp2.slug || comp2.id}`} className="hover:text-deal-orange transition-colors">
-                        {formatPhoneName(comp2.brand, comp2.model)}
-                      </Link>
-                    </h3>
-                    <p className="font-body-sm text-body-sm text-on-surface-variant">{comp2.memory?.storage_gb || 64}GB Edition</p>
-                    <div className="font-headline-sm text-headline-sm font-bold text-on-surface mt-0.5">{formatPKR(comp2.lowest_verified_price || comp2.price_pkr)}</div>
-                  </div>
-                </div>
-
-                <div className="rounded-xl bg-surface-container-lowest p-3 mb-4 border border-border-hairline">
-                  <div className="flex justify-between items-center mb-1.5">
-                    <span className="font-label-sm text-label-sm font-semibold text-on-surface-variant">Overall Value Score</span>
-                    <span className="font-label-md text-label-md font-bold text-on-surface">8.2 / 10</span>
-                  </div>
-                  <div className="w-full h-2 bg-surface-container rounded-full overflow-hidden">
-                    <div className="bg-primary h-full rounded-full" style={{ width: "82%" }}></div>
-                  </div>
-                </div>
-
-                <div className="space-y-2.5 flex-1">
-                  <div className="flex justify-between items-center p-2 rounded-lg bg-surface-container-lowest font-body-sm text-body-sm border border-border-hairline">
-                    <span className="text-on-surface-variant flex items-center gap-1">
-                      <span className="material-symbols-outlined text-[16px]">battery_std</span> Battery
-                    </span>
-                    <span className="font-semibold text-on-surface">{comp2.battery?.capacity_mah || 5000} mAh ({comp2.battery?.charging_watt || 10}W)</span>
-                  </div>
-                  <div className="flex justify-between items-center p-2 rounded-lg bg-surface-container-lowest font-body-sm text-body-sm border border-border-hairline">
-                    <span className="text-on-surface-variant flex items-center gap-1">
-                      <span className="material-symbols-outlined text-[16px]">tv</span> Display
-                    </span>
-                    <span className="font-semibold text-on-surface">{comp2.display?.size || 6.6}&quot; {comp2.display?.type?.split(',')[0] || '90Hz Punch'}</span>
-                  </div>
-                  <div className="flex justify-between items-center p-2 rounded-lg bg-surface-container-lowest font-body-sm text-body-sm border border-border-hairline">
-                    <span className="text-on-surface-variant flex items-center gap-1">
-                      <span className="material-symbols-outlined text-[16px]">memory</span> Processor
-                    </span>
-                    <span className="font-semibold text-on-surface">{comp2.platform?.chipset?.split('(')[0] || 'Unisoc T606'} (~{Math.round((comp2.platform?.antutu_score || 210000)/1000)}k)</span>
-                  </div>
-                  <div className="flex justify-between items-center p-2 rounded-lg bg-surface-container-lowest font-body-sm text-body-sm border border-border-hairline">
-                    <span className="text-on-surface-variant flex items-center gap-1">
-                      <span className="material-symbols-outlined text-[16px]">photo_camera</span> Camera
-                    </span>
-                    <span className="font-semibold text-on-surface">{comp2.camera?.main_mp || 13}MP Dual + {comp2.camera?.selfie_mp || 8}MP</span>
-                  </div>
-                  <div className="flex justify-between items-center p-2 rounded-lg bg-surface-container-lowest font-body-sm text-body-sm border border-border-hairline">
-                    <span className="text-on-surface-variant flex items-center gap-1">
-                      <span className="material-symbols-outlined text-[16px]">sd_card</span> Storage
-                    </span>
-                    <span className="font-semibold text-on-surface">{comp2.memory?.storage_gb || 64}GB Internal</span>
-                  </div>
-                </div>
-
-                <div className="mt-4 pt-3 border-t border-border-hairline">
-                  <button
-                    className="w-full py-2 bg-surface-subtle hover:bg-surface-container text-on-surface rounded-xl font-label-md text-label-md font-semibold transition border border-border-hairline"
-                    onClick={() => handleAddRivalToTray(comp2.model)}
-                  >
-                    + Compare Side-by-Side
-                  </button>
-                </div>
-              </div>
-
-            </div>
-          </div>
-        </section>
-
-        {/* ==========================================================================
-            4. EXPERT VERDICT & PROS / CONS SECTION
-            ========================================================================== */}
-        <section className="w-full bg-surface py-space-xl">
-          <div className="max-w-7xl mx-auto px-gutter">
-            <div className="rounded-3xl bg-surface-container-lowest p-8 shadow-sm border border-border-hairline">
-
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-border-hairline">
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-2xl bg-orange-100 flex items-center justify-center text-deal-orange">
-                    <span className="material-symbols-outlined text-[28px]">verified</span>
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h2 className="font-headline-md text-headline-md font-bold text-on-surface">
-                        CompareIt Expert Verdict
-                      </h2>
-                      <span className="px-2.5 py-0.5 rounded-full bg-orange-100 text-deal-orange font-label-sm text-label-sm font-bold">
-                        Tested & Benchmarked
-                      </span>
-                    </div>
-                    <p className="font-body-sm text-body-sm text-on-surface-variant">
-                      Standardized entry-tier field testing across WhatsApp, YouTube HD playback, and dual-SIM cellular connectivity.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Star rating pill */}
-                <div className="flex items-center gap-2 bg-surface-subtle px-4 py-2 rounded-2xl border border-border-hairline self-start md:self-auto">
-                  <div className="flex text-amber-500">
-                    <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                    <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                    <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                    <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>star</span>
-                    <span className="material-symbols-outlined text-[20px]">star_half</span>
-                  </div>
-                  <span className="font-label-lg text-label-lg font-bold text-on-surface">4.3 / 5.0</span>
-                </div>
-              </div>
-
-              {/* Editorial quote */}
-              <div className="my-6 p-4 rounded-xl bg-surface-container-low border-l-4 border-deal-orange text-on-surface">
-                <p className="font-body-lg text-body-lg italic">
-                  “{verdictData.verdict}”
-                </p>
-              </div>
-
-              {/* Reasons to Buy / Avoid 2-Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-                {/* Pros */}
-                <div className="p-5 rounded-2xl bg-surface-container-low border border-border-hairline flex flex-col gap-3">
-                  <h3 className="font-label-lg text-label-lg font-bold text-deal-orange flex items-center gap-2 uppercase tracking-wide">
-                    <span className="material-symbols-outlined text-[20px]">check_circle</span> Reasons to Buy
-                  </h3>
-                  <ul className="space-y-3 font-body-md text-body-md text-on-surface">
-                    {verdictData.pros.map((p, idx) => (
-                      <li key={idx} className="flex items-start gap-2.5">
-                        <span className="material-symbols-outlined text-deal-orange text-[18px] shrink-0 mt-0.5">done</span>
-                        <span>{p}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                {/* Cons */}
-                <div className="p-5 rounded-2xl bg-error-container/20 border border-error/20 flex flex-col gap-3">
-                  <h3 className="font-label-lg text-label-lg font-bold text-error flex items-center gap-2 uppercase tracking-wide">
-                    <span className="material-symbols-outlined text-[20px]">cancel</span> Reasons to Avoid
-                  </h3>
-                  <ul className="space-y-3 font-body-md text-body-md text-on-surface">
-                    {verdictData.cons.map((c, idx) => (
-                      <li key={idx} className="flex items-start gap-2.5">
-                        <span className="material-symbols-outlined text-error text-[18px] shrink-0 mt-0.5">close</span>
-                        <span>{c}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-
-            </div>
-          </div>
-        </section>
-
-        {/* ==========================================================================
-            5. BEST LIVE PRICES ACROSS PAKISTAN (RETAILER COMPARISON TABLE)
-            ========================================================================== */}
-        <section className="w-full bg-surface-container-lowest py-space-xl border-y border-border-hairline scroll-mt-24" id="market-prices">
-          <div className="max-w-7xl mx-auto px-gutter">
-            {/* Table Header & Alert Button */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
-              <div>
-                <div className="flex items-center gap-2 text-deal-orange font-label-md text-label-md font-bold uppercase tracking-wider mb-1">
-                  <span className="material-symbols-outlined text-[18px]">swap_horiz</span> Benchmark Intelligence
-                </div>
-                <h2 className="font-headline-lg text-headline-lg font-bold text-on-surface tracking-tight">
-                  Best Verified Prices in Pakistan
-                </h2>
-              </div>
-              <div className="flex items-center gap-3">
                 <button
-                  className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-orange-100 border border-orange-300 text-deal-orange font-label-md text-label-md font-bold hover:bg-deal-orange hover:text-surface-container-lowest transition shadow-sm"
-                  onClick={() => setIsPriceAlertOpen(true)}
+                  type="button"
+                  onClick={() => setDiffOnly(true)}
+                  className={`px-2.5 py-1 rounded-md font-medium transition ${
+                    diffOnly ? "bg-white text-gray-900 shadow-2xs" : "text-gray-600 hover:text-gray-900"
+                  }`}
                 >
-                  <span className="material-symbols-outlined text-[18px]">notifications_active</span>
-                  Set Price Drop Alert
+                  Differences Only
+                </button>
+              </div>
+            }
+          />
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Current Phone */}
+            <div className="rounded-lg border-2 border-orange-500 p-4 bg-white flex flex-col justify-between">
+              <div>
+                <span className="text-[11px] font-medium text-orange-700 bg-orange-50 px-2 py-0.5 rounded border border-orange-200 inline-block mb-2">
+                  Current Selection
+                </span>
+                <h3 className="text-sm font-semibold text-gray-900">{formatPhoneName(phone.brand, phone.model)}</h3>
+                <div className="text-base font-semibold text-orange-600 mt-0.5">{formatPKR(lowestPrice)}</div>
+
+                <div className="mt-3 space-y-1.5 text-xs">
+                  <div className="flex justify-between py-1 border-b border-gray-100">
+                    <span className="text-gray-500 font-normal">Battery</span>
+                    <span className="text-gray-900 font-normal">{phone.battery?.capacity_mah || 5000} mAh</span>
+                  </div>
+                  <div className="flex justify-between py-1 border-b border-gray-100">
+                    <span className="text-gray-500 font-normal">Display</span>
+                    <span className="text-gray-900 font-normal">{phone.display?.size || 6.6}&quot;</span>
+                  </div>
+                  <div className="flex justify-between py-1 border-b border-gray-100">
+                    <span className="text-gray-500 font-normal">Chipset</span>
+                    <span className="text-gray-900 font-normal truncate max-w-[130px]">{phone.platform?.chipset?.split(" ")[0] || "Octa-Core"}</span>
+                  </div>
+                  <div className="flex justify-between py-1 border-b border-gray-100">
+                    <span className="text-gray-500 font-normal">Camera</span>
+                    <span className="text-gray-900 font-normal">{phone.camera?.main_mp || 50}MP</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-4 pt-3 border-t border-gray-100">
+                <span className="text-xs text-gray-500 font-normal block text-center">Selected in Comparison</span>
+              </div>
+            </div>
+
+            {/* Rival 1 */}
+            <div className="rounded-lg border border-gray-200 p-4 bg-white flex flex-col justify-between">
+              <div>
+                <span className="text-[11px] font-medium text-gray-600 bg-gray-100 px-2 py-0.5 rounded inline-block mb-2">
+                  Alternative 1
+                </span>
+                <h3 className="text-sm font-semibold text-gray-900">{formatPhoneName(comp1.brand, comp1.model)}</h3>
+                <div className="text-base font-semibold text-gray-900 mt-0.5">{formatPKR(comp1.lowest_verified_price || comp1.price_pkr)}</div>
+
+                <div className="mt-3 space-y-1.5 text-xs">
+                  <div className="flex justify-between py-1 border-b border-gray-100">
+                    <span className="text-gray-500 font-normal">Battery</span>
+                    <span className="text-gray-900 font-normal">{comp1.battery?.capacity_mah || 5000} mAh</span>
+                  </div>
+                  <div className="flex justify-between py-1 border-b border-gray-100">
+                    <span className="text-gray-500 font-normal">Display</span>
+                    <span className="text-gray-900 font-normal">{comp1.display?.size || 6.67}&quot;</span>
+                  </div>
+                  <div className="flex justify-between py-1 border-b border-gray-100">
+                    <span className="text-gray-500 font-normal">Chipset</span>
+                    <span className="text-gray-900 font-normal truncate max-w-[130px]">{comp1.platform?.chipset?.split(" ")[0] || "SoC"}</span>
+                  </div>
+                  <div className="flex justify-between py-1 border-b border-gray-100">
+                    <span className="text-gray-500 font-normal">Camera</span>
+                    <span className="text-gray-900 font-normal">{comp1.camera?.main_mp || 50}MP</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-4 pt-3 border-t border-gray-100">
+                <button
+                  type="button"
+                  onClick={() => handleAddRivalToTray(comp1.model)}
+                  className="w-full h-8 text-xs font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg transition-colors"
+                >
+                  + Add to Compare
                 </button>
               </div>
             </div>
 
-            {/* Price Comparison Table or Discontinued State */}
-            {retailers.length > 0 ? (
-              <div className="overflow-x-auto rounded-2xl border border-border-hairline shadow-sm bg-surface-container-lowest">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="bg-surface-container-low font-label-sm text-label-sm text-on-surface uppercase tracking-wider border-b border-border-hairline">
-                      <th className="py-3.5 px-4 font-bold">Store / Seller</th>
-                      <th className="py-3.5 px-4 font-bold">Condition & Warranty</th>
-                      <th className="py-3.5 px-4 font-bold">Delivery Time</th>
-                      <th className="py-3.5 px-4 font-bold">Verified Price</th>
-                      <th className="py-3.5 px-4 text-right font-bold">Direct Action</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border-hairline font-body-md text-body-md">
-                    {retailers.map((r, idx) => {
-                      const isLowest = r.price === minRetailerPrice;
-                      return (
-                        <tr
-                          key={idx}
-                          className={`hover:bg-surface transition ${isLowest ? "bg-orange-100/30" : ""}`}
-                        >
-                          <td className="py-4 px-4">
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 rounded-xl bg-surface-container-lowest flex items-center justify-center font-bold text-blue-600 shadow-xs border border-border-hairline">
-                                {r.store.slice(0, 2).toUpperCase()}
-                              </div>
-                              <div>
-                                <div className="flex items-center gap-2">
-                                  <span className="font-headline-sm text-headline-sm font-bold text-on-surface">
-                                    {r.store}
-                                  </span>
-                                  {isLowest && (
-                                    <span className="px-2 py-0.5 rounded-full bg-deal-orange text-surface-container-lowest font-label-sm text-[10px] font-extrabold uppercase">
-                                      Best Online Deal
-                                    </span>
-                                  )}
-                                </div>
-                                <span className="font-body-sm text-body-sm text-deal-orange flex items-center gap-1">
-                                  <span className="material-symbols-outlined text-[14px]">bolt</span> Instant Dispatch Available
-                                </span>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="py-4 px-4">
-                            <span className="font-medium text-on-surface">{r.condition}</span>
-                            <span className="block font-body-sm text-body-sm text-on-surface-variant">Brand New Factory Sealed Box</span>
-                          </td>
-                          <td className="py-4 px-4">
-                            <span className="flex items-center gap-1 text-on-surface font-medium">
-                              <span className="material-symbols-outlined text-[18px] text-blue-600">local_shipping</span>
-                              {r.delivery}
-                            </span>
-                            <span className="font-body-sm text-body-sm text-blue-600 font-medium">Nationwide Tracked</span>
-                          </td>
-                          <td className="py-4 px-4">
-                            <div className={`font-headline-sm text-headline-sm font-bold ${isLowest ? "text-deal-orange" : "text-on-surface"}`}>
-                              {formatPKR(r.price)}
-                            </div>
-                            {officialMsrp > r.price && (
-                              <div className="font-body-sm text-body-sm text-outline line-through">
-                                MSRP {formatPKR(officialMsrp)}
-                              </div>
-                            )}
-                          </td>
-                          <td className="py-4 px-4 text-right">
-                            <a
-                              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-900 text-surface-container-lowest hover:bg-on-surface font-label-md text-label-md font-bold transition shadow-sm"
-                              href={r.url}
-                              rel="noopener noreferrer"
-                              target="_blank"
-                            >
-                              View Deal ↗
-                            </a>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <div className="p-8 md:p-12 rounded-2xl border border-border-hairline bg-surface-container-lowest shadow-sm text-center flex flex-col items-center justify-center">
-                <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-500 mb-4">
-                  <span className="material-symbols-outlined text-[36px]">inventory_2</span>
-                </div>
-                <h3 className="font-headline-md text-headline-md font-bold text-on-surface mb-2">
-                  No Active Online Retailers in Pakistan
-                </h3>
-                <p className="font-body-md text-body-md text-on-surface-variant max-w-lg mb-6">
-                  {phone.brand} {phone.model} is a discontinued or unlisted model. Certified online merchants (PriceOye, Daraz, Telemart) no longer maintain active brand-new inventory for this device.
-                </p>
-                <div className="flex flex-wrap items-center justify-center gap-3">
-                  <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface-container-low border border-border-hairline text-body-sm font-semibold text-on-surface">
-                    <span className="w-2.5 h-2.5 rounded-full bg-slate-400"></span>
-                    Verified Retail Price: <strong>N/A</strong>
-                  </div>
-                  <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-surface-container-low border border-border-hairline text-body-sm font-semibold text-on-surface">
-                    <span className="material-symbols-outlined text-[18px] text-amber-600">store</span>
-                    Availability: <strong>Used / Secondary Market Only</strong>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Trust Assurance Strip */}
-            <div className="mt-4 flex flex-wrap items-center justify-between gap-3 text-body-sm font-body-sm text-on-surface-variant px-2">
-              <span className="flex items-center gap-1.5">
-                <span className="material-symbols-outlined text-blue-600 text-[18px]">verified</span>
-                Prices crawled and cross-checked automatically every 15 minutes.
-              </span>
-              <span>Prices in PKR inclusive of standard sales tax and customs duty.</span>
-            </div>
-          </div>
-        </section>
-
-        {/* ==========================================================================
-            6. FBR / PTA TAX & DIRBS DUTY CALCULATOR
-            ========================================================================== */}
-        <section className="w-full bg-surface py-space-xl scroll-mt-24" id="pta-tax-section">
-          <div className="max-w-7xl mx-auto px-gutter">
-            <div className="rounded-3xl bg-surface-container-lowest p-8 shadow-sm border border-border-hairline">
-              <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
-                <div className="max-w-xl">
-                  <div className="flex items-center gap-2 text-deal-orange font-label-md text-label-md font-bold uppercase tracking-wider mb-2">
-                    <span className="material-symbols-outlined text-[18px]">flag</span> Pakistan Customs & DIRBS System
-                  </div>
-                  <h2 className="font-headline-lg text-headline-lg font-bold text-on-surface tracking-tight">
-                    PTA Tax & Duty Assessment
-                  </h2>
-                  <p className="font-body-md text-body-md text-on-surface-variant mt-2">
-                    Official duty breakdown required by Pakistan Telecommunication Authority for commercial and personal hand-carry imports under the C&F valuation bracket (${phone.usd_price} MSRP tier).
-                  </p>
-                </div>
-                <div className="flex items-center gap-3 bg-surface-subtle p-3 rounded-2xl border border-border-hairline">
-                  <span className="material-symbols-outlined text-tertiary-container text-[32px]">smartphone</span>
-                  <div>
-                    <div className="font-label-sm text-label-sm text-on-surface-variant">Device Category</div>
-                    <div className="font-label-md text-label-md font-bold text-on-surface">
-                      MSRP {phone.usd_price <= 100 ? "≤ $100 Tier" : phone.usd_price <= 200 ? "$100 - $200 Tier" : phone.usd_price <= 350 ? "$200 - $350 Tier" : phone.usd_price <= 500 ? "$350 - $500 Tier" : "> $500 Flagship Tier"}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Two Duty Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
-                {/* On Passport */}
-                <div className="rounded-2xl p-6 bg-surface-subtle border border-border-hairline flex flex-col justify-between">
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-label-md text-label-md font-bold text-on-surface uppercase tracking-wider flex items-center gap-1.5">
-                        <span className="material-symbols-outlined text-[18px] text-tertiary-container">travel_explore</span>
-                        Registration on Passport
-                      </span>
-                      <span className="px-2 py-0.5 rounded bg-badge-blue-tint text-tertiary-container font-label-sm text-label-sm font-bold">
-                        Subsidized Rate
-                      </span>
-                    </div>
-                    <p className="font-body-sm text-body-sm text-on-surface-variant">
-                      Valid for Pakistani citizens or foreign travelers registering within 60 days of international immigration arrival stamp.
-                    </p>
-                  </div>
-                  <div className="mt-6 pt-4 border-t border-border-hairline flex items-baseline justify-between">
-                    <span className="font-body-sm text-body-sm text-on-surface-variant">Calculated PTA Tax:</span>
-                    <span className="font-headline-lg text-headline-lg font-bold text-on-surface">
-                      {formatPKR(tax.passport)}
-                    </span>
-                  </div>
-                </div>
-
-                {/* On CNIC */}
-                <div className="rounded-2xl p-6 bg-surface-subtle border border-border-hairline flex flex-col justify-between">
-                  <div>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="font-label-md text-label-md font-bold text-on-surface uppercase tracking-wider flex items-center gap-1.5">
-                        <span className="material-symbols-outlined text-[18px] text-primary">badge</span>
-                        Registration on CNIC
-                      </span>
-                      <span className="px-2 py-0.5 rounded bg-surface-container font-label-sm text-label-sm text-on-surface font-bold">
-                        Standard Citizen
-                      </span>
-                    </div>
-                    <p className="font-body-sm text-body-sm text-on-surface-variant">
-                      Standard DIRBS registration using your 13-digit National Identity Card without international travel stamps.
-                    </p>
-                  </div>
-                  <div className="mt-6 pt-4 border-t border-border-hairline flex items-baseline justify-between">
-                    <span className="font-body-sm text-body-sm text-on-surface-variant">Calculated PTA Tax:</span>
-                    <span className="font-headline-lg text-headline-lg font-bold text-on-surface">
-                      {formatPKR(tax.cnic)}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
-              {/* DIRBS Process 3-Step Flow */}
-              <div className="mt-8 pt-6 border-t border-border-hairline">
-                <div className="font-label-md text-label-md text-on-surface font-bold mb-4 uppercase tracking-wider">
-                  Quick 3-Step Official PTA DIRBS Activation:
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="flex items-center gap-3 p-3.5 rounded-xl bg-surface border border-border-hairline">
-                    <span className="w-7 h-7 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-sm shrink-0">1</span>
-                    <div className="font-body-sm text-body-sm text-on-surface">
-                      Dial <strong>*#06#</strong> on keypad to note the 15-digit IMEI.
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 p-3.5 rounded-xl bg-surface border border-border-hairline">
-                    <span className="w-7 h-7 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-sm shrink-0">2</span>
-                    <div className="font-body-sm text-body-sm text-on-surface">
-                      SMS IMEI to <strong>8484</strong> or visit <strong>dirbs.pta.gov.pk</strong>.
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-3 p-3.5 rounded-xl bg-surface border border-border-hairline">
-                    <span className="w-7 h-7 rounded-full bg-deal-orange text-surface-container-lowest flex items-center justify-center font-bold text-sm shrink-0">3</span>
-                    <div className="font-body-sm text-body-sm text-on-surface">
-                      Pay PSID via ATM, 1Link, EasyPaisa, or mobile banking.
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-          </div>
-        </section>
-
-        {/* ==========================================================================
-            7. FULL DETAILED TECHNICAL SPECIFICATIONS MATRIX
-            ========================================================================== */}
-        <section className="w-full bg-surface-container-lowest py-space-xl border-t border-border-hairline">
-          <div className="max-w-7xl mx-auto px-gutter">
-            <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+            {/* Rival 2 */}
+            <div className="rounded-lg border border-gray-200 p-4 bg-white flex flex-col justify-between">
               <div>
-                <div className="flex items-center gap-2 text-secondary font-label-md text-label-md font-bold uppercase tracking-wider mb-1">
-                  <span className="material-symbols-outlined text-[18px]">tune</span> Hardware Breakdown
+                <span className="text-[11px] font-medium text-gray-600 bg-gray-100 px-2 py-0.5 rounded inline-block mb-2">
+                  Alternative 2
+                </span>
+                <h3 className="text-sm font-semibold text-gray-900">{formatPhoneName(comp2.brand, comp2.model)}</h3>
+                <div className="text-base font-semibold text-gray-900 mt-0.5">{formatPKR(comp2.lowest_verified_price || comp2.price_pkr)}</div>
+
+                <div className="mt-3 space-y-1.5 text-xs">
+                  <div className="flex justify-between py-1 border-b border-gray-100">
+                    <span className="text-gray-500 font-normal">Battery</span>
+                    <span className="text-gray-900 font-normal">{comp2.battery?.capacity_mah || 5000} mAh</span>
+                  </div>
+                  <div className="flex justify-between py-1 border-b border-gray-100">
+                    <span className="text-gray-500 font-normal">Display</span>
+                    <span className="text-gray-900 font-normal">{comp2.display?.size || 6.78}&quot;</span>
+                  </div>
+                  <div className="flex justify-between py-1 border-b border-gray-100">
+                    <span className="text-gray-500 font-normal">Chipset</span>
+                    <span className="text-gray-900 font-normal truncate max-w-[130px]">{comp2.platform?.chipset?.split(" ")[0] || "SoC"}</span>
+                  </div>
+                  <div className="flex justify-between py-1 border-b border-gray-100">
+                    <span className="text-gray-500 font-normal">Camera</span>
+                    <span className="text-gray-900 font-normal">{comp2.camera?.main_mp || 50}MP</span>
+                  </div>
                 </div>
-                <h2 className="font-headline-lg text-headline-lg font-bold text-on-surface tracking-tight">
-                  Detailed Technical Specifications
-                </h2>
-                <p className="font-body-md text-body-md text-on-surface-variant mt-1">
-                  Verified component analysis according to official {phone.brand} Pakistan documentation.
-                </p>
               </div>
 
-              {/* Expand / Collapse All Button */}
-              <button
-                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-surface-subtle hover:bg-surface-container text-on-surface font-label-md text-label-md font-semibold transition self-start border border-border-hairline"
-                id="spec-toggle-all-btn"
-                onClick={toggleAllSpecs}
-              >
-                <span className="material-symbols-outlined text-[18px]">unfold_more</span>
-                Toggle All Categories
-              </button>
-            </div>
-
-            {/* Spec Sections Stack - Full WhatMobile 9-Category Architecture */}
-            <div className="space-y-4">
-              {specCategories.map((cat) => {
-                const isOpen = openSpecs[cat.key] !== false;
-                return (
-                  <div
-                    key={cat.key}
-                    className="spec-card rounded-2xl bg-surface border border-border-hairline overflow-hidden shadow-xs"
-                  >
-                    <button
-                      className="w-full p-5 flex items-center justify-between text-left hover:bg-surface-subtle transition"
-                      onClick={() => toggleSpecSection(cat.key)}
-                      id={`spec-accordion-${cat.key}`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className={`w-10 h-10 rounded-xl ${cat.iconBg} flex items-center justify-center shrink-0`}>
-                          <span className="material-symbols-outlined text-[22px]">{cat.icon}</span>
-                        </div>
-                        <div>
-                          <h3 className="font-headline-sm text-headline-sm font-bold text-on-surface">{cat.title}</h3>
-                          <span className="font-body-sm text-body-sm text-on-surface-variant">
-                            {cat.subtitle}
-                          </span>
-                        </div>
-                      </div>
-                      <span className={`material-symbols-outlined text-outline transition-transform duration-200 chevron-icon ${isOpen ? "rotate-180" : ""}`}>
-                        expand_more
-                      </span>
-                    </button>
-                    {isOpen && (
-                      <div className="spec-content px-5 pb-5 pt-1">
-                        <div className="divide-y divide-border-hairline border-t border-border-hairline">
-                          {cat.items.map((item, idx) => (
-                            <div key={idx} className="py-3 grid grid-cols-1 sm:grid-cols-3 gap-2">
-                              <span className="font-label-md text-label-md text-on-surface-variant font-medium">
-                                {item.label}
-                              </span>
-                              <span className="sm:col-span-2 font-body-md text-body-md text-on-surface font-semibold break-words">
-                                {item.value}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+              <div className="mt-4 pt-3 border-t border-gray-100">
+                <button
+                  type="button"
+                  onClick={() => handleAddRivalToTray(comp2.model)}
+                  className="w-full h-8 text-xs font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg transition-colors"
+                >
+                  + Add to Compare
+                </button>
+              </div>
             </div>
           </div>
         </section>
 
-        {/* ==========================================================================
-            8. PERSISTENT BOTTOM FLOATING COMPARISON BAR
-            ========================================================================== */}
-        {isTrayVisible && (
-          <div
-            className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 w-[95%] max-w-4xl bg-primary-container text-on-primary rounded-2xl shadow-2xl p-3 sm:p-4 backdrop-blur-lg border border-outline/30 flex items-center justify-between gap-3 transition-all duration-300"
-            id="compare-bar"
-          >
-            <div className="flex items-center gap-3 overflow-hidden">
-              <div className="w-8 h-8 rounded-full bg-deal-orange flex items-center justify-center text-surface-container-lowest font-bold text-xs shrink-0">
-                <span id="tray-count">{trayItems.length}</span>/3
-              </div>
-              <div className="min-w-0">
-                <div className="font-label-md text-label-md font-bold text-surface-container-lowest truncate">
-                  Comparing: {phone.brand} {phone.model}
-                </div>
-                <div className="font-body-sm text-[11px] text-primary-fixed-dim">
-                  {formatPKR(lowestPrice)} • {phone.pta_status === "approved" ? "PTA Approved" : "Non-PTA"} Status
-                </div>
-              </div>
+        {/* ─── 8. EXPERT VERDICT ───────────────────────────────────────────────── */}
+        <section id="verdict" className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6 shadow-xs scroll-mt-14">
+          <SectionHeading
+            title="Expert Assessment"
+            subtitle={`Overall appraisal and field performance test notes for ${phone.brand} ${phone.model}`}
+          />
+
+          <p className="text-sm text-gray-700 font-normal leading-relaxed mb-4">
+            {verdictData.verdict}
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="p-3.5 rounded-lg bg-emerald-50/50 border border-emerald-200/60">
+              <h4 className="text-xs font-semibold text-emerald-800 uppercase tracking-wider mb-2 flex items-center gap-1">
+                <span className="material-symbols-outlined text-[16px]">check_circle</span>
+                Strengths
+              </h4>
+              <ul className="space-y-1.5 text-xs text-gray-700">
+                {verdictData.pros.map((p, idx) => (
+                  <li key={idx} className="flex items-start gap-1.5 font-normal">
+                    <span className="text-emerald-600 font-semibold">•</span>
+                    <span>{p}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
 
-            {/* Suggested Quick Slot Adders */}
-            <div className="hidden lg:flex items-center gap-2">
-              <button
-                className="px-2.5 py-1.5 rounded-lg bg-surface-container/10 hover:bg-surface-container/20 text-surface-container font-label-sm text-label-sm transition"
-                onClick={() => handleAddRivalToTray(comp1.model)}
-              >
-                + {comp1.model}
-              </button>
-              <button
-                className="px-2.5 py-1.5 rounded-lg bg-surface-container/10 hover:bg-surface-container/20 text-surface-container font-label-sm text-label-sm transition"
-                onClick={() => handleAddRivalToTray(comp2.model)}
-              >
-                + {comp2.model}
-              </button>
+            <div className="p-3.5 rounded-lg bg-amber-50/50 border border-amber-200/60">
+              <h4 className="text-xs font-semibold text-amber-800 uppercase tracking-wider mb-2 flex items-center gap-1">
+                <span className="material-symbols-outlined text-[16px]">info</span>
+                Considerations
+              </h4>
+              <ul className="space-y-1.5 text-xs text-gray-700">
+                {verdictData.cons.map((c, idx) => (
+                  <li key={idx} className="flex items-start gap-1.5 font-normal">
+                    <span className="text-amber-600 font-semibold">•</span>
+                    <span>{c}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
+          </div>
+        </section>
 
-            <div className="flex items-center gap-2 shrink-0">
-              <Link
-                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-deal-orange text-surface-container-lowest font-label-md text-label-md font-bold hover:bg-orange-600 transition shadow-md"
-                data-path="compare-tray"
-                href={`/compare?phones=${[phone.slug, comp1?.slug, comp2?.slug].filter(Boolean).slice(0, Math.min(3, trayItems.length)).join(",")}&from=${encodeURIComponent(`/phone/${phone.slug}`)}`}
-              >
-                <span className="material-symbols-outlined text-[16px]">balance</span>
-                Compare Now (<span id="tray-btn-count">{trayItems.length}</span>)
-              </Link>
+      </div>
+
+      {/* ─── 9. FLOATING BOTTOM COMPARISON TRAY ─────────────────────────────────── */}
+      {isTrayVisible && (
+        <div
+          className="fixed bottom-3 left-1/2 -translate-x-1/2 z-40 w-[94%] max-w-3xl bg-gray-900 text-white rounded-xl shadow-xl px-4 py-2.5 flex items-center justify-between gap-3 text-xs"
+          id="compare-bar"
+        >
+          <div className="flex items-center gap-2 overflow-hidden">
+            <span className="px-2 py-0.5 rounded-full bg-orange-600 text-white font-medium text-[11px]">
+              {trayItems.length}/3
+            </span>
+            <span className="font-normal text-gray-200 truncate">
+              Comparing: <strong className="font-medium text-white">{phone.brand} {phone.model}</strong>
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <Link
+              href={`/compare?phones=${[phone.slug, comp1?.slug, comp2?.slug]
+                .filter(Boolean)
+                .slice(0, Math.min(3, trayItems.length))
+                .join(",")}&from=${encodeURIComponent(`/phone/${phone.slug}`)}`}
+              className="h-8 px-3.5 text-xs font-medium text-white bg-orange-600 hover:bg-orange-700 rounded-lg transition-colors inline-flex items-center gap-1"
+            >
+              Compare ({trayItems.length})
+            </Link>
+            <button
+              type="button"
+              onClick={() => setIsTrayVisible(false)}
+              className="p-1 text-gray-400 hover:text-white transition-colors"
+              title="Dismiss Tray"
+            >
+              <span className="material-symbols-outlined text-[18px]">close</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ─── 10. ZOOM / GALLERY MODAL ────────────────────────────────────────── */}
+      {is360ModalOpen && (
+        <div className="compare-modal-overlay">
+          <div className="relative bg-white rounded-2xl p-6 max-w-lg w-full shadow-xl border border-gray-200">
+            <div className="flex items-center justify-between pb-3 border-b border-gray-200">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-orange-50 border border-orange-200 flex items-center justify-center">
+                  <ZoomIn className="w-4 h-4 text-orange-600" />
+                </div>
+                <h3 className="text-base font-semibold text-gray-900">
+                  {phone.brand} {phone.model} Gallery & Zoom
+                </h3>
+              </div>
               <button
-                className="p-1.5 text-outline-variant hover:text-surface-container-lowest transition"
-                onClick={() => setIsTrayVisible(false)}
-                title="Dismiss Tray"
+                type="button"
+                onClick={() => setIs360ModalOpen(false)}
+                className="w-7 h-7 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600"
               >
                 <span className="material-symbols-outlined text-[18px]">close</span>
               </button>
             </div>
-          </div>
-        )}
 
-      </div>
-
-      {/* ==========================================================================
-          9. 360° STUDIO VIEW INTERACTIVE MODAL
-          ========================================================================== */}
-      {is360ModalOpen && (
-        <div className="compare-modal-overlay">
-          <div className="relative bg-surface-container-lowest rounded-3xl p-6 md:p-8 max-w-2xl w-full shadow-2xl border border-border-hairline animate-in fade-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between pb-4 border-b border-border-hairline">
-              <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-deal-orange text-[26px]">360</span>
-                <div>
-                  <h3 className="font-headline-sm text-headline-sm font-bold text-on-surface">
-                    360° Interactive Studio Gallery
-                  </h3>
-                  <p className="font-body-sm text-body-sm text-on-surface-variant">
-                    {phone.brand} {phone.model} - High-Resolution Product Perspectives
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => setIs360ModalOpen(false)}
-                className="w-8 h-8 rounded-full bg-surface-subtle hover:bg-surface-container flex items-center justify-center text-on-surface transition"
-              >
-                <span className="material-symbols-outlined text-[20px]">close</span>
-              </button>
-            </div>
-
-            <div className="py-6 flex flex-col items-center justify-center">
-              <div className="w-full max-h-[360px] h-[320px] flex items-center justify-center p-4 bg-surface rounded-2xl border border-border-hairline">
+            <div className="py-4 flex flex-col items-center">
+              <div className="w-full h-[260px] flex items-center justify-center p-3 bg-white rounded-xl border border-gray-100">
                 <img
-                  src={getSupabaseImageUrl(allImages[selectedImgIndex] || phone.image)}
-                  alt="360 view"
-                  className="max-h-full max-w-full object-contain filter drop-shadow-xl transition-all duration-300"
+                  src={getSupabaseImageUrl(currentDisplayImage)}
+                  alt="Product view"
+                  className="max-h-full max-w-full object-contain"
                 />
               </div>
 
-              <div className="flex items-center gap-2 mt-6 overflow-x-auto w-full justify-center py-1">
-                {allImages.slice(0, 6).map((img, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setSelectedImgIndex(idx)}
-                    className={`w-14 h-14 rounded-xl border p-1 bg-surface-container-lowest transition flex items-center justify-center ${
-                      selectedImgIndex === idx ? "ring-2 ring-deal-orange border-deal-orange" : "border-border-hairline"
-                    }`}
-                  >
-                    <img src={getSupabaseImageUrl(img)} alt={`angle ${idx}`} className="w-full h-full object-contain" />
-                  </button>
-                ))}
-              </div>
+              {activeImages.length > 1 && (
+                <div className="flex items-center gap-2 mt-4 overflow-x-auto w-full justify-center">
+                  {activeImages.slice(0, 6).map((img, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => setSelectedImgIndex(idx)}
+                      className={`w-12 h-12 rounded-lg border p-1 bg-white transition flex items-center justify-center ${
+                        selectedImgIndex === idx ? "border-orange-600 ring-1 ring-orange-600" : "border-gray-200"
+                      }`}
+                    >
+                      <img
+                        src={getSupabaseImageUrl(img)}
+                        alt={`Angle ${idx + 1}`}
+                        className="w-full h-full object-contain"
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
-            <div className="pt-4 border-t border-border-hairline flex items-center justify-between">
-              <span className="font-body-sm text-body-sm text-on-surface-variant">
-                Angle {selectedImgIndex + 1} of {Math.min(allImages.length, 6)}
-              </span>
+            <div className="pt-3 border-t border-gray-200 flex items-center justify-between text-xs text-gray-500">
+              <span>Photo {selectedImgIndex + 1} of {Math.min(activeImages.length, 6)}</span>
               <button
+                type="button"
                 onClick={() => setIs360ModalOpen(false)}
-                className="px-5 py-2 rounded-xl bg-primary text-on-primary font-label-md text-label-md font-bold hover:bg-on-surface transition"
+                className="px-4 py-1.5 bg-gray-900 text-white rounded-lg hover:bg-black font-medium transition"
               >
                 Done
               </button>
@@ -1425,202 +1073,86 @@ export function ProductClient({ phone, competitors }: ProductClientProps) {
         </div>
       )}
 
-      {/* ==========================================================================
-          10. PRICE DROP ALERT MODAL
-          ========================================================================== */}
+      {/* ─── 11. PRICE DROP ALERT MODAL ────────────────────────────────────────── */}
       {isPriceAlertOpen && (
         <div className="compare-modal-overlay">
-          <div className="relative bg-surface-container-lowest rounded-3xl p-6 md:p-8 max-w-md w-full shadow-2xl border border-border-hairline animate-in fade-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between pb-4 border-b border-border-hairline">
-              <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-deal-orange text-[26px]">notifications_active</span>
-                <h3 className="font-headline-sm text-headline-sm font-bold text-on-surface">
-                  Set Price Drop Alert
-                </h3>
+          <div className="relative bg-white rounded-2xl p-6 max-w-sm w-full shadow-xl border border-gray-200">
+            <div className="flex items-center justify-between pb-3 border-b border-gray-200">
+              <div className="flex items-center gap-1.5">
+                <span className="material-symbols-outlined text-orange-600 text-[20px]">notifications_active</span>
+                <h3 className="text-base font-semibold text-gray-900">Set Price Alert</h3>
               </div>
               <button
+                type="button"
                 onClick={() => {
                   setIsPriceAlertOpen(false);
                   setAlertSubmitted(false);
                 }}
-                className="w-8 h-8 rounded-full bg-surface-subtle hover:bg-surface-container flex items-center justify-center text-on-surface transition"
+                className="w-7 h-7 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600"
               >
-                <span className="material-symbols-outlined text-[20px]">close</span>
+                <span className="material-symbols-outlined text-[18px]">close</span>
               </button>
             </div>
 
             {alertSubmitted ? (
-              <div className="py-8 text-center flex flex-col items-center gap-3">
-                <span className="w-14 h-14 rounded-full bg-badge-emerald-tint text-secondary flex items-center justify-center">
-                  <span className="material-symbols-outlined text-[32px]">check_circle</span>
+              <div className="py-6 text-center flex flex-col items-center gap-2">
+                <span className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                  <span className="material-symbols-outlined text-[24px]">check</span>
                 </span>
-                <h4 className="font-headline-sm text-headline-sm font-bold text-on-surface">
-                  Alert Configured!
-                </h4>
-                <p className="font-body-sm text-body-sm text-on-surface-variant max-w-xs">
-                  We&apos;ll notify you as soon as {phone.brand} {phone.model} drops below <strong>Rs. {Number(alertTargetPrice).toLocaleString()}</strong> in Pakistan.
+                <h4 className="text-sm font-semibold text-gray-900">Alert Registered</h4>
+                <p className="text-xs text-gray-500 max-w-xs font-normal">
+                  We&apos;ll notify you when the price drops below Rs. {Number(alertTargetPrice).toLocaleString()}.
                 </p>
                 <button
+                  type="button"
                   onClick={() => {
                     setIsPriceAlertOpen(false);
                     setAlertSubmitted(false);
                   }}
-                  className="mt-4 px-6 py-2.5 rounded-xl bg-deal-orange text-surface-container-lowest font-bold font-label-md text-label-md shadow-md"
+                  className="mt-3 px-4 py-1.5 rounded-lg bg-orange-600 text-white font-medium text-xs shadow-xs"
                 >
-                  Got It
+                  Close
                 </button>
               </div>
             ) : (
-              <div className="py-6 flex flex-col gap-4">
-                <p className="font-body-sm text-body-sm text-on-surface-variant">
-                  Current verified market price: <strong>{formatPKR(lowestPrice)}</strong>. Choose your alert target:
+              <div className="py-4 flex flex-col gap-3">
+                <p className="text-xs text-gray-500 font-normal">
+                  Current verified price: <span className="font-semibold text-gray-900">{formatPKR(lowestPrice)}</span>
                 </p>
 
-                <div className="flex flex-col gap-1.5">
-                  <label className="font-label-sm text-label-sm font-bold text-on-surface uppercase">
-                    Target Price (PKR)
-                  </label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-outline font-semibold">Rs.</span>
-                    <input
-                      type="number"
-                      value={alertTargetPrice}
-                      onChange={(e) => setAlertTargetPrice(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-surface-subtle border border-border-hairline font-headline-sm font-bold text-on-surface focus:outline-none focus:border-deal-orange"
-                    />
-                  </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-medium text-gray-700">Target Price (PKR)</label>
+                  <input
+                    type="number"
+                    value={alertTargetPrice}
+                    onChange={(e) => setAlertTargetPrice(e.target.value)}
+                    className="w-full px-3 py-2 rounded-lg bg-gray-50 border border-gray-200 text-sm font-normal text-gray-900 focus:outline-none focus:border-orange-500"
+                  />
                 </div>
 
-                <div className="flex flex-col gap-1.5">
-                  <label className="font-label-sm text-label-sm font-bold text-on-surface uppercase">
-                    Email / WhatsApp for Alerts
-                  </label>
+                <div className="flex flex-col gap-1">
+                  <label className="text-xs font-medium text-gray-700">Email or WhatsApp</label>
                   <input
                     type="text"
-                    placeholder="Enter email or WhatsApp number"
+                    placeholder="name@example.com"
                     value={alertEmail}
                     onChange={(e) => setAlertEmail(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-xl bg-surface-subtle border border-border-hairline font-body-md text-on-surface focus:outline-none focus:border-deal-orange"
+                    className="w-full px-3 py-2 rounded-lg bg-gray-50 border border-gray-200 text-sm font-normal text-gray-900 focus:outline-none focus:border-orange-500"
                   />
                 </div>
 
                 <button
+                  type="button"
                   onClick={() => setAlertSubmitted(true)}
-                  className="w-full mt-2 py-3 rounded-xl bg-deal-orange hover:bg-orange-600 text-surface-container-lowest font-label-md text-label-md font-bold transition shadow-md flex items-center justify-center gap-2"
+                  className="w-full mt-2 py-2.5 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-xs font-medium transition shadow-xs"
                 >
-                  <span className="material-symbols-outlined text-[18px]">notifications_active</span>
-                  Activate Price Watch
+                  Activate Alert
                 </button>
               </div>
             )}
           </div>
         </div>
       )}
-
-      {/* ==========================================================================
-          11. COMPAREIT.PK LUXURY FOOTER
-          ========================================================================== */}
-      <footer className="w-full bg-surface-container-lowest border-t border-border-hairline mt-12">
-        <div className="max-w-7xl mx-auto px-gutter py-space-xl">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-space-lg mb-space-xl">
-            <div className="lg:col-span-2 flex flex-col gap-space-sm">
-              <div className="flex items-center gap-space-sm">
-                <img
-                  alt="CompareIt PK Logo"
-                  className="h-8 w-auto object-contain"
-                  src="/logo.png"
-                />
-                <span className="font-headline-sm text-headline-sm text-on-surface font-bold">
-                  CompareIt<span className="text-deal-orange">.pk</span>
-                </span>
-              </div>
-              <p className="font-body-sm text-body-sm text-on-surface-variant max-w-sm">
-                Pakistan&apos;s verified smartphone intelligence platform. Track real-time retail pricing, DIRBS compliance status, PTA taxes, and comprehensive hardware benchmarks across major hubs.
-              </p>
-              <div className="mt-space-sm">
-                <div className="font-label-md text-label-md text-on-surface mb-2 font-bold">
-                  Get Weekly Price Drop Alerts
-                </div>
-                <div className="flex items-center max-w-sm gap-2">
-                  <input
-                    className="flex-1 px-3 py-2 bg-surface-subtle border border-border-hairline rounded-lg font-body-sm text-body-sm text-on-surface placeholder:text-outline focus:outline-none focus:border-tertiary"
-                    placeholder="Enter your email address"
-                    type="email"
-                  />
-                  <button className="px-4 py-2 bg-deal-orange text-surface-container-lowest font-bold rounded-lg font-label-md text-label-md hover:bg-orange-600 transition shadow-sm">
-                    Subscribe
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <div>
-              <h4 className="font-label-lg text-label-lg text-on-surface mb-space-sm font-bold uppercase tracking-wider">
-                Categories
-              </h4>
-              <ul className="flex flex-col gap-2 font-body-sm text-body-sm text-on-surface-variant">
-                <li><Link className="hover:text-on-surface transition-colors" href="/?q=flagship">Flagship Devices</Link></li>
-                <li><Link className="hover:text-on-surface transition-colors" href="/?q=budget">Budget Performers (&lt; PKR 50k)</Link></li>
-                <li><Link className="hover:text-on-surface transition-colors" href="/?q=gaming">Gaming Phones</Link></li>
-                <li><Link className="hover:text-on-surface transition-colors" href="/?q=camera">Camera Benchmark Leaders</Link></li>
-                <li><Link className="hover:text-on-surface transition-colors" href="/?q=upcoming">Upcoming Releases</Link></li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-label-lg text-label-lg text-on-surface mb-space-sm font-bold uppercase tracking-wider">
-                Physical Hub Trackers
-              </h4>
-              <ul className="flex flex-col gap-2 font-body-sm text-body-sm text-on-surface-variant">
-                <li>
-                  <span className="flex items-center justify-between">
-                    <span>Karachi Saddar</span>
-                    <span className="font-label-sm text-label-sm text-deal-orange font-bold">Active</span>
-                  </span>
-                </li>
-                <li>
-                  <span className="flex items-center justify-between">
-                    <span>Lahore Hafeez Centre</span>
-                    <span className="font-label-sm text-label-sm text-deal-orange font-bold">Active</span>
-                  </span>
-                </li>
-                <li>
-                  <span className="flex items-center justify-between">
-                    <span>Islamabad Blue Area</span>
-                    <span className="font-label-sm text-label-sm text-deal-orange font-bold">Active</span>
-                  </span>
-                </li>
-                <li><span>Rawalpindi Singapore Plaza</span></li>
-                <li><span>Peshawar Deans Market</span></li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className="font-label-lg text-label-lg text-on-surface mb-space-sm font-bold uppercase tracking-wider">
-                Regulatory & Tax
-              </h4>
-              <ul className="flex flex-col gap-2 font-body-sm text-body-sm text-on-surface-variant">
-                <li><a className="hover:text-on-surface transition-colors" href="#pta-tax-section">PTA DIRBS Guide</a></li>
-                <li><a className="hover:text-on-surface transition-colors" href="#pta-tax-section">Passport vs CNIC Duty Rates</a></li>
-                <li><a className="hover:text-on-surface transition-colors" href="#pta-tax-section">IMEI Verification System</a></li>
-                <li><a className="hover:text-on-surface transition-colors" href="#pta-tax-section">Local Assembly Subsidies</a></li>
-                <li><a className="hover:text-on-surface transition-colors" href="#pta-tax-section">CPLC Verification Check</a></li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="pt-space-md border-t border-border-hairline flex flex-col sm:flex-row items-center justify-between gap-space-sm">
-            <p className="font-body-sm text-body-sm text-on-surface-variant">
-              © {new Date().getFullYear()} CompareIt.pk. Real-time market metrics and retail surveillance across Pakistan. All trademarks belong to their respective manufacturers.
-            </p>
-            <div className="flex items-center gap-space-md font-body-sm text-body-sm text-on-surface-variant">
-              <Link className="hover:text-on-surface transition-colors" href="/">Privacy Policy</Link>
-              <Link className="hover:text-on-surface transition-colors" href="/">Data Accuracy Terms</Link>
-              <Link className="hover:text-on-surface transition-colors" href="/">Retailer API</Link>
-            </div>
-          </div>
-        </div>
-      </footer>
     </main>
   );
 }

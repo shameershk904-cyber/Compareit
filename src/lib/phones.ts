@@ -103,7 +103,7 @@ export function invalidatePhonesMemoryCache() {
   memoryPhonesCache = null;
 }
 
-const CHUNK_SIZE = 1000;
+const CHUNK_SIZE = 500;
 
 const CATALOG_PHONE_SELECT = {
   id: true,
@@ -129,6 +129,7 @@ const CATALOG_PHONE_SELECT = {
   platform: true,
   camera: true,
   connectivity: true,
+  retailers: true,
 } as const;
 
 // Cached chunk count query (tagged with PHONES_TAG, 60s TTL)
@@ -153,7 +154,12 @@ const getPhoneChunk = (chunkIndex: number) =>
         const rows = await prisma.phone.findMany({
           where: { isActive: true },
           select: CATALOG_PHONE_SELECT,
-          orderBy: [{ trendingRank: "asc" }, { pricePkr: "asc" }],
+          orderBy: [
+            { popular: "desc" },
+            { lowestVerifiedPrice: "desc" },
+            { pricePkr: "desc" },
+            { id: "asc" },
+          ],
           skip: chunkIndex * CHUNK_SIZE,
           take: CHUNK_SIZE,
         });

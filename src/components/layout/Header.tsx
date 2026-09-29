@@ -255,8 +255,7 @@ export function Header() {
           </button>
           <Link href={pathname === "/compare" ? "/compare" : `/compare?from=${encodeURIComponent(pathname)}`} id="open-compare-btn" className="action-btn compare-btn">
             <span className="btn-icon">⚖️</span>
-            <span className="btn-label">Compare</span>
-            <span id="compare-badge" className="badge">3</span>
+            <span className="btn-label">Quick Compare</span>
           </Link>
         </div>
       </div>
