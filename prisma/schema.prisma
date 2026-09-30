@@ -184,6 +184,8 @@ model Phone {
   competitorIds       Json     @default("[]")
   banners             Json     @default("[]")
 
+  lastPriceCheck      DateTime? // Timestamp for automated price updates
+
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 
@@ -200,23 +202,27 @@ model Phone {
   @@index([isActive, popular])
   @@index([isActive, trendingRank])
   @@index([ptaStatus])
+  @@index([lastPriceCheck])
   @@index([createdAt])
   @@map("phones")
 }
 
 // Separate table so retailer prices can be updated independently.
 model PhoneRetailer {
-  id        String  @id @default(cuid())
-  phoneId   String
-  phone     Phone   @relation(fields: [phoneId], references: [id], onDelete: Cascade)
+  id            String    @id @default(cuid())
+  phoneId       String
+  phone         Phone     @relation(fields: [phoneId], references: [id], onDelete: Cascade)
 
-  store     String
-  price     Int
-  delivery  String  @default("")
-  inStock   Boolean @default(true)
-  condition String  @default("")
-  url       String  @default("")
+  store         String
+  price         Int
+  delivery      String    @default("")
+  inStock       Boolean   @default(true)
+  condition     String    @default("")
+  url           String    @default("")
+  lastCheckedAt DateTime? @default(now())
+  updatedAt     DateTime  @default(now()) @updatedAt
 
+  @@unique([phoneId, store])
   @@index([phoneId])
   @@index([store])
   @@map("phone_retailers")
