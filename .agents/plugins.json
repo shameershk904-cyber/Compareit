@@ -1,0 +1,10 @@
+{
+  "$comment": "Workspace-scoped plugins configuration: Disabling plugins unrelated to this Next.js project",
+  "exclude": [
+    "android-cli-plugin",
+    "firebase",
+    "flutter",
+    "google_maps_platform",
+    "googlecloudtools.datacloud_telemetry"
+  ]
+}
