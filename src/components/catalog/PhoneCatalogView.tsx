@@ -158,8 +158,8 @@ export function PhoneCatalogView({
             </div>
 
             {/* Brand Filter & Sort Dropdown */}
-            <div className="flex items-center gap-2.5 flex-wrap">
-              <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-2.5 flex-wrap w-full lg:w-auto">
+              <div className="flex items-center gap-1.5 flex-1 sm:flex-none">
                 <span className="text-xs text-[#71717a] font-medium hidden sm:inline">Brand:</span>
                 <select
                   value={selectedBrand}
@@ -167,7 +167,7 @@ export function PhoneCatalogView({
                     setSelectedBrand(e.target.value);
                     setVisibleCount(24);
                   }}
-                  className="px-3 py-2 text-xs sm:text-sm bg-white border border-[#d4d4d8] rounded-xl text-[#18181b] focus:outline-none focus:border-black cursor-pointer"
+                  className="w-full sm:w-auto px-3 py-2 text-xs sm:text-sm bg-white border border-[#d4d4d8] rounded-xl text-[#18181b] focus:outline-none focus:border-black cursor-pointer"
                 >
                   <option value="all">All Brands ({phones.length})</option>
                   {brandOptions.map(({ brand, count }) => (
@@ -178,12 +178,12 @@ export function PhoneCatalogView({
                 </select>
               </div>
 
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1.5 flex-1 sm:flex-none">
                 <span className="text-xs text-[#71717a] font-medium hidden sm:inline">Sort:</span>
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="px-3 py-2 text-xs sm:text-sm bg-white border border-[#d4d4d8] rounded-xl text-[#18181b] focus:outline-none focus:border-black cursor-pointer"
+                  className="w-full sm:w-auto px-3 py-2 text-xs sm:text-sm bg-white border border-[#d4d4d8] rounded-xl text-[#18181b] focus:outline-none focus:border-black cursor-pointer"
                 >
                   <option value="default">Rank / Featured</option>
                   <option value="price-asc">Price: Low to High</option>
@@ -195,7 +195,7 @@ export function PhoneCatalogView({
           </div>
 
           {/* Quick Brand Pills */}
-          <div className="flex items-center gap-1.5 overflow-x-auto pt-3.5 mt-3.5 border-t border-gray-100 no-scrollbar">
+          <div className="flex items-center gap-1.5 overflow-x-auto pt-3.5 mt-3.5 border-t border-gray-100 no-scrollbar touch-pan-x">
             <button
               type="button"
               onClick={() => {

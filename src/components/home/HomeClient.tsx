@@ -96,6 +96,13 @@ function HomeClientInner({ initialPhones }: HomeClientProps) {
   const [battery, setBattery] = useState("all");
   const [charging, setCharging] = useState("all");
   const [sortBy, setSortBy] = useState("popularity");
+  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
+
+  const activeFilterCount = (maxPrice < 600000 ? 1 : 0) +
+    selectedBrands.size +
+    (ram !== "all" ? 1 : 0) +
+    (battery !== "all" ? 1 : 0) +
+    (charging !== "all" ? 1 : 0);
 
   const [advisorMinBudget, setAdvisorMinBudget] = useState(35000);
   const [advisorMaxBudget, setAdvisorMaxBudget] = useState(75000);
@@ -443,8 +450,46 @@ function HomeClientInner({ initialPhones }: HomeClientProps) {
       <main className="container main-content" id="phones-section">
         <div className="app-layout">
           
+          {/* MOBILE FILTER TOGGLE BAR (Visible on <1024px screens) */}
+          <div className="lg:hidden flex items-center justify-between p-3.5 bg-white rounded-2xl border border-[#e4e4e7] shadow-xs">
+            <div className="flex items-center gap-2">
+              <span className="text-base">⚡</span>
+              <span className="text-sm font-bold text-gray-900">Filters & Refine</span>
+              {activeFilterCount > 0 && (
+                <span className="text-[11px] bg-orange-100 text-orange-700 font-bold px-2 py-0.5 rounded-full">
+                  {activeFilterCount} Active
+                </span>
+              )}
+            </div>
+            <div className="flex items-center gap-2">
+              {activeFilterCount > 0 && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMaxPrice(600000);
+                    setSelectedBrands(new Set());
+                    setRam("all");
+                    setBattery("all");
+                    setCharging("all");
+                  }}
+                  className="text-xs text-gray-500 hover:text-black font-medium underline mr-1"
+                >
+                  Reset
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => setIsMobileFiltersOpen(!isMobileFiltersOpen)}
+                className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-gray-100 hover:bg-gray-200 text-gray-800 transition-colors inline-flex items-center gap-1.5"
+                aria-expanded={isMobileFiltersOpen}
+              >
+                <span>{isMobileFiltersOpen ? "Hide Filters ▲" : "Filter Phones ▼"}</span>
+              </button>
+            </div>
+          </div>
+
           {/* LEFT SIDEBAR: FILTERS */}
-          <aside className="filters-sidebar">
+          <aside className={`filters-sidebar ${isMobileFiltersOpen ? 'mobile-open' : 'mobile-collapsed'}`}>
             <div className="filters-header">
               <h3>Filters & Range</h3>
               <button className="btn-link" onClick={() => { setMaxPrice(600000); setSelectedBrands(new Set()); setRam("all"); setBattery("all"); setCharging("all"); }}>Reset All</button>

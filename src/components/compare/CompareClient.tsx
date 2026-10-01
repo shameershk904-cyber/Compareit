@@ -1036,7 +1036,7 @@ export function CompareClient({ initialPhones, initialCompareSlugs }: CompareCli
                     {/* Sticky Table Header Showing Device Columns */}
                     <thead className="sticky top-0 z-20 bg-surface-container-low shadow-xs border-b border-border-hairline">
                       <tr>
-                        <th className="py-3 px-4 font-bold text-xs uppercase tracking-wider text-outline w-1/4 min-w-[190px] align-middle">
+                        <th className="py-3 px-4 font-bold text-xs uppercase tracking-wider text-outline w-1/4 min-w-[170px] sm:min-w-[190px] align-middle sticky left-0 top-0 z-30 bg-surface-container-low shadow-xs">
                           Specifications
                         </th>
                         {[0, 1, 2].map((slotIdx) => {
@@ -1108,7 +1108,7 @@ export function CompareClient({ initialPhones, initialCompareSlugs }: CompareCli
                             <tr className="bg-surface-container-high/60 border-t-2 border-border-hairline">
                               <td
                                 colSpan={4}
-                                className="py-2.5 px-4 font-bold text-xs uppercase tracking-wider text-primary bg-surface-container-low"
+                                className="py-2.5 px-4 font-bold text-xs uppercase tracking-wider text-primary bg-surface-container-low sticky left-0 z-20"
                               >
                                 <div className="flex items-center gap-1.5">
                                   <span className="material-symbols-outlined text-[17px] text-deal-orange">
@@ -1126,7 +1126,7 @@ export function CompareClient({ initialPhones, initialCompareSlugs }: CompareCli
                                 className="hover:bg-surface-container-lowest/60 transition-colors border-b border-border-hairline/80"
                               >
                                 {/* Spec Title / Label Column */}
-                                <td className="py-3 px-4 font-semibold text-xs text-outline bg-surface-container-lowest align-middle">
+                                <td className="py-3 px-4 font-semibold text-xs text-outline bg-surface-container-lowest align-middle sticky left-0 z-10 shadow-xs">
                                   {row.label}
                                 </td>
 

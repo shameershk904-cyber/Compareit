@@ -667,59 +667,102 @@ export function ProductClient({ phone, competitors }: ProductClientProps) {
           />
 
           {sortedRetailers.length > 0 ? (
-            <div className="overflow-x-auto rounded-lg border border-gray-200">
-              <table className="w-full text-left border-collapse text-sm">
-                <thead>
-                  <tr className="bg-gray-50 border-b border-gray-200 text-xs font-normal text-gray-500">
-                    <th className="py-2.5 px-4 font-normal">Store / Seller</th>
-                    <th className="py-2.5 px-4 font-normal">Condition</th>
-                    <th className="py-2.5 px-4 font-normal">Delivery</th>
-                    <th className="py-2.5 px-4 font-normal">Estimated Price</th>
-                    <th className="py-2.5 px-4 text-right font-normal">Action</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100">
-                  {sortedRetailers.map((r, idx) => {
-                    const isLowest = idx === 0 || (r.price === minRetailerPrice && minRetailerPrice > 0);
-                    return (
-                      <tr key={idx} className={`hover:bg-gray-50/75 transition-colors ${isLowest ? "bg-orange-50/30" : ""}`}>
-                        <td className="py-3 px-4">
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium text-gray-900">{r.store}</span>
-                            {isLowest && (
-                              <span className="text-[11px] font-medium text-orange-700 bg-orange-100 px-1.5 py-0.5 rounded">
-                                Lowest Price
-                              </span>
-                            )}
-                          </div>
-                        </td>
-                        <td className="py-3 px-4 text-gray-600 font-normal text-[13px]">
-                          {r.condition || "Box Pack Sealed"}
-                        </td>
-                        <td className="py-3 px-4 text-gray-600 font-normal text-[13px]">
-                          {r.delivery || "Standard Dispatch"}
-                        </td>
-                        <td className="py-3 px-4">
-                          <span className={`text-sm font-semibold ${isLowest ? "text-orange-600" : "text-gray-900"}`}>
-                            {formatPKR(r.price)}
-                          </span>
-                        </td>
-                        <td className="py-3 px-4 text-right">
-                          <a
-                            href={r.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="h-8 px-3 text-xs font-medium text-white bg-gray-900 hover:bg-black rounded-lg transition-colors inline-flex items-center justify-center gap-1 shadow-2xs"
-                          >
-                            Open Store ↗
-                          </a>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+            <>
+              {/* Desktop Table View */}
+              <div className="hidden sm:block overflow-x-auto rounded-lg border border-gray-200">
+                <table className="w-full text-left border-collapse text-sm">
+                  <thead>
+                    <tr className="bg-gray-50 border-b border-gray-200 text-xs font-normal text-gray-500">
+                      <th className="py-2.5 px-4 font-normal">Store / Seller</th>
+                      <th className="py-2.5 px-4 font-normal">Condition</th>
+                      <th className="py-2.5 px-4 font-normal">Delivery</th>
+                      <th className="py-2.5 px-4 font-normal">Estimated Price</th>
+                      <th className="py-2.5 px-4 text-right font-normal">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {sortedRetailers.map((r, idx) => {
+                      const isLowest = idx === 0 || (r.price === minRetailerPrice && minRetailerPrice > 0);
+                      return (
+                        <tr key={idx} className={`hover:bg-gray-50/75 transition-colors ${isLowest ? "bg-orange-50/30" : ""}`}>
+                          <td className="py-3 px-4">
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium text-gray-900">{r.store}</span>
+                              {isLowest && (
+                                <span className="text-[11px] font-medium text-orange-700 bg-orange-100 px-1.5 py-0.5 rounded">
+                                  Lowest Price
+                                </span>
+                              )}
+                            </div>
+                          </td>
+                          <td className="py-3 px-4 text-gray-600 font-normal text-[13px]">
+                            {r.condition || "Box Pack Sealed"}
+                          </td>
+                          <td className="py-3 px-4 text-gray-600 font-normal text-[13px]">
+                            {r.delivery || "Standard Dispatch"}
+                          </td>
+                          <td className="py-3 px-4">
+                            <span className={`text-sm font-semibold ${isLowest ? "text-orange-600" : "text-gray-900"}`}>
+                              {formatPKR(r.price)}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 text-right">
+                            <a
+                              href={r.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="h-8 px-3 text-xs font-medium text-white bg-gray-900 hover:bg-black rounded-lg transition-colors inline-flex items-center justify-center gap-1 shadow-2xs"
+                            >
+                              Open Store ↗
+                            </a>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile Card List View (Fluid CSS Flexbox) */}
+              <div className="sm:hidden flex flex-col gap-2.5">
+                {sortedRetailers.map((r, idx) => {
+                  const isLowest = idx === 0 || (r.price === minRetailerPrice && minRetailerPrice > 0);
+                  return (
+                    <div
+                      key={idx}
+                      className={`p-3.5 rounded-xl border transition-all flex flex-col gap-2 ${
+                        isLowest ? "bg-orange-50/40 border-orange-200" : "bg-white border-gray-200"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold text-gray-900 text-sm">{r.store}</span>
+                          {isLowest && (
+                            <span className="text-[10px] font-bold text-orange-700 bg-orange-100 px-1.5 py-0.5 rounded uppercase tracking-wider">
+                              Lowest Price
+                            </span>
+                          )}
+                        </div>
+                        <span className={`text-base font-bold ${isLowest ? "text-orange-600" : "text-gray-900"}`}>
+                          {formatPKR(r.price)}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between text-xs text-gray-500 pt-1.5 border-t border-gray-100">
+                        <span className="truncate max-w-[170px]">{r.condition || "Box Pack Sealed"} • {r.delivery || "Standard Dispatch"}</span>
+                        <a
+                          href={r.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="px-3 py-1.5 text-xs font-semibold text-white bg-gray-900 hover:bg-black rounded-lg transition-colors inline-flex items-center gap-1 shadow-2xs shrink-0"
+                        >
+                          Open Store ↗
+                        </a>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
           ) : (
             <div className="py-8 px-4 rounded-lg bg-gray-50 border border-gray-200 text-center flex flex-col items-center">
               <span className="material-symbols-outlined text-gray-400 text-3xl mb-2">inventory_2</span>
