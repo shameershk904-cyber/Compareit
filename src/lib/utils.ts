@@ -14,7 +14,7 @@ export function formatPKR(amount?: number | null) {
 
 export function getSupabaseImageUrl(path: string) {
   if (!path) return "";
-  if (path.startsWith("http")) return path;
+  if (path.startsWith("http") || path.startsWith("/") || path.startsWith("data:")) return path;
   
   // Clean up path if it already has images/phones/ or just phones/
   const cleanPath = path.replace(/^images\//, "").replace(/^phones\//, "");

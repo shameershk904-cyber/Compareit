@@ -807,7 +807,7 @@ export function PhonesClient({
 
                     <div>
                       <label className="block text-xs font-semibold text-on-surface-variant mb-1">
-                        Lowest Verified Market Price (PKR)
+                        Estimated Market Price (PKR)
                       </label>
                       <input
                         type="number"

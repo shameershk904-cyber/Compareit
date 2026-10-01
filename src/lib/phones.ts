@@ -199,9 +199,9 @@ export async function getPhones(): Promise<Phone[]> {
     console.warn(`[lib/phones] Incomplete catalog from DB (${combined.length} phones). Merging with complete local catalog.`);
     const local = readLocalPhones();
     if (local.length > combined.length) {
-      const localSlugs = new Set(local.map((p) => p.slug));
-      const newFromDb = combined.filter((p) => !localSlugs.has(p.slug));
-      const full = [...newFromDb, ...local];
+      const dbSlugs = new Set(combined.map((p) => p.slug));
+      const missingFromDb = local.filter((p) => !dbSlugs.has(p.slug));
+      const full = [...combined, ...missingFromDb];
       memoryPhonesCache = { data: full, expiresAt: now + MEMORY_CACHE_TTL_MS };
       return full;
     }
@@ -266,6 +266,161 @@ export const getPhonesByBrand = (brand: string) =>
     },
     [`getPhonesByBrand-${brand}`],
     { tags: [PHONES_TAG, `brand-${brand.toLowerCase()}`], revalidate: 60 }
+  )();
+
+// ─── getTrendingPhones ────────────────────────────────────────────────────────
+export const getTrendingPhones = (limit = 120) =>
+  unstable_cache(
+    async (): Promise<Phone[]> => {
+      try {
+        const rows = await prisma.phone.findMany({
+          where: { isActive: true, popular: true },
+          include: { retailers: true },
+          orderBy: [
+            { trendingRank: "asc" },
+            { lowestVerifiedPrice: "desc" },
+            { pricePkr: "desc" },
+          ],
+          take: limit,
+        });
+
+        const sorted = [...rows].sort((a, b) => {
+          const rankA = a.trendingRank > 0 ? a.trendingRank : 999999;
+          const rankB = b.trendingRank > 0 ? b.trendingRank : 999999;
+          if (rankA !== rankB) return rankA - rankB;
+          const priceA = a.lowestVerifiedPrice || a.pricePkr || 0;
+          const priceB = b.lowestVerifiedPrice || b.pricePkr || 0;
+          return priceB - priceA;
+        });
+
+        return sorted.map(dbPhoneToPhone);
+      } catch (err) {
+        console.error("[lib/phones] getTrendingPhones error, falling back:", err);
+        const phones = readLocalPhones();
+        return phones.filter((p) => p.popular).slice(0, limit);
+      }
+    },
+    ["getTrendingPhones"],
+    { tags: [PHONES_TAG, "trending-phones"], revalidate: 60 }
+  )();
+
+// ─── getNewInPhones ───────────────────────────────────────────────────────────
+export const getNewInPhones = (limit = 250) =>
+  unstable_cache(
+    async (): Promise<Phone[]> => {
+      try {
+        const currentYear = new Date().getFullYear().toString(); // e.g. "2026"
+        const prevYear = (new Date().getFullYear() - 1).toString(); // e.g. "2025"
+
+        // Primary: phones whose release_date mentions this year or last year,
+        // have a price, and are not discontinued. Sorted by price high-to-low.
+        const rows = await prisma.phone.findMany({
+          where: {
+            isActive: true,
+            status: { notIn: ["Discontinued", "discontinued"] },
+            AND: [
+              {
+                OR: [
+                  { lowestVerifiedPrice: { gt: 0 } },
+                  { pricePkr: { gt: 0 } },
+                ],
+              },
+              {
+                OR: [
+                  { releaseDate: { contains: currentYear, mode: "insensitive" } },
+                  { releaseDate: { contains: prevYear, mode: "insensitive" } },
+                ],
+              },
+            ],
+          },
+          include: { retailers: true },
+          orderBy: [{ lowestVerifiedPrice: "desc" }, { pricePkr: "desc" }, { createdAt: "desc" }],
+          take: limit,
+        });
+
+        // Fallback: if no phones matched the year filter, widen to 18 months by createdAt
+        if (rows.length === 0) {
+          const cutoff = new Date();
+          cutoff.setMonth(cutoff.getMonth() - 18);
+          const fallbackRows = await prisma.phone.findMany({
+            where: {
+              isActive: true,
+              status: { notIn: ["Discontinued", "discontinued"] },
+              OR: [
+                { lowestVerifiedPrice: { gt: 0 } },
+                { pricePkr: { gt: 0 } },
+              ],
+              createdAt: { gte: cutoff },
+            },
+            include: { retailers: true },
+            orderBy: [{ lowestVerifiedPrice: "desc" }, { pricePkr: "desc" }],
+            take: limit,
+          });
+          return fallbackRows.map(dbPhoneToPhone);
+        }
+
+        return rows.map(dbPhoneToPhone);
+      } catch (err) {
+        console.error("[lib/phones] getNewInPhones error, falling back:", err);
+        const currentYear = new Date().getFullYear().toString();
+        const prevYear = (new Date().getFullYear() - 1).toString();
+        const phones = readLocalPhones();
+        return [...phones]
+          .filter(
+            (p) =>
+              p.status?.toLowerCase() !== "discontinued" &&
+              ((p.lowest_verified_price ?? 0) > 0 || (p.price_pkr ?? 0) > 0) &&
+              (
+                (p.release_date ?? "").includes(currentYear) ||
+                (p.release_date ?? "").includes(prevYear)
+              )
+          )
+          .sort((a, b) => {
+            const pA = a.lowest_verified_price || a.price_pkr || 0;
+            const pB = b.lowest_verified_price || b.price_pkr || 0;
+            return pB - pA;
+          })
+          .slice(0, limit);
+      }
+    },
+    ["getNewInPhones-v3"],
+    { tags: [PHONES_TAG, "new-in-phones"], revalidate: 60 }
+  )();
+
+// ─── getComingSoonPhones ──────────────────────────────────────────────────────
+export const getComingSoonPhones = (limit = 120) =>
+  unstable_cache(
+    async (): Promise<Phone[]> => {
+      try {
+        const rows = await prisma.phone.findMany({
+          where: {
+            isActive: true,
+            OR: [
+              { status: { equals: "Coming Soon", mode: "insensitive" } },
+              { releaseDate: { contains: "exp", mode: "insensitive" } },
+              { releaseDate: { contains: "2027", mode: "insensitive" } },
+              { releaseDate: { contains: "2028", mode: "insensitive" } },
+            ],
+          },
+          include: { retailers: true },
+          orderBy: [{ lowestVerifiedPrice: "desc" }, { pricePkr: "desc" }],
+          take: limit,
+        });
+        return rows.map(dbPhoneToPhone);
+      } catch (err) {
+        console.error("[lib/phones] getComingSoonPhones error, falling back:", err);
+        const phones = readLocalPhones();
+        return phones
+          .filter(
+            (p) =>
+              p.status === "Coming Soon" ||
+              (p.release_date && p.release_date.toLowerCase().includes("exp"))
+          )
+          .slice(0, limit);
+      }
+    },
+    ["getComingSoonPhones"],
+    { tags: [PHONES_TAG, "coming-soon-phones"], revalidate: 60 }
   )();
 
 // ─── getCompetitors ───────────────────────────────────────────────────────────

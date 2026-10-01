@@ -21,7 +21,7 @@ export async function generateMetadata(props: { params: Promise<{ slug: string }
   return {
     title: `${phone.brand} ${phone.model} ${isAvailable ? `Price in Pakistan (Rs. ${lowest.toLocaleString()})` : "Price in Pakistan (Price N/A - Discontinued)"} & Specs | CompareIt.pk`,
     description: isAvailable
-      ? `Check latest verified price of ${phone.brand} ${phone.model} in Pakistan (Rs. ${lowest.toLocaleString()}). Verified store prices, full specs, PTA DIRBS tax, and expert verdict.`
+      ? `Check latest estimated market price of ${phone.brand} ${phone.model} in Pakistan (Rs. ${lowest.toLocaleString()}). Approximate store prices, full specs, PTA DIRBS tax, and expert verdict.`
       : `${phone.brand} ${phone.model} price in Pakistan is unlisted/discontinued (Price N/A). View historical specs, release details, PTA DIRBS tax status, and comparisons on CompareIt.pk.`,
   };
 }

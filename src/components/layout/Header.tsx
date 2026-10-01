@@ -6,6 +6,65 @@ import { useState, useEffect, useRef } from "react";
 
 const BRANDS = ["Samsung", "Apple", "Oppo", "Huawei"];
 
+interface NavItem {
+  label: string;
+  href: string;
+  badge?: string;
+  svgIcon: React.ReactNode;
+}
+
+const NAV_ITEMS: NavItem[] = [
+  {
+    label: "Home",
+    href: "/",
+    svgIcon: (
+      <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+        <polyline points="9 22 9 12 15 12 15 22" />
+      </svg>
+    ),
+  },
+  {
+    label: "Trending",
+    href: "/trending",
+    badge: "Hot",
+    svgIcon: (
+      <svg className="w-4 h-4 text-orange-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" />
+      </svg>
+    ),
+  },
+  {
+    label: "New In",
+    href: "/new-in",
+    svgIcon: (
+      <svg className="w-4 h-4 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+      </svg>
+    ),
+  },
+  {
+    label: "Coming Soon",
+    href: "/coming-soon",
+    svgIcon: (
+      <svg className="w-4 h-4 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="12" cy="12" r="10" />
+        <polyline points="12 6 12 12 16 14" />
+      </svg>
+    ),
+  },
+  {
+    label: "Contact",
+    href: "/contact",
+    svgIcon: (
+      <svg className="w-4 h-4 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <rect width="20" height="16" x="2" y="4" rx="2" />
+        <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+      </svg>
+    ),
+  },
+];
+
 export function Header() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -17,12 +76,42 @@ export function Header() {
   const [subIndex, setSubIndex] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Close mobile drawer on route change
   useEffect(() => {
-    // Only sync from searchParams when user is NOT actively typing/focused
+    setIsMobileMenuOpen(false);
+  }, [pathname]);
+
+  // Lock body scroll when mobile drawer is open
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isMobileMenuOpen]);
+
+  // Handle escape key to close mobile menu
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsMobileMenuOpen(false);
+      }
+    };
+    if (isMobileMenuOpen) {
+      window.addEventListener("keydown", handleKeyDown);
+    }
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isMobileMenuOpen]);
+
+  useEffect(() => {
     if (!isFocused) {
       const q = searchParams.get("q") || "";
       const timer = setTimeout(() => setQuery(q), 0);
@@ -36,7 +125,6 @@ export function Header() {
 
     const currentBrand = BRANDS[brandIndex];
 
-    // Pause when brand is fully typed out
     if (!isDeleting && subIndex === currentBrand.length) {
       const pauseTimer = setTimeout(() => {
         setIsDeleting(true);
@@ -44,7 +132,6 @@ export function Header() {
       return () => clearTimeout(pauseTimer);
     }
 
-    // Finished deleting, move to next brand
     if (isDeleting && subIndex === 0) {
       const pauseTimer = setTimeout(() => {
         setIsDeleting(false);
@@ -65,7 +152,8 @@ export function Header() {
     requestAnimationFrame(() => {
       const target = document.getElementById("products-section") || document.getElementById("phones-section") || document.querySelector(".products-section");
       if (target) {
-        const headerOffset = 85;
+        const headerEl = document.querySelector(".site-header");
+        const headerOffset = headerEl ? headerEl.getBoundingClientRect().height + 15 : 120;
         const elementPosition = target.getBoundingClientRect().top;
         const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
         window.scrollTo({
@@ -74,6 +162,24 @@ export function Header() {
         });
       }
     });
+  };
+
+  const scrollToAdvisor = () => {
+    if (pathname !== "/") {
+      router.push("/#advisor-section");
+    } else {
+      const el = document.getElementById("advisor-section") || document.querySelector(".advisor-section");
+      if (el) {
+        const headerEl = document.querySelector(".site-header");
+        const headerOffset = headerEl ? headerEl.getBoundingClientRect().height + 15 : 120;
+        const elementPosition = el.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+        window.scrollTo({
+          top: Math.max(0, offsetPosition),
+          behavior: "smooth"
+        });
+      }
+    }
   };
 
   const handleSearchSubmit = () => {
@@ -120,7 +226,6 @@ export function Header() {
   const handleSearch = (val: string) => {
     setQuery(val);
 
-    // Instant custom event so catalog filters with 0 lag
     if (typeof window !== "undefined") {
       window.dispatchEvent(new CustomEvent("phone-search", { detail: val }));
     }
@@ -142,7 +247,6 @@ export function Header() {
         window.history.replaceState(null, "", url);
       }
       
-      // Telemetry: Log search query to search monitoring
       if (val.trim().length >= 2) {
         try {
           const sid = typeof window !== "undefined" ? window.sessionStorage?.getItem("compareit_session_id") : null;
@@ -180,15 +284,22 @@ export function Header() {
     inputRef.current?.focus();
   };
 
+  const isItemActive = (href: string) => {
+    if (href === "/") {
+      return pathname === "/";
+    }
+    return pathname === href || pathname.startsWith(`${href}/`);
+  };
+
   const displayedBrand = BRANDS[brandIndex].substring(0, subIndex);
   const placeholderText = isFocused || query ? "" : `Search for ${displayedBrand}`;
 
   return (
     <header className="site-header">
+      {/* ─── PRIMARY HEADER ROW (LOGO + SEARCH + ACTIONS / MOBILE TOGGLE) ─── */}
       <div className="container header-inner">
         <div className="logo-area">
-          <Link href="/" className="brand-logo">
-            {/* Supabase URL used here for logo if it's there, else a relative path. We'll use a relative path for now or standard img if it's in public */}
+          <Link href="/" className="brand-logo" aria-label="CompareIt.pk Homepage">
             <img src="/logo.png" alt="Compare It - Find, Compare, Get The Best" className="main-logo-img" />
           </Link>
         </div>
@@ -234,9 +345,9 @@ export function Header() {
           </div>
         </div>
 
-        {/* HEADER ACTIONS */}
+        {/* HEADER ACTIONS (DESKTOP) */}
         <div className="header-actions">
-          <button id="nav-finder-btn" className="action-btn advisor-btn">
+          <button id="nav-finder-btn" className="action-btn advisor-btn" onClick={scrollToAdvisor}>
             <span className="btn-icon">✨</span>
             <span className="btn-label">Smart Phone Finder</span>
           </button>
@@ -258,7 +369,189 @@ export function Header() {
             <span className="btn-label">Quick Compare</span>
           </Link>
         </div>
+
+        {/* MOBILE CONTROLS (HAMBURGER & COMPARE ICON) */}
+        <div className="mobile-header-controls">
+          <Link 
+            href={pathname === "/compare" ? "/compare" : `/compare?from=${encodeURIComponent(pathname)}`}
+            className="p-2 rounded-xl text-gray-700 hover:bg-gray-100 transition-colors inline-flex items-center justify-center text-lg"
+            title="Quick Compare"
+            aria-label="Quick Compare"
+          >
+            ⚖️
+          </Link>
+          <button
+            type="button"
+            id="mobile-menu-btn"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="p-2 rounded-xl text-gray-800 hover:text-gray-900 hover:bg-gray-100 transition-colors inline-flex items-center justify-center border border-gray-200"
+            aria-label="Open navigation menu"
+            aria-expanded={isMobileMenuOpen}
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              {isMobileMenuOpen ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              )}
+            </svg>
+          </button>
+        </div>
       </div>
+
+      {/* ─── DESKTOP MAIN NAVIGATION SUB-BAR ─── */}
+      <nav className="main-nav-bar" aria-label="Main Navigation">
+        <div className="main-nav-inner">
+          <ul className="main-nav-list">
+            {NAV_ITEMS.map((item) => {
+              const active = isItemActive(item.href);
+              return (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    className={`main-nav-item ${active ? "is-active" : ""}`}
+                  >
+                    {item.svgIcon}
+                    <span>{item.label}</span>
+                    {item.badge && (
+                      <span className="nav-badge-hot">
+                        {item.badge}
+                      </span>
+                    )}
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+
+          {/* Live Market Index ticker */}
+          <div className="nav-market-status">
+            <span className="flex items-center gap-1.5 font-medium">
+              <span className="pulse-dot" />
+              Live Pakistan Market Index
+            </span>
+            <span className="text-gray-300">|</span>
+            <span className="text-gray-500 font-normal">PTA DIRBS Tax Calculator 2025</span>
+          </div>
+        </div>
+      </nav>
+
+      {/* ─── MOBILE SLIDE-OUT DRAWER ─── */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden fixed inset-0 z-50">
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity"
+            onClick={() => setIsMobileMenuOpen(false)}
+            aria-hidden="true"
+          />
+
+          {/* Drawer content */}
+          <div className="fixed inset-y-0 right-0 w-4/5 max-w-xs bg-white shadow-2xl z-10 flex flex-col justify-between animate-in slide-in-from-right duration-200">
+            <div>
+              {/* Header */}
+              <div className="p-4 border-b border-gray-100 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <img src="/logo.png" alt="CompareIt.pk" className="h-6 w-auto object-contain" />
+                  <span className="text-xs font-bold text-gray-900 uppercase tracking-wider">Navigation</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="p-1 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+                  aria-label="Close menu"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Navigation Links */}
+              <nav className="p-3 flex flex-col gap-1">
+                <div className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 px-3 py-1">
+                  Main Pages
+                </div>
+                {NAV_ITEMS.map((item) => {
+                  const active = isItemActive(item.href);
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className={`px-3 py-2.5 rounded-xl text-sm font-medium transition-all flex items-center justify-between ${
+                        active
+                          ? "text-orange-600 bg-orange-50 font-semibold border border-orange-200/50"
+                          : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        {item.svgIcon}
+                        <span>{item.label}</span>
+                      </div>
+                      {item.badge && (
+                        <span className="text-[9px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-orange-100 text-orange-700">
+                          {item.badge}
+                        </span>
+                      )}
+                    </Link>
+                  );
+                })}
+
+                {/* Quick Tools in Drawer */}
+                <div className="mt-3 pt-3 border-t border-gray-100">
+                  <div className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 px-3 py-1">
+                    Tools & Calculators
+                  </div>
+                  <div className="flex flex-col gap-1 mt-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsMobileMenuOpen(false);
+                        const currentParams = new URLSearchParams(Array.from(searchParams.entries()));
+                        currentParams.set("taxCalc", "open");
+                        router.push(`${pathname}?${currentParams.toString()}`, { scroll: false });
+                      }}
+                      className="w-full text-left px-3 py-2 rounded-xl text-xs font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2.5 transition-colors"
+                    >
+                      <span className="text-base">📋</span>
+                      PTA Tax Calculator
+                    </button>
+                    <Link
+                      href={pathname === "/compare" ? "/compare" : `/compare?from=${encodeURIComponent(pathname)}`}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="w-full text-left px-3 py-2 rounded-xl text-xs font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2.5 transition-colors"
+                    >
+                      <span className="text-base">⚖️</span>
+                      Side-by-Side Compare
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsMobileMenuOpen(false);
+                        scrollToAdvisor();
+                      }}
+                      className="w-full text-left px-3 py-2 rounded-xl text-xs font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2.5 transition-colors"
+                    >
+                      <span className="text-base">✨</span>
+                      Smart Phone Finder
+                    </button>
+                  </div>
+                </div>
+              </nav>
+            </div>
+
+            {/* Drawer Footer */}
+            <div className="p-4 border-t border-gray-100 bg-gray-50 text-[11px] text-gray-500 flex items-center justify-between">
+              <span>© 2025 CompareIt.pk</span>
+              <span className="text-emerald-600 font-medium flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                Live Rates
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 }

@@ -522,7 +522,7 @@ export function ProductClient({ phone, competitors }: ProductClientProps) {
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                   <div>
                     <div className="text-[11px] text-gray-500 font-normal uppercase tracking-wider">
-                      {hasVerifiedPricing ? "Lowest Verified Retail Price in Pakistan" : "Market Status"}
+                      {hasVerifiedPricing ? "Estimated Market Price in Pakistan" : "Market Status"}
                     </div>
                     <div className="flex items-baseline gap-2.5 mt-0.5 flex-wrap">
                       <span className="text-2xl font-semibold text-orange-600">
@@ -649,11 +649,11 @@ export function ProductClient({ phone, competitors }: ProductClientProps) {
           </div>
         </section>
 
-        {/* ─── 5. VERIFIED RETAILERS & PRICES ───────────────────────────────────── */}
+        {/* ─── 5. ESTIMATED RETAILERS & PRICES ───────────────────────────────────── */}
         <section id="prices" className="bg-white rounded-xl border border-gray-200 p-4 sm:p-6 shadow-xs scroll-mt-14">
           <SectionHeading
-            title="Verified Prices in Pakistan"
-            subtitle="Real-time prices cross-checked across certified stores and authorized dealers"
+            title="Estimated Market Prices in Pakistan"
+            subtitle="Real-time approximate market prices gathered across local stores and dealers"
             action={
               <button
                 type="button"
@@ -674,7 +674,7 @@ export function ProductClient({ phone, competitors }: ProductClientProps) {
                     <th className="py-2.5 px-4 font-normal">Store / Seller</th>
                     <th className="py-2.5 px-4 font-normal">Condition</th>
                     <th className="py-2.5 px-4 font-normal">Delivery</th>
-                    <th className="py-2.5 px-4 font-normal">Verified Price</th>
+                    <th className="py-2.5 px-4 font-normal">Estimated Price</th>
                     <th className="py-2.5 px-4 text-right font-normal">Action</th>
                   </tr>
                 </thead>
@@ -1117,7 +1117,7 @@ export function ProductClient({ phone, competitors }: ProductClientProps) {
             ) : (
               <div className="py-4 flex flex-col gap-3">
                 <p className="text-xs text-gray-500 font-normal">
-                  Current verified price: <span className="font-semibold text-gray-900">{formatPKR(lowestPrice)}</span>
+                  Current estimated price: <span className="font-semibold text-gray-900">{formatPKR(lowestPrice)}</span>
                 </p>
 
                 <div className="flex flex-col gap-1">

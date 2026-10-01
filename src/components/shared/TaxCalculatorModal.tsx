@@ -51,6 +51,16 @@ export function TaxCalculatorModal() {
     }
   }, [isOpen, phones.length]);
 
+  // Blur the background page content when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.classList.add("modal-open");
+    } else {
+      document.body.classList.remove("modal-open");
+    }
+    return () => document.body.classList.remove("modal-open");
+  }, [isOpen]);
+
   useEffect(() => {
     if (initialPhoneId && initialPhoneId !== "open") {
       const timer = setTimeout(() => {
@@ -153,7 +163,7 @@ export function TaxCalculatorModal() {
           </div>
 
           <div id="calc-custom-view" className={`calc-view ${activeTab !== "custom" ? "hidden" : ""}`}>
-            <label className="filter-label">Phone Invoice / C&F Value in USD ($):</label>
+            <label className="filter-label">Phone Invoice / C&amp;F Value in USD ($):</label>
             <div className="input-box-lg">
               <span className="input-prefix-lg">$</span>
               <input 

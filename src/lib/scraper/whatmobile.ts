@@ -35,8 +35,13 @@ export const WHATMOBILE_URL_MAP: Record<string, string> = {
   "xiaomi-14-ultra": "/Xiaomi_14-Ultra",
   "xiaomi-redmi-note-13": "/Xiaomi_Redmi-Note-13",
   "xiaomi-redmi-note-13-pro": "/Xiaomi_Redmi-Note-13-Pro",
-  "xiaomi-poco-f6": "/Poco_F6",
-  "xiaomi-poco-x6-pro": "/Poco_X6-Pro",
+  "xiaomi-poco-f6": "/Xiaomi_Poco-F6",
+  "xiaomi-poco-x6-pro": "/Xiaomi_Poco-X6-Pro",
+  "oppo-reno-11f-5g": "/Oppo_Reno-11F",
+  "tecno-camon-30-pro-5g": "/Tecno_Camon-30-Pro",
+  "realme-12-pro-plus-5g": "/Realme_12-Pro-Plus",
+  "vivo-v30-5g": "/Vivo_V30",
+  "sparx-edge-20-pro": "/Sparx_Edge-20-Pro",
   "infinix-smart-8": "/Infinix_Smart-8",
   "infinix-note-40": "/Infinix_Note-40",
   "infinix-hot-40-pro": "/Infinix_Hot-40-Pro",
@@ -51,7 +56,7 @@ export const WHATMOBILE_URL_MAP: Record<string, string> = {
   "vivo-v30": "/Vivo_V30",
   "vivo-v30e": "/Vivo_V30e",
   "vivo-y27s": "/Vivo_Y27s",
-  "oppo-reno-11-f": "/Oppo_Reno-11-F",
+  "oppo-reno-11-f": "/Oppo_Reno-11F",
   "realme-12-plus": "/Realme_12-Plus",
   "realme-c67": "/Realme_C67",
 };
@@ -64,10 +69,28 @@ export function resolveWhatMobilePath(slug: string, brand: string, model: string
     return WHATMOBILE_URL_MAP[slug];
   }
 
-  // Derive candidate: /Brand_Model-With-Hyphens
-  const cleanBrand = (brand || "").trim().replace(/\s+/g, "_");
-  const cleanModel = (model || "").trim().replace(/\s+/g, "-");
-  return `/${cleanBrand}_${cleanModel}`;
+  const b = (brand || "").trim();
+  const cleanBrand = b.replace(/\s+/g, "_");
+
+  // Strip redundant leading brand if present in model (e.g. "Vivo Vivo V30 5G" -> "V30 5G")
+  let cleanModel = (model || "").trim();
+  while (cleanModel.toLowerCase().startsWith(b.toLowerCase() + " ")) {
+    cleanModel = cleanModel.slice(b.length).trim();
+  }
+
+  // Handle sub-brands (e.g., Poco phones are filed under Xiaomi_Poco- on WhatMobile)
+  let prefix = cleanBrand;
+  if (/^poco/i.test(cleanModel) && cleanBrand.toLowerCase() !== "xiaomi") {
+    prefix = "Xiaomi";
+  }
+
+  // Sanitize symbols: "+" -> "-Plus", strip trailing " 5G" or " 4G"
+  cleanModel = cleanModel
+    .replace(/\+/g, "-Plus")
+    .replace(/\s+(5G|4G)$/i, "")
+    .replace(/\s+/g, "-");
+
+  return `/${prefix}_${cleanModel}`;
 }
 
 /**
@@ -196,11 +219,31 @@ export async function scrapeWhatMobilePhonePrice(
 
     const parsed = parseWhatMobilePrice(html);
     if (!parsed || !parsed.pricePkr) {
+      if (html.includes("Coming Soon")) {
+        const expMatch = html.match(/Expected\s+Rs\.?:\s*<[^>]+>([\d,]+)<\/[^>]+>/i);
+        const expPrice = expMatch ? parseInt(expMatch[1].replace(/,/g, ""), 10) : undefined;
+        return {
+          success: false,
+          url: fullUrl,
+          statusCode: 200,
+          error: `Unreleased model: Marked as 'Coming Soon' on WhatMobile${expPrice ? ` (Expected: Rs ${expPrice.toLocaleString()})` : ""}`,
+        };
+      }
+
+      if (html.includes("Discontinued")) {
+        return {
+          success: false,
+          url: fullUrl,
+          statusCode: 200,
+          error: "Model marked as 'Discontinued' on WhatMobile (no active retail price)",
+        };
+      }
+
       return {
         success: false,
         url: fullUrl,
         statusCode: 200,
-        error: "Price element not found in HTML (possible discontinued or unannounced model)",
+        error: "Price element not found in HTML (possible unlisted or discontinued model)",
       };
     }
 

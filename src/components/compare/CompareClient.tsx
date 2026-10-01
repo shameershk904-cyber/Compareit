@@ -247,7 +247,7 @@ export function CompareClient({ initialPhones, initialCompareSlugs }: CompareCli
       icon: "storefront",
       rows: [
         {
-          label: "Lowest Verified Price",
+          label: "Estimated Market Price",
           getValue: (p) => {
             const price = p.lowest_verified_price || p.price_pkr;
             const isAvail = price > 0 && Array.isArray(p.retailers) && p.retailers.length > 0 && p.status !== "Discontinued";
@@ -1170,8 +1170,8 @@ export function CompareClient({ initialPhones, initialCompareSlugs }: CompareCli
             {/* MODAL FOOTER */}
             <div className="px-5 py-3.5 bg-surface-container-low flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0 border-t border-border-hairline">
               <div className="flex items-center gap-2 text-on-surface-variant text-xs">
-                <span className="material-symbols-outlined text-deal-orange text-[16px]">verified</span>
-                <span>All prices verified across Pakistan markets (PriceOye, Telemart, Hafeez Centre).</span>
+                <span className="material-symbols-outlined text-deal-orange text-[16px]">storefront</span>
+                <span>Estimated market prices tracked across Pakistan markets (PriceOye, Telemart, Hafeez Centre).</span>
               </div>
               <div className="flex items-center gap-2.5">
                 <button
@@ -1309,7 +1309,7 @@ export function CompareClient({ initialPhones, initialCompareSlugs }: CompareCli
                 </span>
               </div>
               <p className="font-body-sm text-body-sm text-on-surface-variant">
-                Pakistan&apos;s premier tech analytics, device comparison, verified wholesale rates from Hafeez Centre, and accurate PTA tax estimates.
+                Pakistan&apos;s premier tech analytics, device comparison, estimated wholesale rates from Hafeez Centre, and accurate PTA tax estimates.
               </p>
             </div>
             <div className="flex flex-col gap-space-xs">
@@ -1366,7 +1366,7 @@ export function CompareClient({ initialPhones, initialCompareSlugs }: CompareCli
           </div>
           <div className="flex flex-col sm:flex-row items-center justify-between gap-space-md pt-space-md border-t border-border-hairline">
             <p className="font-body-sm text-body-sm text-outline">
-              © 2025 CompareIt.pk. All rights reserved. Prices verified across local Pakistan markets.
+              © 2025 CompareIt.pk. All rights reserved. Estimated market prices tracked across local Pakistan markets.
             </p>
           </div>
         </div>

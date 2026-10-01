@@ -148,7 +148,7 @@ export function PhoneCard({ phone, isCompared, toggleCompare }: { phone: Phone; 
         <div className="card-pricing">
           {isAvailableWithPrice ? (
             <>
-              <span className="price-lowest-badge">{storeCount > 0 ? "Lowest Verified Price:" : "Price in Pakistan:"}</span>
+              <span className="price-lowest-badge">{storeCount > 0 ? "Estimated Market Price:" : "Price in Pakistan:"}</span>
               <div className="price-pkr-official">{formatPKR(lowestPrice)}</div>
               <div className="price-sub">
                 {phone.price_pkr && phone.price_pkr > lowestPrice && (
@@ -157,7 +157,7 @@ export function PhoneCard({ phone, isCompared, toggleCompare }: { phone: Phone; 
                 {storeCount > 0 ? (
                   <span className="retailers-count-tag">{storeCount} Stores Tracked</span>
                 ) : (
-                  <span className="retailers-count-tag">Verified Market</span>
+                  <span className="retailers-count-tag">Estimated Market</span>
                 )}
               </div>
             </>
