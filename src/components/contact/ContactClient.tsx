@@ -103,7 +103,7 @@ export function ContactClient() {
           </p>
 
           {/* Quick stat pills */}
-          <div className="flex flex-wrap justify-center gap-3 mt-8">
+          <div className="grid grid-cols-3 gap-2 sm:flex sm:flex-wrap sm:justify-center sm:gap-3 mt-8 max-w-lg mx-auto">
             {[
               { icon: "📱", stat: "2,000+", label: "Phones listed" },
               { icon: "🏪", stat: "50+", label: "Retailers tracked" },
@@ -111,11 +111,11 @@ export function ContactClient() {
             ].map((item) => (
               <div
                 key={item.label}
-                className="bg-white/15 backdrop-blur-sm border border-white/25 rounded-2xl px-5 py-3 text-center"
+                className="bg-white/15 backdrop-blur-sm border border-white/25 rounded-xl sm:rounded-2xl px-2 py-2.5 sm:px-5 sm:py-3 text-center"
               >
-                <div className="text-xl">{item.icon}</div>
-                <div className="text-lg font-bold">{item.stat}</div>
-                <div className="text-xs text-white/70">{item.label}</div>
+                <div className="text-base sm:text-xl">{item.icon}</div>
+                <div className="text-sm sm:text-lg font-bold">{item.stat}</div>
+                <div className="text-[10px] sm:text-xs text-white/70 leading-tight">{item.label}</div>
               </div>
             ))}
           </div>

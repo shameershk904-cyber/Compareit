@@ -77,13 +77,55 @@ export function Header() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isHeaderHidden, setIsHeaderHidden] = useState(false);
   
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const lastScrollYRef = useRef(0);
+  const tickingRef = useRef(false);
+
+  // Auto-hide topbar on scroll down; reveal on scroll up
+  useEffect(() => {
+    lastScrollYRef.current = window.scrollY;
+
+    const updateHeaderVisibility = () => {
+      const currentY = window.scrollY;
+      const lastY = lastScrollYRef.current;
+      const delta = currentY - lastY;
+
+      if (currentY < 16) {
+        setIsHeaderHidden(false);
+      } else if (delta > 6 && currentY > 64) {
+        setIsHeaderHidden(true);
+      } else if (delta < -6) {
+        setIsHeaderHidden(false);
+      }
+
+      lastScrollYRef.current = currentY;
+      tickingRef.current = false;
+    };
+
+    const onScroll = () => {
+      if (tickingRef.current) return;
+      tickingRef.current = true;
+      window.requestAnimationFrame(updateHeaderVisibility);
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  // Keep header visible while the mobile drawer is open
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      setIsHeaderHidden(false);
+    }
+  }, [isMobileMenuOpen]);
 
   // Close mobile drawer on route change
   useEffect(() => {
     setIsMobileMenuOpen(false);
+    setIsHeaderHidden(false);
   }, [pathname]);
 
   // Lock body scroll when mobile drawer is open
@@ -295,7 +337,9 @@ export function Header() {
   const placeholderText = isFocused || query ? "" : `Search for ${displayedBrand}`;
 
   return (
-    <header className="site-header">
+    <header
+      className={`site-header${isHeaderHidden && !isMobileMenuOpen ? " is-hidden" : ""}`}
+    >
       {/* ─── PRIMARY HEADER ROW (LOGO + SEARCH + ACTIONS / MOBILE TOGGLE) ─── */}
       <div className="container header-inner">
         <div className="logo-area">

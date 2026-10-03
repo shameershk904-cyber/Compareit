@@ -451,17 +451,15 @@ function HomeClientInner({ initialPhones }: HomeClientProps) {
         <div className="app-layout">
           
           {/* MOBILE FILTER TOGGLE BAR (Visible on <1024px screens) */}
-          <div className="lg:hidden flex items-center justify-between p-3.5 bg-white rounded-2xl border border-[#e4e4e7] shadow-xs">
-            <div className="flex items-center gap-2">
-              <span className="text-base">⚡</span>
-              <span className="text-sm font-bold text-gray-900">Filters & Refine</span>
+          <div className="mobile-filters-bar">
+            <div className="mobile-filters-meta">
+              <span aria-hidden="true">⚡</span>
+              <span className="mobile-filters-label">Filters</span>
               {activeFilterCount > 0 && (
-                <span className="text-[11px] bg-orange-100 text-orange-700 font-bold px-2 py-0.5 rounded-full">
-                  {activeFilterCount} Active
-                </span>
+                <span className="mobile-filters-count">{activeFilterCount}</span>
               )}
             </div>
-            <div className="flex items-center gap-2">
+            <div className="mobile-filters-actions">
               {activeFilterCount > 0 && (
                 <button
                   type="button"
@@ -472,7 +470,7 @@ function HomeClientInner({ initialPhones }: HomeClientProps) {
                     setBattery("all");
                     setCharging("all");
                   }}
-                  className="text-xs text-gray-500 hover:text-black font-medium underline mr-1"
+                  className="mobile-filters-reset"
                 >
                   Reset
                 </button>
@@ -480,10 +478,10 @@ function HomeClientInner({ initialPhones }: HomeClientProps) {
               <button
                 type="button"
                 onClick={() => setIsMobileFiltersOpen(!isMobileFiltersOpen)}
-                className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-gray-100 hover:bg-gray-200 text-gray-800 transition-colors inline-flex items-center gap-1.5"
+                className="mobile-filters-toggle"
                 aria-expanded={isMobileFiltersOpen}
               >
-                <span>{isMobileFiltersOpen ? "Hide Filters ▲" : "Filter Phones ▼"}</span>
+                {isMobileFiltersOpen ? "Hide ▲" : "Filter ▼"}
               </button>
             </div>
           </div>
@@ -549,10 +547,10 @@ function HomeClientInner({ initialPhones }: HomeClientProps) {
           {/* RIGHT PRODUCTS SECTION */}
           <section className="products-section" id="products-section">
             <div className="products-toolbar">
-              <div className="toolbar-info" style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+              <div className="toolbar-info">
                 <h2>Tracking Smartphones Across Pakistan</h2>
                 {query.trim() && (
-                  <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)', fontWeight: 500, background: '#f1f3f5', padding: '0.2rem 0.6rem', borderRadius: '12px' }}>
+                  <span className="toolbar-result-pill">
                     {filteredPhones.length} {filteredPhones.length === 1 ? 'phone' : 'phones'} found for &ldquo;{query}&rdquo;
                   </span>
                 )}
@@ -627,10 +625,11 @@ function HomeClientInner({ initialPhones }: HomeClientProps) {
               <Link
                 href={`/compare?phones=${comparePhones.map((p) => p.slug).join(",")}&from=/`}
                 id="trigger-compare-modal-btn"
-                className="primary-btn"
+                className="primary-btn dock-compare-cta"
                 style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center" }}
               >
-                Compare Specifications ⚖️
+                <span className="dock-cta-full">Compare Specifications ⚖️</span>
+                <span className="dock-cta-short">Compare ⚖️</span>
               </Link>
             </div>
           </div>

@@ -317,7 +317,151 @@ export async function savePhoneAction(data: AdminPhoneFormData) {
   }
 }
 
-// ─── 5. Delete Phone ──────────────────────────────────────────────────────────
+// ─── 5. Quick Search Phones (for price updates) ───────────────────────────────
+export async function searchPhonesForPriceAction(query: string) {
+  const { authenticated } = await verifyServerSession(["ADMIN", "EDITOR", "VIEWER"]);
+  if (!authenticated) {
+    return { success: false, error: "Unauthorized access", phones: [] as const };
+  }
+
+  const q = query.trim();
+  if (q.length < 2) {
+    return { success: true, phones: [] as const };
+  }
+
+  try {
+    const phones = await prisma.phone.findMany({
+      where: {
+        OR: [
+          { model: { contains: q, mode: "insensitive" } },
+          { brand: { contains: q, mode: "insensitive" } },
+          { slug: { contains: q, mode: "insensitive" } },
+        ],
+      },
+      take: 12,
+      orderBy: [{ popular: "desc" }, { updatedAt: "desc" }],
+      select: {
+        id: true,
+        slug: true,
+        brand: true,
+        model: true,
+        image: true,
+        pricePkr: true,
+        lowestVerifiedPrice: true,
+        status: true,
+        isActive: true,
+        updatedAt: true,
+      },
+    });
+
+    return {
+      success: true,
+      phones: phones.map((p) => ({
+        ...p,
+        updatedAt: p.updatedAt.toISOString(),
+      })),
+    };
+  } catch (error) {
+    console.error("searchPhonesForPriceAction error:", error);
+    return { success: false, error: "Failed to search phones", phones: [] as const };
+  }
+}
+
+// ─── 6. Manual Price Update ───────────────────────────────────────────────────
+export async function updatePhonePriceAction(input: {
+  phoneId: string;
+  pricePkr: number;
+  lowestVerifiedPrice: number;
+}) {
+  const { authenticated, user, error } = await verifyServerSession(["ADMIN", "EDITOR"]);
+  if (!authenticated || !user) {
+    return { success: false, error: error || "Unauthorized permission" };
+  }
+
+  const phoneId = input.phoneId?.trim();
+  if (!phoneId) {
+    return { success: false, error: "Phone ID is required" };
+  }
+
+  const pricePkr = Math.max(0, Math.round(Number(input.pricePkr) || 0));
+  const lowestVerifiedPrice = Math.max(0, Math.round(Number(input.lowestVerifiedPrice) || 0));
+
+  try {
+    const existing = await prisma.phone.findUnique({
+      where: { id: phoneId },
+      select: {
+        id: true,
+        slug: true,
+        brand: true,
+        model: true,
+        pricePkr: true,
+        lowestVerifiedPrice: true,
+      },
+    });
+
+    if (!existing) {
+      return { success: false, error: "Phone not found" };
+    }
+
+    const updated = await prisma.phone.update({
+      where: { id: phoneId },
+      data: {
+        pricePkr,
+        lowestVerifiedPrice,
+        lastPriceCheck: new Date(),
+      },
+      select: {
+        id: true,
+        slug: true,
+        brand: true,
+        model: true,
+        image: true,
+        pricePkr: true,
+        lowestVerifiedPrice: true,
+        status: true,
+        isActive: true,
+        updatedAt: true,
+      },
+    });
+
+    purgePhoneCaches(updated.slug);
+
+    await prisma.activityLog.create({
+      data: {
+        userId: user.id,
+        userEmail: user.email,
+        action: "UPDATE_PHONE_PRICE",
+        entity: "PHONE",
+        entityId: updated.id,
+        details: {
+          phone: `${updated.brand} ${updated.model}`,
+          slug: updated.slug,
+          previous: {
+            pricePkr: existing.pricePkr,
+            lowestVerifiedPrice: existing.lowestVerifiedPrice,
+          },
+          next: {
+            pricePkr: updated.pricePkr,
+            lowestVerifiedPrice: updated.lowestVerifiedPrice,
+          },
+        },
+      },
+    });
+
+    return {
+      success: true,
+      phone: {
+        ...updated,
+        updatedAt: updated.updatedAt.toISOString(),
+      },
+    };
+  } catch (err) {
+    console.error("updatePhonePriceAction error:", err);
+    return { success: false, error: "Failed to update phone price" };
+  }
+}
+
+// ─── 7. Delete Phone ──────────────────────────────────────────────────────────
 export async function deletePhoneAction(phoneId: string) {
   const { authenticated, user, error } = await verifyServerSession(["ADMIN"]);
   if (!authenticated || !user) {

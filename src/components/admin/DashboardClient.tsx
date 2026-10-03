@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { type BannerRecord } from "./BannersClient";
+import { PriceUpdatePanel } from "./PriceUpdatePanel";
 
 interface DashboardClientProps {
   stats: {
@@ -271,6 +272,9 @@ export function DashboardClient({ stats, liveBanners }: DashboardClientProps) {
           </div>
         </Link>
       </section>
+
+      {/* MANUAL PRICE UPDATE */}
+      <PriceUpdatePanel />
 
       {/* TWO-COLUMN ANALYTICS ROW */}
       <section className="grid grid-cols-1 lg:grid-cols-12 gap-space-md">

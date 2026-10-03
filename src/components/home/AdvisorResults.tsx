@@ -24,16 +24,15 @@ export function AdvisorResults({
 }: AdvisorResultsProps) {
   return (
     <div id="advisor-results-box" className="advisor-results">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem', paddingBottom: '0.75rem', borderBottom: '1px solid var(--border-subtle)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <span style={{ background: '#000', color: '#fff', fontSize: '0.68rem', fontWeight: 800, padding: '2px 8px', borderRadius: 'var(--radius-full)', textTransform: 'uppercase' }}>AI Analysis</span>
-          <span style={{ fontSize: '0.92rem', fontWeight: 800, color: '#000' }}>Best Value Match for {formatPKR(maxBudget)}</span>
+      <div className="advisor-results-header">
+        <div className="advisor-results-title">
+          <span className="advisor-results-badge">AI Analysis</span>
+          <span className="advisor-results-heading">Best Value Match for {formatPKR(maxBudget)}</span>
         </div>
         <button 
           className="advisor-toggle-btn" 
           onClick={onClose} 
           type="button" 
-          style={{ fontSize: '0.75rem' }}
         >
           ✕ Close
         </button>
@@ -64,7 +63,7 @@ export function AdvisorResults({
             {rationale}
           </div>
 
-          <div style={{ display: 'flex', gap: '0.5rem', marginTop: 'auto' }}>
+          <div className="rec-winner-actions">
             <Link href={`/phone/${winner.id}`} className="primary-btn sm">Full Specs & Prices</Link>
             <button className="btn-ghost" onClick={() => onToggleCompare(winner.id)}>+ Compare</button>
           </div>
@@ -93,9 +92,9 @@ export function AdvisorResults({
                       </small>
                     </div>
                   </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
-                    <Link href={`/phone/${r.id}`} className="primary-btn sm" style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem' }}>Details</Link>
-                    <button className="btn-ghost" style={{ padding: '0.3rem 0.6rem', fontSize: '0.75rem' }} onClick={() => onCompareTwo(winner.id, r.id)}>Compare</button>
+                  <div className="rival-actions">
+                    <Link href={`/phone/${r.id}`} className="primary-btn sm">Details</Link>
+                    <button className="btn-ghost sm" onClick={() => onCompareTwo(winner.id, r.id)}>Compare</button>
                   </div>
                 </div>
               ))}

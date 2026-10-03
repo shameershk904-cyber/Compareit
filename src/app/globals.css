@@ -143,7 +143,7 @@ button {
 .container {
   max-width: 1340px;
   margin: 0 auto;
-  padding: 0 clamp(0.75rem, 2.5vw, 1.5rem);
+  padding: 0 clamp(1rem, 3.5vw, 1.75rem);
 }
 
 .hidden {
@@ -247,32 +247,53 @@ button {
 
 /* Modern CSS Grid & Flexbox Header Layout for Mobile & Tablet */
 @media (max-width: 768px) {
+  .site-header {
+    background: #ffffff;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  .badge-full {
+    display: none !important;
+  }
+  .badge-short {
+    display: inline !important;
+  }
   .header-inner {
     display: grid !important;
-    grid-template-columns: 1fr auto !important;
+    grid-template-columns: minmax(0, 1fr) auto !important;
     grid-template-areas:
       "logo controls"
       "search search" !important;
-    row-gap: 0.65rem !important;
-    column-gap: 0.75rem !important;
+    row-gap: 0.55rem !important;
+    column-gap: 0.5rem !important;
     height: auto !important;
-    padding: 0.65rem 0 !important;
+    padding-top: 0.7rem !important;
+    padding-bottom: 0.55rem !important;
+    /* keep .container horizontal padding — do not zero padding-left/right */
     align-items: center !important;
   }
   .logo-area {
     grid-area: logo;
+    min-width: 0;
+  }
+  .main-logo-img {
+    height: 36px;
   }
   .mobile-header-controls {
     grid-area: controls;
     display: flex !important;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.35rem;
     justify-self: end;
   }
   .header-search {
     grid-area: search;
     width: 100% !important;
     max-width: 100% !important;
+  }
+  .search-input-wrapper input {
+    padding: 0.58rem 2.4rem 0.58rem 2.5rem;
+    font-size: 0.84rem;
   }
   .header-actions {
     display: none !important;
@@ -283,9 +304,10 @@ button {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
-    padding: 0.35rem 0;
+    padding: 0.45rem 1.15rem;
     border-bottom: 1px solid var(--border-subtle);
-    background: rgba(255, 255, 255, 0.98);
+    background: #ffffff;
+    box-sizing: border-box;
   }
   .main-nav-bar::-webkit-scrollbar {
     display: none;
@@ -294,22 +316,24 @@ button {
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    gap: 0.4rem;
-    padding: 0 clamp(0.75rem, 2.5vw, 1.5rem);
+    gap: 0.35rem;
+    padding: 0;
     width: max-content;
+    min-width: 100%;
     height: auto;
+    box-sizing: border-box;
   }
   .main-nav-list {
     display: flex;
     align-items: center;
-    gap: 0.35rem;
+    gap: 0.3rem;
   }
   .main-nav-item {
     display: inline-flex;
     align-items: center;
-    gap: 0.35rem;
-    padding: 0.32rem 0.75rem;
-    font-size: 0.76rem;
+    gap: 0.3rem;
+    padding: 0.36rem 0.7rem;
+    font-size: 0.74rem;
     font-weight: 500;
     white-space: nowrap;
     border-radius: var(--radius-full);
@@ -368,6 +392,14 @@ button {
   top: 0;
   z-index: 50;
   box-shadow: 0 2px 15px rgba(0, 0, 0, 0.03);
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+  will-change: transform;
+}
+
+.site-header.is-hidden {
+  transform: translate3d(0, calc(-100% - 2px), 0);
+  box-shadow: none;
+  pointer-events: none;
 }
 
 .header-inner {
@@ -441,7 +473,17 @@ button {
 #phones-section,
 #products-section,
 .products-section {
-  scroll-margin-top: 85px;
+  scroll-margin-top: 110px;
+}
+
+@media (max-width: 768px) {
+  #phones-section,
+  #products-section,
+  .products-section,
+  #advisor-section,
+  #smart-advisor-section {
+    scroll-margin-top: 130px;
+  }
 }
 
 .search-input-wrapper input {
@@ -922,11 +964,11 @@ button {
 @media (max-width: 860px) {
   .advisor-card-compact {
     max-width: 100%;
-    padding: 1rem;
+    padding: 1.1rem;
   }
   .advisor-pill-group {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.4rem;
   }
   .adv-compact-row {
@@ -935,9 +977,18 @@ button {
     gap: 0.35rem;
   }
   .adv-card-tile {
-    min-height: 42px;
-    font-size: 0.74rem;
+    min-height: 44px;
+    font-size: 0.72rem;
     padding: 6px 8px;
+    white-space: normal;
+    line-height: 1.25;
+    border-radius: 12px;
+    flex-wrap: wrap;
+  }
+  .adv-tile-badge-inline {
+    width: 100%;
+    text-align: center;
+    margin-left: 0;
   }
   .advisor-action-strip {
     flex-direction: column;
@@ -1818,6 +1869,28 @@ button {
   text-transform: uppercase;
 }
 
+.badge-short {
+  display: none !important;
+}
+
+.badge-full {
+  display: inline !important;
+}
+
+.rival-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  flex-shrink: 0;
+}
+
+.rival-actions .primary-btn.sm,
+.rival-actions .btn-ghost.sm {
+  padding: 0.3rem 0.6rem;
+  font-size: 0.75rem;
+  height: auto;
+}
+
 /* Card Body */
 .card-body {
   padding: 1.25rem;
@@ -2122,7 +2195,7 @@ button {
    DEDICATED PRODUCT DETAILS PAGE VIEW (#product-page-view)
    ========================================================================== */
 .product-page-inner {
-  padding: 2.25rem 1.5rem 5rem;
+  padding: 2.25rem clamp(1rem, 3.5vw, 1.5rem) 5rem;
 }
 
 /* Breadcrumbs & Navigation */
@@ -2996,6 +3069,14 @@ button {
   gap: 0.5rem;
 }
 
+.dock-cta-short {
+  display: none;
+}
+
+.dock-cta-full {
+  display: inline;
+}
+
 /* ==========================================================================
    MODALS: PTA TAX CALCULATOR — LIQUID GLASS / GLASSMORPHISM
    ========================================================================== */
@@ -3404,15 +3485,143 @@ body.modal-open > *:not(.modal-backdrop) {
 }
 
 /* ==========================================================================
-   RESPONSIVE QUERIES
+   RESPONSIVE QUERIES — Flexbox + CSS Grid mobile system
    ========================================================================== */
+.mobile-filters-bar {
+  display: none;
+}
+
+.mobile-filters-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.mobile-filters-label {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #111111;
+}
+
+.mobile-filters-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.35rem;
+  height: 1.35rem;
+  padding: 0 0.4rem;
+  border-radius: var(--radius-full);
+  background: #ffedd5;
+  color: #c2410c;
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+.mobile-filters-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.mobile-filters-reset {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.74rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.mobile-filters-toggle {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 0.75rem;
+  border-radius: 10px;
+  border: 1px solid var(--border-medium);
+  background: #f4f4f6;
+  color: #18181b;
+  font-size: 0.74rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.mobile-filters-toggle:hover {
+  background: #e4e4e7;
+}
+
+.toolbar-info {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.5rem;
+  min-width: 0;
+}
+
+.toolbar-result-pill {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  background: #f1f3f5;
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+}
+
+.advisor-results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border-subtle);
+  flex-wrap: wrap;
+}
+
+.advisor-results-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.advisor-results-badge {
+  background: #000;
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.advisor-results-heading {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #000;
+}
+
+.rec-winner-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: auto;
+}
+
 @media (max-width: 1024px) {
   .app-layout {
+    display: grid;
     grid-template-columns: 1fr;
-    gap: 1.25rem;
+    gap: 0.85rem;
   }
   .phones-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
   }
   .filters-sidebar {
     position: static;
@@ -3422,7 +3631,18 @@ body.modal-open > *:not(.modal-backdrop) {
   }
   .filters-sidebar.mobile-open {
     display: block !important;
-    margin-bottom: 1.25rem;
+    margin-bottom: 0.5rem;
+  }
+  .mobile-filters-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.75rem 0.9rem;
+    background: #ffffff;
+    border: 1px solid var(--border-subtle);
+    border-radius: 14px;
+    box-shadow: var(--shadow-subtle);
   }
   .advisor-grid-cards {
     grid-template-columns: repeat(2, 1fr);
@@ -3432,6 +3652,8 @@ body.modal-open > *:not(.modal-backdrop) {
   }
   .prod-hero-card {
     grid-template-columns: 1fr;
+    padding: 1.25rem;
+    gap: 1.25rem;
   }
   .competitors-grid {
     grid-template-columns: 1fr;
@@ -3445,16 +3667,99 @@ body.modal-open > *:not(.modal-backdrop) {
   .footer-inner {
     grid-template-columns: 1fr 1fr;
   }
+  .main-content {
+    padding: 1.25rem 0 4.5rem;
+  }
+  .products-toolbar {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.65rem;
+    align-items: start;
+  }
+  .toolbar-sort {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+  }
+  .toolbar-sort .sort-dropdown {
+    flex: 1;
+    max-width: 220px;
+  }
+  .toolbar-info h2 {
+    font-size: 1rem;
+    line-height: 1.3;
+  }
+}
+
+@media (max-width: 860px) {
+  .advisor-section {
+    padding: 0.85rem 0 0.75rem;
+  }
+  .advisor-layout-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .advisor-banner-ad {
+    max-height: 120px;
+  }
+  .banner-placeholder,
+  .banner-image {
+    max-height: 120px;
+  }
+  .advisor-desc-inline {
+    display: none;
+  }
+  .advisor-top-bar {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+  .advisor-headline {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.45rem;
+    flex: 1;
+    min-width: 0;
+  }
+  .advisor-title-compact {
+    font-size: 0.98rem;
+  }
+  .advisor-results {
+    padding: 1rem;
+  }
+  .advisor-results > div:first-child {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
 }
 
 @media (max-width: 640px) {
+  .container {
+    padding-left: 1.25rem !important;
+    padding-right: 1.25rem !important;
+  }
+  .main-nav-bar {
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+  .quick-nav-bar {
+    padding: 0.75rem 0;
+  }
   .quick-nav-inner {
+    display: flex;
     flex-wrap: nowrap;
+    align-items: center;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
-    gap: 0.5rem;
-    padding-bottom: 0.25rem;
+    gap: 0.45rem;
+    padding: 0 0.1rem 0.15rem;
   }
   .quick-nav-inner::-webkit-scrollbar {
     display: none;
@@ -3464,101 +3769,309 @@ body.modal-open > *:not(.modal-backdrop) {
     flex-shrink: 0;
   }
   .quick-pills {
+    display: flex;
     flex-wrap: nowrap;
+    gap: 0.35rem;
   }
   .quick-pill {
     white-space: nowrap;
     flex-shrink: 0;
-  }
-  .advisor-top-bar {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
+    padding: 0.38rem 0.8rem;
+    font-size: 0.74rem;
   }
   .advisor-action-strip {
+    display: flex;
     flex-direction: column;
     align-items: stretch;
-    gap: 0.75rem;
+    gap: 0.65rem;
+  }
+  .advisor-summary-badge {
+    font-size: 0.74rem;
+    line-height: 1.4;
   }
   .advisor-cta-btn {
     width: 100%;
     justify-content: center;
   }
+  .advisor-banner-ad {
+    display: none;
+  }
+  /* Dense 2-column catalog on phones */
   .phones-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.6rem;
+  }
+  .phone-card {
+    border-radius: 14px;
+  }
+  .card-header-bar {
+    padding: 7px 8px 6px;
+    min-height: 34px;
+    gap: 0.25rem;
+  }
+  .badge-pta-approved,
+  .badge-pta-non,
+  .badge-trending {
+    font-size: 0.58rem;
+    padding: 2px 5px;
+  }
+  .card-gallery-pill {
+    display: none;
+  }
+  .rival-actions {
+    flex-direction: row;
+    width: 100%;
+  }
+  .rival-actions .primary-btn.sm,
+  .rival-actions .btn-ghost.sm {
+    flex: 1;
+    justify-content: center;
+  }
+  .rec-winner-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .rec-winner-actions .primary-btn,
+  .rec-winner-actions .btn-ghost {
+    width: 100%;
+    justify-content: center;
+  }
+  .card-top {
+    height: 140px;
+    padding: 0.65rem 0.5rem;
+  }
+  .card-img {
+    max-height: 120px;
+  }
+  .card-body {
+    padding: 0.75rem 0.7rem 0.85rem;
+    gap: 0.45rem;
+  }
+  .card-title {
+    font-size: 0.88rem;
+    line-height: 1.25;
+  }
+  .card-brand {
+    font-size: 0.62rem;
+  }
+  .price-pkr-official {
+    font-size: 1.02rem;
+  }
+  .price-lowest-badge,
+  .price-sub {
+    font-size: 0.65rem;
+  }
+  .spec-matrix {
+    gap: 0.3rem;
+    margin: 0.15rem 0;
+  }
+  .spec-cell {
+    font-size: 0.62rem;
+    padding: 2px 4px;
+    gap: 0.2rem;
+  }
+  .card-actions {
+    display: grid;
     grid-template-columns: 1fr;
+    gap: 0.4rem;
+    margin-top: 0.35rem;
+  }
+  .btn-spec,
+  .btn-compare-card {
+    width: 100%;
+    height: 2rem;
+    font-size: 0.74rem;
+    padding: 0 0.5rem;
+  }
+  .products-section {
+    gap: 0.9rem;
+  }
+  .main-content {
+    padding: 1rem 0 5rem;
+  }
+  .advisor-section .container,
+  .advisor-card-compact {
+    margin-left: 0;
+    margin-right: 0;
+  }
+  .advisor-card-compact {
+    padding: 1rem;
+  }
+  .products-toolbar {
+    padding-left: 0.1rem;
+    padding-right: 0.1rem;
+  }
+  .filters-sidebar {
+    padding: 1rem;
+    border-radius: 14px;
+  }
+  .rec-winner-hero {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+  }
+  .rec-winner-hero h3 {
+    font-size: 1.1rem;
+  }
+  .rival-card {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
   }
   .footer-inner {
     grid-template-columns: 1fr;
-    gap: 1.75rem;
+    gap: 1.5rem;
   }
   .site-footer {
-    padding: 2.25rem 0 2rem;
+    padding: 2rem 0 1.75rem;
   }
-  /* Mobile Compact Compare Dock using Modern CSS Grid */
+  /* Mobile Compact Compare Dock using CSS Grid */
   .compare-dock {
-    bottom: 12px;
+    bottom: 10px;
     padding: 0 0.5rem;
   }
   .compare-dock-inner {
-    padding: 0.55rem 0.85rem;
-    border-radius: 16px;
+    padding: 0.5rem 0.7rem;
+    border-radius: 14px;
     display: grid;
     grid-template-columns: 1fr auto;
     grid-template-areas:
       "info actions"
       "slots slots";
-    gap: 0.45rem;
+    gap: 0.4rem;
     align-items: center;
   }
   .dock-info {
     grid-area: info;
     display: flex;
-    align-items: center;
-    gap: 0.4rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.1rem;
+  }
+  .dock-title {
+    font-size: 0.78rem;
+  }
+  .dock-hint {
+    font-size: 0.68rem;
   }
   .dock-actions {
     grid-area: actions;
     display: flex;
     align-items: center;
-    gap: 0.35rem;
+    gap: 0.3rem;
     justify-self: end;
   }
   .dock-slots {
     grid-area: slots;
     display: flex;
     align-items: center;
-    gap: 0.4rem;
+    gap: 0.35rem;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     width: 100%;
   }
+  .dock-slots::-webkit-scrollbar {
+    display: none;
+  }
   .dock-slot-item {
     padding: 2px 8px 2px 4px;
-    font-size: 0.72rem;
+    font-size: 0.68rem;
     white-space: nowrap;
     flex-shrink: 0;
   }
   .dock-actions .primary-btn {
-    padding: 0.32rem 0.75rem;
-    font-size: 0.75rem;
-    height: 2rem;
+    padding: 0 0.65rem;
+    font-size: 0.72rem;
+    height: 1.9rem;
   }
   .dock-actions .btn-ghost {
-    padding: 0.32rem 0.5rem;
-    font-size: 0.75rem;
+    padding: 0 0.45rem;
+    font-size: 0.72rem;
+    height: 1.9rem;
+  }
+  .dock-cta-full {
+    display: none;
+  }
+  .dock-cta-short {
+    display: inline;
+  }
+  .pagination-container {
+    padding-top: 1.25rem;
+  }
+  .load-more-btn {
+    width: 100%;
+    max-width: 320px;
+  }
+  .empty-state {
+    padding: 2.5rem 1.25rem;
+  }
+  .official-banners-grid {
+    grid-template-columns: 1fr;
+  }
+  .prod-hero-gallery {
+    min-height: 260px;
+    padding: 1.25rem 1rem;
+  }
+  .prod-title {
+    font-size: 1.55rem;
+  }
+  .best-price-amount {
+    font-size: 1.6rem;
+  }
+  .prod-section {
+    padding: 1.15rem;
+    border-radius: 14px;
+  }
+  .comp-label-col {
+    min-width: 100px;
+    width: 110px;
+    padding: 0.75rem 0.65rem;
+    font-size: 0.7rem;
+  }
+  .comp-item-col,
+  .comp-item-val {
+    min-width: 160px;
+    padding: 0.75rem 0.65rem;
+  }
+  .comp-img-wrapper {
+    height: 140px;
+    margin-bottom: 0.75rem;
+    padding: 0.5rem;
   }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 400px) {
   .phones-grid {
     grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  .card-top {
+    height: 180px;
+  }
+  .card-img {
+    max-height: 155px;
+  }
+  .card-body {
+    padding: 1rem 0.9rem 1rem;
+  }
+  .card-title {
+    font-size: 1rem;
+  }
+  .price-pkr-official {
+    font-size: 1.15rem;
+  }
+  .spec-matrix {
+    grid-template-columns: 1fr 1fr;
   }
   .card-actions {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
   }
+  .btn-spec,
   .btn-compare-card {
-    width: 100%;
+    height: 2.15rem;
+    font-size: 0.78rem;
   }
   .banner-inner {
     flex-direction: column;

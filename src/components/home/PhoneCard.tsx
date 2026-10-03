@@ -78,12 +78,12 @@ export function PhoneCard({ phone, isCompared, toggleCompare }: { phone: Phone; 
 
   const ptaBadge = isAvailableWithPrice
     ? (phone.pta_status === 'approved'
-        ? <span className="badge-pta-approved">✓ PTA Approved</span>
-        : <span className="badge-pta-non" title="Non-PTA (Duty required)">⚠️ Non-PTA / JV</span>)
-    : <span className="badge-pta-non" style={{ background: '#f1f5f9', color: '#64748b', border: '1px solid #e2e8f0' }}>Unlisted / Discontinued</span>;
+        ? <span className="badge-pta-approved"><span className="badge-full">✓ PTA Approved</span><span className="badge-short">✓ PTA</span></span>
+        : <span className="badge-pta-non" title="Non-PTA (Duty required)"><span className="badge-full">⚠️ Non-PTA / JV</span><span className="badge-short">⚠️ Non-PTA</span></span>)
+    : <span className="badge-pta-non" style={{ background: '#f1f5f9', color: '#64748b', border: '1px solid #e2e8f0' }}><span className="badge-full">Unlisted / Discontinued</span><span className="badge-short">Unlisted</span></span>;
 
   const isComingSoon = phone.release_date && (phone.release_date.toLowerCase().includes('exp') || phone.release_date.includes('2027') || phone.release_date.includes('2028'));
-  const trendingBadge = phone.popular ? <span className="badge-trending">🔥 Trending</span> : null;
+  const trendingBadge = phone.popular ? <span className="badge-trending"><span className="badge-full">🔥 Trending</span><span className="badge-short">🔥 Hot</span></span> : null;
 
   const ramDisplay = (phone.memory.virtual_ram_gb && phone.memory.virtual_ram_gb > 0)
     ? `${phone.memory.ram_gb}GB + ${phone.memory.virtual_ram_gb}GB`
