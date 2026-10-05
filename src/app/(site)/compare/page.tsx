@@ -26,8 +26,8 @@ export default async function ComparePage(props: {
   const leanPhones: Phone[] = phones.map(({ detailed_specs, ...rest }) => rest as Phone);
 
   return (
-    <main className="w-full bg-surface min-h-screen">
-      <Suspense fallback={<div className="min-h-screen flex items-center justify-center font-['Poppins',sans-serif] text-on-surface">Loading Comparison Matrix...</div>}>
+    <main className="w-full bg-[#f8f9fa] min-h-screen">
+      <Suspense fallback={<div className="min-h-screen flex items-center justify-center font-['Poppins',sans-serif] text-gray-500">Loading Comparison Matrix...</div>}>
         <CompareClient initialPhones={leanPhones} initialCompareSlugs={requestedSlugs} />
       </Suspense>
     </main>

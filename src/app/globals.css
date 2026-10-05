@@ -354,6 +354,188 @@ button {
   }
 }
 
+/* --- MOBILE NAVIGATION DRAWER & PORTAL --- */
+.mobile-nav-portal {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  justify-content: flex-end;
+  pointer-events: auto;
+}
+
+@media (min-width: 769px) {
+  .mobile-nav-portal {
+    display: none !important;
+  }
+}
+
+.mobile-nav-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  z-index: 1;
+  animation: mobileNavFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.mobile-nav-drawer {
+  position: relative;
+  z-index: 2;
+  width: 85%;
+  max-width: 320px;
+  height: 100vh;
+  height: 100dvh;
+  background: #ffffff;
+  box-shadow: -10px 0 35px rgba(0, 0, 0, 0.18);
+  display: flex;
+  flex-direction: column;
+  animation: mobileNavSlideIn 0.26s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  will-change: transform;
+}
+
+@keyframes mobileNavSlideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes mobileNavFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.mobile-nav-header {
+  padding: 1rem 1.15rem;
+  border-bottom: 1px solid var(--border-subtle, #e5e7eb);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+}
+
+.mobile-nav-close-btn {
+  padding: 0.45rem;
+  border-radius: 0.5rem;
+  color: #6b7280;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mobile-nav-close-btn:hover {
+  color: #111827;
+  background: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.mobile-nav-body {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 1rem 1rem 1.5rem;
+}
+
+.mobile-nav-section-title {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #9ca3af;
+  margin-bottom: 0.5rem;
+  padding-left: 0.25rem;
+}
+
+.mobile-nav-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.65rem 0.85rem;
+  border-radius: 0.75rem;
+  color: #374151;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.88rem;
+  transition: all 0.15s ease;
+  border: 1px solid transparent;
+}
+
+.mobile-nav-link:hover {
+  background: #f9fafb;
+  color: #111827;
+}
+
+.mobile-nav-link.is-active {
+  background: #fff7ed;
+  color: #ea580c;
+  font-weight: 600;
+  border-color: rgba(234, 88, 12, 0.2);
+}
+
+.mobile-nav-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mobile-nav-badge {
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.15rem 0.45rem;
+  border-radius: 9999px;
+  background: #ffedd5;
+  color: #c2410c;
+}
+
+.mobile-nav-tool-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0.85rem;
+  border-radius: 0.75rem;
+  background: #f9fafb;
+  border: 1px solid #f3f4f6;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.15s ease;
+  text-align: left;
+}
+
+.mobile-nav-tool-btn:hover {
+  background: #f3f4f6;
+  border-color: #e5e7eb;
+}
+
+.mobile-nav-tool-btn .tool-emoji {
+  font-size: 1.25rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.mobile-nav-footer {
+  padding: 0.9rem 1.15rem;
+  border-top: 1px solid var(--border-subtle, #e5e7eb);
+  background: #fafafa;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 /* --- TOP ANNOUNCEMENT BANNER (CLEAN WHITE EDITORIAL) --- */
 .top-banner {
   background: #ffffff;
@@ -948,6 +1130,7 @@ button {
   }
   .advisor-banner-ad {
     width: 100%;
+    max-width: 100%;
     max-height: 180px;
     overflow: hidden;
     border-radius: 16px;
@@ -999,6 +1182,122 @@ button {
     width: 100%;
     justify-content: center;
     height: 2.75rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .advisor-section {
+    padding: 0.65rem 0 0.4rem;
+  }
+
+  .advisor-banner-ad {
+    display: none !important;
+  }
+
+  .advisor-card-compact {
+    padding: 0.85rem 1rem !important;
+    border-radius: 14px;
+  }
+
+  /* Fix mobile layout: stack headline and actions so title has full width and never overlaps */
+  .advisor-top-bar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.5rem !important;
+  }
+
+  .advisor-headline {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    flex-wrap: wrap !important;
+    width: 100% !important;
+  }
+
+  .advisor-title-compact {
+    font-size: 0.98rem !important;
+    line-height: 1.25 !important;
+    white-space: nowrap !important;
+  }
+
+  .advisor-desc-inline {
+    display: none !important;
+  }
+
+  .advisor-top-actions {
+    display: flex !important;
+    align-items: center !important;
+    width: 100% !important;
+    gap: 0.35rem !important;
+    flex-wrap: wrap !important;
+  }
+
+  .advisor-top-actions .step-tag {
+    display: inline-flex !important;
+    align-items: center !important;
+    padding: 2.5px 8px !important;
+    background: #f4f4f6 !important;
+    border: 1px solid var(--border-medium, #e2e8f0) !important;
+    border-radius: 9999px !important;
+    font-size: 0.68rem !important;
+    font-weight: 500 !important;
+    color: #111827 !important;
+    white-space: nowrap !important;
+  }
+
+  .advisor-top-actions .step-tag.hidden {
+    display: none !important;
+  }
+
+  .advisor-top-actions .advisor-toggle-btn {
+    margin-left: auto !important;
+    padding: 3.5px 10px !important;
+    font-size: 0.72rem !important;
+    border-radius: 9999px !important;
+  }
+
+  .advisor-form-compact {
+    margin-top: 0.75rem !important;
+    padding-top: 0.75rem !important;
+    gap: 0.55rem !important;
+  }
+
+  .advisor-pill-group {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 0.35rem !important;
+  }
+
+  .adv-compact-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.25rem !important;
+  }
+
+  .adv-row-label {
+    font-size: 0.70rem !important;
+    width: auto !important;
+  }
+
+  .adv-card-tile {
+    min-height: 38px !important;
+    font-size: 0.70rem !important;
+    padding: 4px 6px !important;
+    border-radius: 10px !important;
+  }
+
+  .advisor-action-strip {
+    padding-top: 0.65rem !important;
+    margin-top: 0.15rem !important;
+  }
+
+  .advisor-summary-badge {
+    font-size: 0.72rem !important;
+    line-height: 1.3 !important;
+  }
+
+  .advisor-cta-btn {
+    height: 2.5rem !important;
+    font-size: 0.78rem !important;
   }
 }
 

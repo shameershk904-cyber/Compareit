@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 
 const BRANDS = ["Samsung", "Apple", "Oppo", "Huawei"];
 
@@ -78,17 +79,25 @@ export function Header() {
   const [isFocused, setIsFocused] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isHeaderHidden, setIsHeaderHidden] = useState(false);
+  const [mounted, setMounted] = useState(false);
   
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const lastScrollYRef = useRef(0);
   const tickingRef = useRef(false);
+  const isMobileMenuOpenRef = useRef(false);
+  isMobileMenuOpenRef.current = isMobileMenuOpen;
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Auto-hide topbar on scroll down; reveal on scroll up
   useEffect(() => {
     lastScrollYRef.current = window.scrollY;
 
     const updateHeaderVisibility = () => {
+      if (isMobileMenuOpenRef.current) return;
       const currentY = window.scrollY;
       const lastY = lastScrollYRef.current;
       const delta = currentY - lastY;
@@ -428,9 +437,10 @@ export function Header() {
             type="button"
             id="mobile-menu-btn"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="p-2 rounded-xl text-gray-800 hover:text-gray-900 hover:bg-gray-100 transition-colors inline-flex items-center justify-center border border-gray-200"
-            aria-label="Open navigation menu"
+            className="p-2 rounded-xl text-gray-800 hover:text-gray-900 hover:bg-gray-100 transition-colors inline-flex items-center justify-center border border-gray-200 cursor-pointer"
+            aria-label={isMobileMenuOpen ? "Close navigation menu" : "Open navigation menu"}
             aria-expanded={isMobileMenuOpen}
+            aria-controls="mobile-nav-drawer"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               {isMobileMenuOpen ? (
@@ -480,42 +490,49 @@ export function Header() {
         </div>
       </nav>
 
-      {/* ─── MOBILE SLIDE-OUT DRAWER ─── */}
-      {isMobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 z-50">
+      {/* ─── MOBILE SLIDE-OUT DRAWER PORTAL ─── */}
+      {mounted && isMobileMenuOpen && typeof document !== "undefined" && createPortal(
+        <div 
+          className="mobile-nav-portal" 
+          role="dialog" 
+          aria-modal="true" 
+          aria-label="Mobile Navigation"
+          id="mobile-nav-drawer"
+        >
           {/* Backdrop */}
           <div
-            className="fixed inset-0 bg-black/40 backdrop-blur-xs transition-opacity"
+            className="mobile-nav-backdrop"
             onClick={() => setIsMobileMenuOpen(false)}
             aria-hidden="true"
           />
 
           {/* Drawer content */}
-          <div className="fixed inset-y-0 right-0 w-4/5 max-w-xs bg-white shadow-2xl z-10 flex flex-col justify-between animate-in slide-in-from-right duration-200">
-            <div>
-              {/* Header */}
-              <div className="p-4 border-b border-gray-100 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <img src="/logo.png" alt="CompareIt.pk" className="h-6 w-auto object-contain" />
-                  <span className="text-xs font-bold text-gray-900 uppercase tracking-wider">Navigation</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="p-1 rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100 transition-colors"
-                  aria-label="Close menu"
-                >
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
+          <div className="mobile-nav-drawer">
+            {/* Header */}
+            <div className="mobile-nav-header">
+              <Link 
+                href="/" 
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="flex items-center gap-2.5 no-underline"
+              >
+                <img src="/logo.png" alt="CompareIt.pk" className="h-7 w-auto object-contain" />
+              </Link>
+              <button
+                type="button"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="mobile-nav-close-btn"
+                aria-label="Close menu"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
 
-              {/* Navigation Links */}
-              <nav className="p-3 flex flex-col gap-1">
-                <div className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 px-3 py-1">
-                  Main Pages
-                </div>
+            {/* Navigation Body */}
+            <div className="mobile-nav-body">
+              <div className="mobile-nav-section-title">Main Pages</div>
+              <nav className="flex flex-col gap-1 mb-5" aria-label="Mobile Main Navigation">
                 {NAV_ITEMS.map((item) => {
                   const active = isItemActive(item.href);
                   return (
@@ -523,78 +540,82 @@ export function Header() {
                       key={item.href}
                       href={item.href}
                       onClick={() => setIsMobileMenuOpen(false)}
-                      className={`px-3 py-2.5 rounded-xl text-sm font-medium transition-all flex items-center justify-between ${
-                        active
-                          ? "text-orange-600 bg-orange-50 font-semibold border border-orange-200/50"
-                          : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
-                      }`}
+                      className={`mobile-nav-link ${active ? "is-active" : ""}`}
                     >
                       <div className="flex items-center gap-3">
-                        {item.svgIcon}
-                        <span>{item.label}</span>
+                        <span className="mobile-nav-icon">{item.svgIcon}</span>
+                        <span className="font-medium text-sm">{item.label}</span>
                       </div>
                       {item.badge && (
-                        <span className="text-[9px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-orange-100 text-orange-700">
+                        <span className="mobile-nav-badge">
                           {item.badge}
                         </span>
                       )}
                     </Link>
                   );
                 })}
-
-                {/* Quick Tools in Drawer */}
-                <div className="mt-3 pt-3 border-t border-gray-100">
-                  <div className="text-[10px] font-semibold uppercase tracking-wider text-gray-400 px-3 py-1">
-                    Tools & Calculators
-                  </div>
-                  <div className="flex flex-col gap-1 mt-1">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsMobileMenuOpen(false);
-                        const currentParams = new URLSearchParams(Array.from(searchParams.entries()));
-                        currentParams.set("taxCalc", "open");
-                        router.push(`${pathname}?${currentParams.toString()}`, { scroll: false });
-                      }}
-                      className="w-full text-left px-3 py-2 rounded-xl text-xs font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2.5 transition-colors"
-                    >
-                      <span className="text-base">📋</span>
-                      PTA Tax Calculator
-                    </button>
-                    <Link
-                      href={pathname === "/compare" ? "/compare" : `/compare?from=${encodeURIComponent(pathname)}`}
-                      onClick={() => setIsMobileMenuOpen(false)}
-                      className="w-full text-left px-3 py-2 rounded-xl text-xs font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2.5 transition-colors"
-                    >
-                      <span className="text-base">⚖️</span>
-                      Side-by-Side Compare
-                    </Link>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsMobileMenuOpen(false);
-                        scrollToAdvisor();
-                      }}
-                      className="w-full text-left px-3 py-2 rounded-xl text-xs font-medium text-gray-700 hover:bg-gray-50 flex items-center gap-2.5 transition-colors"
-                    >
-                      <span className="text-base">✨</span>
-                      Smart Phone Finder
-                    </button>
-                  </div>
-                </div>
               </nav>
+
+              {/* Quick Tools in Drawer */}
+              <div className="mobile-nav-section-title">Quick Tools & Calculators</div>
+              <div className="flex flex-col gap-2 mb-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    const currentParams = new URLSearchParams(Array.from(searchParams.entries()));
+                    currentParams.set("taxCalc", "open");
+                    router.push(`${pathname}?${currentParams.toString()}`, { scroll: false });
+                  }}
+                  className="mobile-nav-tool-btn"
+                >
+                  <span className="tool-emoji">📋</span>
+                  <div className="flex flex-col text-left">
+                    <span className="text-xs font-semibold text-gray-900">PTA DIRBS Tax Calculator</span>
+                    <span className="text-[10px] text-gray-500">Calculate Passport & CNIC custom duties</span>
+                  </div>
+                </button>
+
+                <Link
+                  href={pathname === "/compare" ? "/compare" : `/compare?from=${encodeURIComponent(pathname)}`}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="mobile-nav-tool-btn"
+                >
+                  <span className="tool-emoji">⚖️</span>
+                  <div className="flex flex-col text-left">
+                    <span className="text-xs font-semibold text-gray-900">Side-by-Side Compare</span>
+                    <span className="text-[10px] text-gray-500">Compare specs & prices of up to 4 phones</span>
+                  </div>
+                </Link>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    scrollToAdvisor();
+                  }}
+                  className="mobile-nav-tool-btn"
+                >
+                  <span className="tool-emoji">✨</span>
+                  <div className="flex flex-col text-left">
+                    <span className="text-xs font-semibold text-gray-900">Smart Phone Finder</span>
+                    <span className="text-[10px] text-gray-500">Find the best match by budget and features</span>
+                  </div>
+                </button>
+              </div>
             </div>
 
             {/* Drawer Footer */}
-            <div className="p-4 border-t border-gray-100 bg-gray-50 text-[11px] text-gray-500 flex items-center justify-between">
-              <span>© 2025 CompareIt.pk</span>
-              <span className="text-emerald-600 font-medium flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+            <div className="mobile-nav-footer">
+              <span className="text-[11px] text-gray-500 font-medium">© 2025 CompareIt.pk</span>
+              <span className="text-[11px] text-emerald-600 font-semibold flex items-center gap-1.5">
+                <span className="pulse-dot" />
                 Live Rates
               </span>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </header>
   );

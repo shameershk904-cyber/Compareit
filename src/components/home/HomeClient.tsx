@@ -110,6 +110,25 @@ function HomeClientInner({ initialPhones }: HomeClientProps) {
   const [advisorCollapsed, setAdvisorCollapsed] = useState(false);
   const [advisorResults, setAdvisorResults] = useState<{ winner: Phone; rivals: Phone[]; rationale: string; maxBudget: number } | null>(null);
 
+  // Minimize Smart Recommendation Advisor by default on mobile screens
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.innerWidth <= 768) {
+      if (window.location.hash !== "#advisor-section" && window.location.hash !== "#smart-advisor-section") {
+        setAdvisorCollapsed(true);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      if (window.location.hash === "#advisor-section" || window.location.hash === "#smart-advisor-section") {
+        setAdvisorCollapsed(false);
+      }
+    };
+    window.addEventListener("hashchange", handleHashChange);
+    return () => window.removeEventListener("hashchange", handleHashChange);
+  }, []);
+
   const runSmartAdvisor = () => {
     let candidates = initialPhones.filter(p => {
       // Must have a confirmed price — never include Price N/A phones in budget searches
