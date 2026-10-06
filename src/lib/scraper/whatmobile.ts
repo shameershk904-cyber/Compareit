@@ -13,6 +13,17 @@ export interface ScrapedPriceResult {
   url: string;
   error?: string;
   statusCode?: number;
+  heading?: string;
+  pageTitle?: string;
+  isVariantMismatch?: boolean;
+  usedCachedUrl?: boolean;
+}
+
+export interface VariantSafetyResult {
+  isSafe: boolean;
+  reason?: string;
+  expectedVariant?: string;
+  actualVariant?: string;
 }
 
 // Canonical map for high-traffic phones where slug differs from WhatMobile URL path
@@ -49,8 +60,7 @@ export const WHATMOBILE_URL_MAP: Record<string, string> = {
   "tecno-camon-30": "/Tecno_Camon-30",
   "tecno-spark-20-pro-plus": "/Tecno_Spark-20-Pro-Plus",
   "tecno-spark-go-2024": "/Tecno_Spark-Go-2024",
-  "itel-a50c-special-edition": "/itel_A50c",
-  "itel-itel-a50c-special-edition": "/itel_A50c",
+  "nokia-5710": "/Nokia_5710-Xpress-Audio",
   "itel-s23-plus": "/itel_S23-Plus",
   "itel-a70": "/itel_A70",
   "vivo-v30": "/Vivo_V30",
@@ -60,6 +70,25 @@ export const WHATMOBILE_URL_MAP: Record<string, string> = {
   "realme-12-plus": "/Realme_12-Plus",
   "realme-c67": "/Realme_C67",
 };
+
+// In-memory runtime cache for confirmed working WhatMobile URLs
+export const CONFIRMED_URL_CACHE = new Map<string, string>();
+
+export function getCachedConfirmedUrl(slug: string): string | undefined {
+  return CONFIRMED_URL_CACHE.get(slug) || WHATMOBILE_URL_MAP[slug];
+}
+
+export function setCachedConfirmedUrl(slug: string, urlOrPath: string): void {
+  let path = urlOrPath;
+  if (path.startsWith("http")) {
+    try {
+      path = new URL(path).pathname;
+    } catch {}
+  }
+  if (path && path.startsWith("/")) {
+    CONFIRMED_URL_CACHE.set(slug, path);
+  }
+}
 
 /**
  * Resolves a WhatMobile path for a given phone slug, brand, and model
@@ -190,7 +219,262 @@ export function parseWhatMobilePrice(html: string): { pricePkr?: number; usdPric
 }
 
 /**
- * Scrapes WhatMobile for a phone's price
+ * Canonical variant tokens that distinguish model editions within a phone family
+ */
+export const VARIANT_KEYWORDS: string[] = [
+  "special edition",
+  "fan edition",
+  "pro plus",
+  "pro+",
+  "pro max",
+  "pro",
+  "plus",
+  "ultra",
+  "max",
+  "lite",
+  "mini",
+  "fe",
+  "neo",
+  "gt",
+  "play",
+  "power",
+  "prime",
+  "se",
+  "youth",
+  "zoom",
+  "sport",
+  "explorer",
+  "turbo",
+  "ace",
+];
+
+function normalizeText(str: string): string {
+  return (str || "")
+    .toLowerCase()
+    .replace(/\+/g, " plus ")
+    .replace(/[^a-z0-9\s]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/**
+ * Extracts distinct variant tokens from text (e.g. "Special Edition", "Pro Max")
+ */
+export function extractVariantTokens(text: string): string[] {
+  const norm = normalizeText(text);
+  const words = norm.split(" ");
+  const found = new Set<string>();
+
+  for (const kw of VARIANT_KEYWORDS) {
+    const kwNorm = normalizeText(kw);
+    if (kwNorm.includes(" ")) {
+      if (norm.includes(kwNorm)) {
+        found.add(kwNorm);
+      }
+    } else {
+      if (words.includes(kwNorm)) {
+        found.add(kwNorm);
+      }
+    }
+  }
+
+  // Remove subsumed substrings: if "pro max" is present, don't also treat as separate "pro" or "max"
+  if (found.has("pro max")) {
+    found.delete("pro");
+    found.delete("max");
+  }
+  if (found.has("pro plus")) {
+    found.delete("pro");
+    found.delete("plus");
+  }
+
+  return Array.from(found);
+}
+
+/**
+ * Validates that a scraped page's title and heading actually correspond to the intended phone variant,
+ * preventing silent wrong-product matches (e.g. base model matching a Special Edition or Pro variant).
+ */
+export function checkVariantSafety(
+  brand: string,
+  model: string,
+  pageHeading: string,
+  pageTitle: string
+): VariantSafetyResult {
+  const modelVariants = extractVariantTokens(model);
+  const pageText = `${pageHeading || ""} ${pageTitle || ""}`;
+  const pageVariants = extractVariantTokens(pageText);
+
+  // 1. If DB model requires specific variant(s), page MUST contain them
+  for (const v of modelVariants) {
+    if (!pageVariants.includes(v)) {
+      return {
+        isSafe: false,
+        reason: `Model requires variant '${v}', but page only contains [${pageVariants.join(", ") || "none"}]`,
+        expectedVariant: v,
+        actualVariant: pageVariants.join(", ") || "none",
+      };
+    }
+  }
+
+  // 2. If page has prominent variant(s) that DB model DOES NOT have, it is a mismatch
+  // E.g. DB is base "iPhone 15", page is "iPhone 15 Pro"
+  for (const pv of pageVariants) {
+    if (!modelVariants.includes(pv)) {
+      return {
+        isSafe: false,
+        reason: `Page is for variant '${pv}', but model is '${model}' (not a '${pv}' variant)`,
+        expectedVariant: modelVariants.join(", ") || "none",
+        actualVariant: pv,
+      };
+    }
+  }
+
+  // 3. Network generation check (5G vs 4G)
+  const normModel = normalizeText(model);
+  const normPage = normalizeText(pageText);
+  const modelHas5G = /\b5g\b/.test(normModel);
+  const modelHas4G = /\b4g\b/.test(normModel);
+  const pageHas5G = /\b5g\b/.test(normPage);
+  const pageHas4G = /\b4g\b/.test(normPage);
+
+  if (modelHas4G && pageHas5G && !pageHas4G) {
+    return {
+      isSafe: false,
+      reason: "Model specifies 4G, but page represents a 5G variant",
+      expectedVariant: "4G",
+      actualVariant: "5G",
+    };
+  }
+
+  // 4. Core identifier check: verify core numeric / key tokens are present on page
+  let coreModel = normalizeText(model);
+  for (const v of modelVariants) {
+    coreModel = coreModel.replace(new RegExp(`\\b${v}\\b`, "g"), "").trim();
+  }
+  coreModel = coreModel.replace(/\s+/g, " ").trim();
+
+  if (coreModel.length >= 2) {
+    const coreWords = coreModel.split(" ").filter((w) => w.length > 1);
+    const missingCoreWord = coreWords.some((w) => !normPage.includes(w));
+    if (missingCoreWord) {
+      return {
+        isSafe: false,
+        reason: `Core model '${coreModel}' not found in page heading or title`,
+        expectedVariant: coreModel,
+        actualVariant: pageText.slice(0, 50),
+      };
+    }
+  }
+
+  return { isSafe: true };
+}
+
+/**
+ * Generates intelligent fallback candidate paths for WhatMobile
+ */
+export function generateFallbackPaths(slug: string, brand: string, model: string): string[] {
+  const fallbacks: string[] = [];
+  const b = (brand || "").trim();
+  const cleanBrand = b.replace(/\s+/g, "_");
+  let cleanModel = (model || "").trim();
+  while (cleanModel.toLowerCase().startsWith(b.toLowerCase() + " ")) {
+    cleanModel = cleanModel.slice(b.length).trim();
+  }
+
+  // 1. Nokia XpressAudio / Xpress Audio
+  if (b.toLowerCase() === "nokia" && cleanModel.includes("5710")) {
+    fallbacks.push("/Nokia_5710-Xpress-Audio");
+    fallbacks.push("/Nokia_5710-XpressAudio");
+  }
+
+  // 2. Sub-brand Poco under Xiaomi
+  if (/^poco/i.test(cleanModel)) {
+    const pocoModel = cleanModel.replace(/^poco\s*/i, "Poco-");
+    fallbacks.push(`/Xiaomi_${pocoModel}`);
+  }
+
+  // 3. Lowercase brand prefix (e.g. itel_ vs Itel_)
+  if (cleanBrand.toLowerCase() === "itel") {
+    const itelModel = cleanModel.replace(/\+/g, "-Plus").replace(/\s+/g, "-");
+    fallbacks.push(`/itel_${itelModel}`);
+    fallbacks.push(`/Itel_${itelModel}`);
+  }
+
+  // 4. Strip trailing 5G / 4G
+  if (/\s+(5G|4G)$/i.test(cleanModel)) {
+    const stripped = cleanModel
+      .replace(/\s+(5G|4G)$/i, "")
+      .trim()
+      .replace(/\+/g, "-Plus")
+      .replace(/\s+/g, "-");
+    fallbacks.push(`/${cleanBrand}_${stripped}`);
+  }
+
+  // 5. Hyphen variations for multi-word models
+  const hyphenModel = cleanModel.replace(/\s+/g, "-").replace(/\+/g, "-Plus");
+  fallbacks.push(`/${cleanBrand}_${hyphenModel}`);
+
+  return fallbacks;
+}
+
+/**
+ * Returns prioritized list of candidate WhatMobile paths to try:
+ * 1. Cached confirmed URL from DB / caller
+ * 2. Runtime cached confirmed URL
+ * 3. Static canonical map
+ * 4. Primary resolved path
+ * 5. Intelligent fallback variations
+ */
+export function getCandidateWhatMobilePaths(
+  slug: string,
+  brand: string,
+  model: string,
+  existingUrl?: string
+): string[] {
+  const candidates: string[] = [];
+
+  // 1. Cached confirmed URL from DB / caller
+  if (existingUrl && existingUrl.includes("whatmobile.com.pk")) {
+    try {
+      const parsed = new URL(existingUrl);
+      if (parsed.pathname && parsed.pathname.length > 1 && !candidates.includes(parsed.pathname)) {
+        candidates.push(parsed.pathname);
+      }
+    } catch {}
+  }
+
+  // 2. Runtime cached confirmed URL
+  const runtimeCached = CONFIRMED_URL_CACHE.get(slug);
+  if (runtimeCached && !candidates.includes(runtimeCached)) {
+    candidates.push(runtimeCached);
+  }
+
+  // 3. Static canonical map
+  if (WHATMOBILE_URL_MAP[slug] && !candidates.includes(WHATMOBILE_URL_MAP[slug])) {
+    candidates.push(WHATMOBILE_URL_MAP[slug]);
+  }
+
+  // 4. Primary resolved path
+  const primaryPath = resolveWhatMobilePath(slug, brand, model);
+  if (!candidates.includes(primaryPath)) {
+    candidates.push(primaryPath);
+  }
+
+  // 5. Intelligent fallback variations
+  const fallbacks = generateFallbackPaths(slug, brand, model);
+  for (const fb of fallbacks) {
+    if (!candidates.includes(fb)) {
+      candidates.push(fb);
+    }
+  }
+
+  return candidates;
+}
+
+/**
+ * Scrapes WhatMobile for a phone's price using cached confirmed URLs,
+ * candidate fallbacks, and strict variant-suffix safety checks.
  */
 export async function scrapeWhatMobilePhonePrice(
   slug: string,
@@ -198,68 +482,128 @@ export async function scrapeWhatMobilePhonePrice(
   model: string,
   existingUrl?: string
 ): Promise<ScrapedPriceResult> {
-  const targetPath =
-    existingUrl && existingUrl.includes("whatmobile.com.pk")
-      ? new URL(existingUrl).pathname
-      : resolveWhatMobilePath(slug, brand, model);
+  const candidatePaths = getCandidateWhatMobilePaths(slug, brand, model, existingUrl);
+  let lastError = "";
+  let lastStatusCode = 404;
+  let variantMismatchError = "";
+  let variantMismatchHeading = "";
+  let variantMismatchTitle = "";
 
-  const fullUrl = `https://www.whatmobile.com.pk${targetPath.startsWith("/") ? targetPath : `/${targetPath}`}`;
+  for (let i = 0; i < candidatePaths.length; i++) {
+    const targetPath = candidatePaths[i];
+    const fullUrl = `https://www.whatmobile.com.pk${targetPath.startsWith("/") ? targetPath : `/${targetPath}`}`;
 
-  try {
-    const { status, html } = await fetchWhatMobileHtml(targetPath);
+    try {
+      const { status, html } = await fetchWhatMobileHtml(targetPath);
 
-    if (status !== 200) {
-      return {
-        success: false,
-        url: fullUrl,
-        statusCode: status,
-        error: `HTTP status ${status}`,
-      };
-    }
-
-    const parsed = parseWhatMobilePrice(html);
-    if (!parsed || !parsed.pricePkr) {
-      if (html.includes("Coming Soon")) {
-        const expMatch = html.match(/Expected\s+Rs\.?:\s*<[^>]+>([\d,]+)<\/[^>]+>/i);
-        const expPrice = expMatch ? parseInt(expMatch[1].replace(/,/g, ""), 10) : undefined;
-        return {
-          success: false,
-          url: fullUrl,
-          statusCode: 200,
-          error: `Unreleased model: Marked as 'Coming Soon' on WhatMobile${expPrice ? ` (Expected: Rs ${expPrice.toLocaleString()})` : ""}`,
-        };
+      if (
+        status === 404 ||
+        html.includes("Page Not Found") ||
+        html.includes("404 - Not Found")
+      ) {
+        lastStatusCode = 404;
+        continue; // Fallback to next candidate
       }
 
-      if (html.includes("Discontinued")) {
-        return {
-          success: false,
-          url: fullUrl,
-          statusCode: 200,
-          error: "Model marked as 'Discontinued' on WhatMobile (no active retail price)",
-        };
+      if (status !== 200) {
+        lastStatusCode = status;
+        lastError = `HTTP status ${status}`;
+        continue;
       }
 
+      // Extract page title & heading
+      const titleMatch = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+      const pageTitle = titleMatch ? titleMatch[1].replace(/\s+/g, " ").trim() : "";
+
+      const h1Match = html.match(/<h1[^>]*>([\s\S]*?)<\/h1>/i);
+      const specHeadingMatch = html.match(/class="specs-mainheading"[^>]*>([\s\S]*?)<\/td>/i);
+      const rawHeading = h1Match ? h1Match[1] : specHeadingMatch ? specHeadingMatch[1] : "";
+      const pageHeading = rawHeading.replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
+
+      // Check soft-404 where WhatMobile returns 200 but renders error template
+      if (!pageHeading && (!pageTitle || pageTitle.toLowerCase().startsWith("whatmobile"))) {
+        lastStatusCode = 404;
+        continue;
+      }
+
+      // VARIANT-SUFFIX SAFETY CHECK: verify that this page is truly for the requested variant
+      const safety = checkVariantSafety(brand, model, pageHeading, pageTitle);
+      if (!safety.isSafe) {
+        variantMismatchError = `Variant mismatch: ${safety.reason}`;
+        variantMismatchHeading = pageHeading;
+        variantMismatchTitle = pageTitle;
+        // Do NOT accept wrong variant! Continue trying other candidate paths if available
+        continue;
+      }
+
+      // Parse price
+      const parsed = parseWhatMobilePrice(html);
+      if (!parsed || !parsed.pricePkr) {
+        if (html.includes("Coming Soon")) {
+          const expMatch = html.match(/Expected\s+Rs\.?:\s*<[^>]+>([\d,]+)<\/[^>]+>/i);
+          const expPrice = expMatch ? parseInt(expMatch[1].replace(/,/g, ""), 10) : undefined;
+          return {
+            success: false,
+            url: fullUrl,
+            statusCode: 200,
+            heading: pageHeading,
+            pageTitle,
+            error: `Unreleased model: Marked as 'Coming Soon' on WhatMobile${expPrice ? ` (Expected: Rs ${expPrice.toLocaleString()})` : ""}`,
+          };
+        }
+
+        if (html.includes("Discontinued")) {
+          return {
+            success: false,
+            url: fullUrl,
+            statusCode: 200,
+            heading: pageHeading,
+            pageTitle,
+            error: "Model marked as 'Discontinued' on WhatMobile (no active retail price)",
+          };
+        }
+
+        lastError = "Price element not found in HTML (possible unlisted or discontinued model)";
+        continue;
+      }
+
+      // Successful scrape: Cache confirmed working path
+      setCachedConfirmedUrl(slug, targetPath);
+
       return {
-        success: false,
+        success: true,
+        pricePkr: parsed.pricePkr,
+        usdPrice: parsed.usdPrice,
         url: fullUrl,
         statusCode: 200,
-        error: "Price element not found in HTML (possible unlisted or discontinued model)",
+        heading: pageHeading,
+        pageTitle,
+        usedCachedUrl: i === 0 && Boolean(existingUrl || CONFIRMED_URL_CACHE.has(slug)),
       };
+    } catch (err: unknown) {
+      lastError = err instanceof Error ? err.message : String(err);
     }
+  }
 
-    return {
-      success: true,
-      pricePkr: parsed.pricePkr,
-      usdPrice: parsed.usdPrice,
-      url: fullUrl,
-      statusCode: 200,
-    };
-  } catch (err: unknown) {
-    const message = err instanceof Error ? err.message : String(err);
+  // All candidates failed or were rejected
+  const primaryFallback = `https://www.whatmobile.com.pk${candidatePaths[0] || resolveWhatMobilePath(slug, brand, model)}`;
+
+  if (variantMismatchError) {
     return {
       success: false,
-      url: fullUrl,
-      error: message,
+      url: primaryFallback,
+      statusCode: 200,
+      isVariantMismatch: true,
+      heading: variantMismatchHeading,
+      pageTitle: variantMismatchTitle,
+      error: variantMismatchError,
     };
   }
+
+  return {
+    success: false,
+    url: primaryFallback,
+    statusCode: lastStatusCode,
+    error: lastError || `HTTP status ${lastStatusCode}: URL not found on WhatMobile`,
+  };
 }
