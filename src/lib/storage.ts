@@ -14,15 +14,12 @@ function getSupabaseAdmin(): SupabaseClient {
     );
   }
 
-  const serviceRoleKey =
-    process.env.SUPABASE_SERVICE_ROLE_KEY ||
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-    "";
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-  if (!serviceRoleKey) {
+  if (!serviceRoleKey || serviceRoleKey.startsWith("[") || serviceRoleKey.trim().length === 0) {
     throw new Error(
-      "Supabase service role key is not configured. " +
-        "Set SUPABASE_SERVICE_ROLE_KEY (or NEXT_PUBLIC_SUPABASE_ANON_KEY) in your environment."
+      "SUPABASE_SERVICE_ROLE_KEY is not configured or is a placeholder. " +
+        "A valid service role key is required for admin storage operations."
     );
   }
 

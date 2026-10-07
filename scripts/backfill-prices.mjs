@@ -39,16 +39,19 @@ if (existsSync(envLocalPath)) dotenv.config({ path: envLocalPath });
 else if (existsSync(envPath)) dotenv.config({ path: envPath });
 
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const SUPABASE_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-// Use service role key for writes if valid, otherwise fall back to anon key (which has full write access)
-const rawServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const isRealServiceKey = Boolean(rawServiceKey && !rawServiceKey.startsWith("[") && rawServiceKey.length > 50);
-const SUPABASE_WRITE_KEY = isRealServiceKey ? rawServiceKey : SUPABASE_KEY;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-if (!SUPABASE_URL || !SUPABASE_KEY) {
-  console.error("❌  Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY");
+if (!SUPABASE_URL) {
+  console.error("❌  Missing NEXT_PUBLIC_SUPABASE_URL");
   process.exit(1);
 }
+
+if (!SUPABASE_SERVICE_ROLE_KEY || SUPABASE_SERVICE_ROLE_KEY.startsWith("[") || SUPABASE_SERVICE_ROLE_KEY.trim().length < 50) {
+  console.error("❌  Missing or invalid SUPABASE_SERVICE_ROLE_KEY. Real service role key is required (anon-key fallback removed).");
+  process.exit(1);
+}
+
+const SUPABASE_WRITE_KEY = SUPABASE_SERVICE_ROLE_KEY;
 
 // ─── CLI arg parsing ──────────────────────────────────────────────────────────
 
@@ -72,7 +75,7 @@ const DRY_RUN          = hasFlag("dry-run");
 
 // ─── Supabase helpers ─────────────────────────────────────────────────────────
 
-const READ_HEADERS  = { apikey: SUPABASE_KEY,       Authorization: `Bearer ${SUPABASE_KEY}` };
+const READ_HEADERS  = { apikey: SUPABASE_SERVICE_ROLE_KEY, Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}` };
 const WRITE_HEADERS = { apikey: SUPABASE_WRITE_KEY, Authorization: `Bearer ${SUPABASE_WRITE_KEY}`, "Content-Type": "application/json", Prefer: "return=minimal" };
 
 async function supabaseFetch(path, opts = {}) {
