@@ -454,7 +454,7 @@ export function Header() {
       </div>
 
       {/* ─── DESKTOP MAIN NAVIGATION SUB-BAR ─── */}
-      <nav className="main-nav-bar" aria-label="Main Navigation">
+      <nav className="main-nav-bar hidden md:block" aria-label="Main Navigation">
         <div className="main-nav-inner">
           <ul className="main-nav-list">
             {NAV_ITEMS.map((item) => {

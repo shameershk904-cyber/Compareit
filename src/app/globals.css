@@ -298,19 +298,9 @@ button {
   .header-actions {
     display: none !important;
   }
-  /* Fluid swipeable navigation pill bar on mobile */
+  /* Hide navigation pill bar on mobile view because items are already inside the three-line menu drawer */
   .main-nav-bar {
-    display: block !important;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    padding: 0.45rem 1.15rem;
-    border-bottom: 1px solid var(--border-subtle);
-    background: #ffffff;
-    box-sizing: border-box;
-  }
-  .main-nav-bar::-webkit-scrollbar {
-    display: none;
+    display: none !important;
   }
   .main-nav-inner {
     display: flex;
@@ -4042,10 +4032,6 @@ body.modal-open > *:not(.modal-backdrop) {
   .container {
     padding-left: 1.25rem !important;
     padding-right: 1.25rem !important;
-  }
-  .main-nav-bar {
-    padding-left: 1.25rem;
-    padding-right: 1.25rem;
   }
   .quick-nav-bar {
     padding: 0.75rem 0;

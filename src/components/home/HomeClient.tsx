@@ -351,7 +351,7 @@ function HomeClientInner({ initialPhones }: HomeClientProps) {
                   title="Minimize / Expand Finder"
                   onClick={() => setAdvisorCollapsed(!advisorCollapsed)}
                 >
-                  <span id="toggle-advisor-text">{advisorCollapsed ? 'Customize' : 'Minimize'}</span>
+                  <span id="toggle-advisor-text">{advisorCollapsed ? 'Expand' : 'Minimize'}</span>
                   <span id="toggle-advisor-icon">{advisorCollapsed ? '↓' : '↑'}</span>
                 </button>
               </div>
