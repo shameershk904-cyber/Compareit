@@ -20459,8 +20459,8 @@
     "brand": "Apple",
     "model": "Iphone 17 Pro Max",
     "release_date": "2025-09-10",
-    "price_pkr": 0,
-    "lowest_verified_price": 0,
+    "price_pkr": 564999,
+    "lowest_verified_price": 564999,
     "usd_price": 0,
     "image": "images/phones/apple-apple-iphone-17-pro-max_studio.webp",
     "popular": false,
@@ -20580,8 +20580,7 @@
       "https://images.priceoye.pk/media/apple-17-pro-max/apple-17-pro-max-3scfi.jpg",
       "https://images.priceoye.pk/media/apple-17-pro-max/apple-17-pro-max-vqq97.jpg"
     ],
-    "status": "Rumored / Unreleased",
-    "expected_price_pkr": 564999
+    "status": "Available"
   },
   {
     "id": "xiaomi-xiaomi-redmi-9c",
@@ -44399,8 +44398,8 @@
     "brand": "Apple",
     "model": "Iphone 17e",
     "release_date": "2026-03-05",
-    "price_pkr": 0,
-    "lowest_verified_price": 0,
+    "price_pkr": 239999,
+    "lowest_verified_price": 239999,
     "usd_price": 0,
     "image": "images/phones/apple-apple-iphone-17e_studio.webp",
     "popular": false,
@@ -44507,8 +44506,7 @@
       }
     ],
     "banners": [],
-    "status": "Rumored / Unreleased",
-    "expected_price_pkr": 239999
+    "status": "Available"
   },
   {
     "id": "vivo-vivo-y31d",
@@ -45876,8 +45874,8 @@
     "brand": "Apple",
     "model": "Iphone 17 Pro",
     "release_date": "2025-09-10",
-    "price_pkr": 0,
-    "lowest_verified_price": 0,
+    "price_pkr": 519499,
+    "lowest_verified_price": 519499,
     "usd_price": 0,
     "image": "images/phones/apple-apple-iphone-17-pro_studio.webp",
     "popular": false,
@@ -45997,8 +45995,7 @@
       "https://images.priceoye.pk/media/apple-iphone-17-pro/apple-iphone-17-pro-iqena.jpg",
       "https://images.priceoye.pk/media/apple-iphone-17-pro/apple-iphone-17-pro-u45mo.jpg"
     ],
-    "status": "Rumored / Unreleased",
-    "expected_price_pkr": 519499
+    "status": "Available"
   },
   {
     "id": "nothing-nothing-phone-3a-lite-5g",
@@ -52577,8 +52574,8 @@
     "brand": "Apple",
     "model": "Iphone 17",
     "release_date": "2025-09-10",
-    "price_pkr": 0,
-    "lowest_verified_price": 0,
+    "price_pkr": 398999,
+    "lowest_verified_price": 398999,
     "usd_price": 0,
     "image": "images/phones/apple-apple-iphone-17_studio.webp",
     "popular": false,
@@ -52724,8 +52721,7 @@
       "https://images.priceoye.pk/media/apple-iphone-17/apple-iphone-17-de4uz.jpg",
       "https://images.priceoye.pk/media/apple-iphone-17/apple-iphone-17-nlggo.jpg"
     ],
-    "status": "Rumored / Unreleased",
-    "expected_price_pkr": 398999
+    "status": "Available"
   },
   {
     "id": "hmd-hmd-barbie",
@@ -57731,7 +57727,7 @@
       "nfc": true
     },
     "retailers": [],
-    "status": "Rumored / Unreleased"
+    "status": "Discontinued"
   },
   {
     "id": "apple-iphone-16e",
@@ -57739,8 +57735,8 @@
     "brand": "Apple",
     "model": "iPhone 16e",
     "release_date": "Feb 2025",
-    "price_pkr": 0,
-    "lowest_verified_price": 0,
+    "price_pkr": 289999,
+    "lowest_verified_price": 289999,
     "image": "images/phones/apple-iphone-16e.jpg",
     "popular": false,
     "trending_rank": 0,
@@ -57781,8 +57777,7 @@
       "nfc": true
     },
     "retailers": [],
-    "status": "Rumored / Unreleased",
-    "expected_price_pkr": 289999
+    "status": "Available"
   },
   {
     "id": "apple-iphone-16-pro-max",
