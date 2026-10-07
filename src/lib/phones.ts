@@ -52,6 +52,11 @@ function dbPhoneToPhone(row: any): Phone {
     price_pkr: row.pricePkr ?? 0,
     usd_price: row.usdPrice ?? 0,
     lowest_verified_price: row.lowestVerifiedPrice ?? 0,
+    expected_price_pkr:
+      (row.detailedSpecs as Record<string, any>)?.expectedPricePkr ??
+      (row.status === "Rumored / Unreleased" && (row.lowestVerifiedPrice || row.pricePkr)
+        ? row.lowestVerifiedPrice || row.pricePkr
+        : undefined),
     release_date: row.releaseDate ?? "",
     status: row.status ?? "Available",
     popular: row.popular ?? false,
@@ -388,7 +393,20 @@ export const getNewInPhones = (limit = 250) =>
   )();
 
 // ─── getComingSoonPhones ──────────────────────────────────────────────────────
-export const getComingSoonPhones = (limit = 120) =>
+/**
+ * Returns upcoming / unreleased phones.
+ *
+ * Reliable DB signals for "coming soon":
+ *
+ * 1. `status = "Rumored / Unreleased"` — written by WhatMobile scraper cron/backfill
+ *    when "Coming Soon" status is detected, along with expectedPricePkr in detailedSpecs.
+ *    Also includes original unreleased Apple models.
+ *
+ * 2. `pricePkr = 0` AND status NOT IN ("Available", "Discontinued") AND
+ *    releaseDate ≥ 2025 — catches manually-added pre-release entries that lack
+ *    a WhatMobile price.
+ */
+export const getComingSoonPhones = (limit = 350) =>
   unstable_cache(
     async (): Promise<Phone[]> => {
       try {
@@ -396,14 +414,25 @@ export const getComingSoonPhones = (limit = 120) =>
           where: {
             isActive: true,
             OR: [
-              { status: { equals: "Coming Soon", mode: "insensitive" } },
-              { releaseDate: { contains: "exp", mode: "insensitive" } },
-              { releaseDate: { contains: "2027", mode: "insensitive" } },
-              { releaseDate: { contains: "2028", mode: "insensitive" } },
+              // Signal 1: explicit pre-release status (written by scraper/backfill)
+              { status: { equals: "Rumored / Unreleased", mode: "insensitive" } },
+              // Signal 2: zero price + non-released status + modern releaseDate
+              {
+                pricePkr: 0,
+                NOT: [
+                  { status: { equals: "Available", mode: "insensitive" } },
+                  { status: { equals: "Discontinued", mode: "insensitive" } },
+                ],
+                OR: [
+                  { releaseDate: { contains: "2025", mode: "insensitive" } },
+                  { releaseDate: { contains: "2026", mode: "insensitive" } },
+                  { releaseDate: { contains: "2027", mode: "insensitive" } },
+                ],
+              },
             ],
           },
           include: { retailers: true },
-          orderBy: [{ lowestVerifiedPrice: "desc" }, { pricePkr: "desc" }],
+          orderBy: [{ releaseDate: "desc" }, { brand: "asc" }, { model: "asc" }],
           take: limit,
         });
         return rows.map(dbPhoneToPhone);
@@ -414,12 +443,13 @@ export const getComingSoonPhones = (limit = 120) =>
           .filter(
             (p) =>
               p.status === "Coming Soon" ||
+              p.status === "Rumored / Unreleased" ||
               (p.release_date && p.release_date.toLowerCase().includes("exp"))
           )
           .slice(0, limit);
       }
     },
-    ["getComingSoonPhones"],
+    ["getComingSoonPhones-v3"],
     { tags: [PHONES_TAG, "coming-soon-phones"], revalidate: 60 }
   )();
 

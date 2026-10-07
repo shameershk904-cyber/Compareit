@@ -634,7 +634,8 @@
           "value": "(Li-ion Non removable), 4900 mAh"
         }
       ]
-    }
+    },
+    "status": "Available"
   },
   {
     "retailers": [
@@ -4903,7 +4904,8 @@
           "value": "(Li-Po Non removable), 5300 mAh"
         }
       ]
-    }
+    },
+    "status": "Available"
   },
   {
     "retailers": [
@@ -9863,7 +9865,8 @@
     "pta_tax": {
       "passport": 125000,
       "cnic": 150000
-    }
+    },
+    "status": "Available"
   },
   {
     "retailers": [
@@ -20577,7 +20580,8 @@
       "https://images.priceoye.pk/media/apple-17-pro-max/apple-17-pro-max-3scfi.jpg",
       "https://images.priceoye.pk/media/apple-17-pro-max/apple-17-pro-max-vqq97.jpg"
     ],
-    "status": "Rumored / Unreleased"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 564999
   },
   {
     "id": "xiaomi-xiaomi-redmi-9c",
@@ -20752,7 +20756,8 @@
         ]
       }
     ],
-    "banners": []
+    "banners": [],
+    "status": "Available"
   },
   {
     "id": "vgo-tel-vgo-tel-i252",
@@ -44502,7 +44507,8 @@
       }
     ],
     "banners": [],
-    "status": "Rumored / Unreleased"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 239999
   },
   {
     "id": "vivo-vivo-y31d",
@@ -45991,7 +45997,8 @@
       "https://images.priceoye.pk/media/apple-iphone-17-pro/apple-iphone-17-pro-iqena.jpg",
       "https://images.priceoye.pk/media/apple-iphone-17-pro/apple-iphone-17-pro-u45mo.jpg"
     ],
-    "status": "Rumored / Unreleased"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 519499
   },
   {
     "id": "nothing-nothing-phone-3a-lite-5g",
@@ -52717,7 +52724,8 @@
       "https://images.priceoye.pk/media/apple-iphone-17/apple-iphone-17-de4uz.jpg",
       "https://images.priceoye.pk/media/apple-iphone-17/apple-iphone-17-nlggo.jpg"
     ],
-    "status": "Rumored / Unreleased"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 398999
   },
   {
     "id": "hmd-hmd-barbie",
@@ -57414,7 +57422,8 @@
       "nfc": true
     },
     "retailers": [],
-    "status": "Rumored / Unreleased"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 744999
   },
   {
     "id": "apple-iphone-18-pro-max",
@@ -57491,7 +57500,7 @@
         "url": "https://priceoye.pk/apple-iphone-18-pro-max"
       }
     ],
-    "status": "Available",
+    "status": "Rumored / Unreleased",
     "pta_status": "non_pta",
     "pta_tax": {
       "passport": 92000,
@@ -57542,7 +57551,8 @@
       "https://images.priceoye.pk/apple-iphone-18-pro-max-pakistan-priceoye-nf8tk-500x500.webp",
       "https://images.priceoye.pk/apple-iphone-18-pro-max-pakistan-priceoye-bc6sl-500x500.webp",
       "https://images.priceoye.pk/apple-iphone-18-pro-max-pakistan-priceoye-u4k78-500x500.webp"
-    ]
+    ],
+    "expected_price_pkr": 579999
   },
   {
     "id": "apple-iphone-18-pro",
@@ -57619,7 +57629,7 @@
         "url": "https://priceoye.pk/apple-iphone-18-pro"
       }
     ],
-    "status": "Available",
+    "status": "Rumored / Unreleased",
     "pta_status": "non_pta",
     "pta_tax": {
       "passport": 85000,
@@ -57670,7 +57680,8 @@
       "https://images.priceoye.pk/apple-iphone-18-pro-pakistan-priceoye-mppxj-500x500.webp",
       "https://images.priceoye.pk/apple-iphone-18-pro-pakistan-priceoye-p5xa4-500x500.webp",
       "https://images.priceoye.pk/apple-iphone-18-pro-pakistan-priceoye-vg7gk-500x500.webp"
-    ]
+    ],
+    "expected_price_pkr": 524999
   },
   {
     "id": "apple-iphone-air",
@@ -57770,7 +57781,8 @@
       "nfc": true
     },
     "retailers": [],
-    "status": "Rumored / Unreleased"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 289999
   },
   {
     "id": "apple-iphone-16-pro-max",
@@ -120552,7 +120564,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 379999
   },
   {
     "id": "honor-x6e",
@@ -120602,7 +120615,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 48999
   },
   {
     "id": "honor-x7e-plus",
@@ -120652,7 +120666,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 74999
   },
   {
     "id": "honor-x80-pro-max",
@@ -120702,7 +120717,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 98999
   },
   {
     "id": "honor-600-smart",
@@ -121052,7 +121068,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 89999
   },
   {
     "id": "honor-x7e",
@@ -121102,7 +121119,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 64999
   },
   {
     "id": "honor-500-smart",
@@ -121202,7 +121220,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 229999
   },
   {
     "id": "honor-600",
@@ -121252,7 +121271,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 179999
   },
   {
     "id": "honor-magicpad-3-pro-12-3",
@@ -121552,7 +121572,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 89999
   },
   {
     "id": "honor-play-80-pro",
@@ -121602,7 +121623,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 89999
   },
   {
     "id": "honor-play-80-plus",
@@ -121702,7 +121724,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 29999
   },
   {
     "id": "honor-play-80",
@@ -121802,7 +121825,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 94999
   },
   {
     "id": "honor-magic-v6",
@@ -121952,7 +121976,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 43999
   },
   {
     "id": "honor-magic8-rsr-porsche-design",
@@ -122152,7 +122177,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 149999
   },
   {
     "id": "honor-win-rt",
@@ -122202,7 +122228,7 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased"
   },
   {
     "id": "honor-play-60a",
@@ -122252,7 +122278,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 39999
   },
   {
     "id": "honor-magic8-lite",
@@ -135102,7 +135129,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 94999
   },
   {
     "id": "infinix-note-60-pro",
@@ -139002,7 +139030,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 24999
   },
   {
     "id": "itel-zeno-100",
@@ -139152,7 +139181,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 24999
   },
   {
     "id": "itel-zeno-20-max",
@@ -164502,7 +164532,7 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased"
   },
   {
     "id": "motorola-signature",
@@ -165002,7 +165032,7 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased"
   },
   {
     "id": "motorola-edge-60-neo",
@@ -176752,7 +176782,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 79999
   },
   {
     "id": "oppo-a7-pro-max",
@@ -176802,7 +176833,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 94999
   },
   {
     "id": "oppo-k15",
@@ -177252,7 +177284,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 254999
   },
   {
     "id": "oppo-find-x9s-pro",
@@ -177352,7 +177385,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 169999
   },
   {
     "id": "oppo-f33-pro",
@@ -177652,7 +177686,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 539999
   },
   {
     "id": "oppo-k14",
@@ -178602,7 +178637,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 134999
   },
   {
     "id": "orange-neva-jet-5g",
@@ -201202,7 +201238,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 53999
   },
   {
     "id": "realme-16t",
@@ -201252,7 +201289,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 69999
   },
   {
     "id": "realme-c100x",
@@ -201552,7 +201590,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 49999
   },
   {
     "id": "realme-narzo-power",
@@ -202002,7 +202041,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 59999
   },
   {
     "id": "realme-narzo-90x",
@@ -202352,7 +202392,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 199999
   },
   {
     "id": "realme-gt8-china-",
@@ -202502,7 +202543,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 58999
   },
   {
     "id": "realme-15",
@@ -205952,7 +205994,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 45999
   },
   {
     "id": "samsung-galaxy-s26-fe",
@@ -227802,7 +227845,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 69999
   },
   {
     "id": "tecno-spark-go-3-pro",
@@ -227852,7 +227896,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 45999
   },
   {
     "id": "tecno-pova-8-pro",
@@ -227902,7 +227947,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 83999
   },
   {
     "id": "tecno-camon-slim-4g",
@@ -228002,7 +228048,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 69999
   },
   {
     "id": "tecno-pop-x",
@@ -228052,7 +228099,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 59999
   },
   {
     "id": "tecno-pop-x-4g",
@@ -228352,7 +228400,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 64999
   },
   {
     "id": "tecno-megapad-se",
@@ -242752,7 +242801,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 78999
   },
   {
     "id": "vivo-iqoo-neo11-ultra",
@@ -242902,7 +242952,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 64999
   },
   {
     "id": "vivo-t5e",
@@ -243252,7 +243303,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 579999
   },
   {
     "id": "vivo-v70-lite",
@@ -243302,7 +243354,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 79999
   },
   {
     "id": "vivo-s60",
@@ -243352,7 +243405,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 184999
   },
   {
     "id": "vivo-s60e",
@@ -243652,7 +243706,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 98999
   },
   {
     "id": "vivo-y500s",
@@ -243702,7 +243757,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 73999
   },
   {
     "id": "vivo-y6",
@@ -243752,7 +243808,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 78999
   },
   {
     "id": "vivo-y6t",
@@ -243802,7 +243859,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 73999
   },
   {
     "id": "vivo-y60",
@@ -243852,7 +243910,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 79999
   },
   {
     "id": "vivo-t5-pro",
@@ -243952,7 +244011,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 253999
   },
   {
     "id": "vivo-x300s",
@@ -244002,7 +244062,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 218999
   },
   {
     "id": "vivo-pad6-pro",
@@ -244252,7 +244313,7 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased"
   },
   {
     "id": "vivo-t5x",
@@ -244602,7 +244663,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 139999
   },
   {
     "id": "vivo-iqoo-15-ultra",
@@ -251202,7 +251264,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 389999
   },
   {
     "id": "xiaomi-poco-x8-power",
@@ -251302,7 +251365,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 94999
   },
   {
     "id": "xiaomi-poco-f9-ultra",
@@ -251402,7 +251466,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 194999
   },
   {
     "id": "xiaomi-redmi-note-17-pro-max",
@@ -251452,7 +251517,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 214999
   },
   {
     "id": "xiaomi-redmi-note-17-pro",
@@ -251502,7 +251568,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 114999
   },
   {
     "id": "xiaomi-redmi-note-17",
@@ -251552,7 +251619,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 79999
   },
   {
     "id": "xiaomi-redmi-note-17-4g",
@@ -251652,7 +251720,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 43999
   },
   {
     "id": "xiaomi-poco-m8x",
@@ -251902,7 +251971,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 64999
   },
   {
     "id": "xiaomi-redmi-17-4g",
@@ -252252,7 +252322,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 279999
   },
   {
     "id": "xiaomi-poco-c81-pro",
@@ -252302,7 +252373,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 49999
   },
   {
     "id": "xiaomi-poco-c81",
@@ -252352,7 +252424,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 43999
   },
   {
     "id": "xiaomi-poco-c81x",
@@ -252502,7 +252575,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 36999
   },
   {
     "id": "xiaomi-poco-m8s",
@@ -252802,7 +252876,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 49999
   },
   {
     "id": "xiaomi-poco-x8-pro-max",
@@ -252852,7 +252927,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 169999
   },
   {
     "id": "xiaomi-poco-x8-pro",
@@ -252902,7 +252978,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 149999
   },
   {
     "id": "xiaomi-poco-c85x",
@@ -252952,7 +253029,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 39999
   },
   {
     "id": "xiaomi-17-ultra",
@@ -259152,7 +259230,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 158999
   },
   {
     "id": "zte-nubia-redmagic-11s-pro",
@@ -259202,7 +259281,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 289999
   },
   {
     "id": "zte-nubia-redmagic-11s-pro-",
@@ -259402,7 +259482,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 83999
   },
   {
     "id": "zte-nubia-neo-5",
@@ -259952,7 +260033,8 @@
       "nfc": false
     },
     "retailers": [],
-    "status": "Discontinued"
+    "status": "Rumored / Unreleased",
+    "expected_price_pkr": 39999
   },
   {
     "id": "zte-nubia-z80-ultra",

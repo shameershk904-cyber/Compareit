@@ -23,6 +23,7 @@ export interface Phone {
   price_pkr: number;
   usd_price: number;
   lowest_verified_price?: number;
+  expected_price_pkr?: number;
   release_date: string;
   trending_rank?: number;
   popular?: boolean;

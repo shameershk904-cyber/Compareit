@@ -105,7 +105,7 @@ async function fetchAllActivePhones() {
   const pageSize = 1000;
   while (true) {
     const page = await supabaseFetch(
-      `/phones?select=id,slug,brand,model,pricePkr,lowestVerifiedPrice,usdPrice,lastPriceCheck,` +
+      `/phones?select=id,slug,brand,model,pricePkr,lowestVerifiedPrice,usdPrice,status,releaseDate,detailedSpecs,lastPriceCheck,` +
       `phone_retailers(id,store,price,url)` +
       `&isActive=eq.true&order=lastPriceCheck.asc.nullsfirst,popular.desc` +
       `&limit=${pageSize}&offset=${offset}`
@@ -214,6 +214,39 @@ function classifyError(scrapeRes) {
   return "other_error";
 }
 
+function isEligibleForComingSoon(releaseDate) {
+  if (!releaseDate) return false;
+  const cleaned = releaseDate.trim();
+  if (!cleaned) return false;
+
+  // 1. Explicit upcoming signals: 'exp', 'rumor', 'upcoming', 'tba', 'tbd', 'soon'
+  if (/exp|rumor|upcoming|soon|tba|tbd/i.test(cleaned)) {
+    const ym = cleaned.match(/\b(19\d\d|20\d\d)\b/);
+    if (ym && parseInt(ym[1], 10) < 2025) return false;
+    return true;
+  }
+
+  const ym = cleaned.match(/\b(19\d\d|20\d\d)\b/);
+  if (!ym) return false;
+  const year = parseInt(ym[1], 10);
+
+  const now = new Date();
+  const currentYear = now.getFullYear();
+
+  // Future year (>= 2027) or current year (2026)
+  if (year >= currentYear) return true;
+
+  // Previous year (2025): only if within ~12 months (Q4: Oct, Nov, Dec 2025)
+  if (year === currentYear - 1) {
+    const m = cleaned.match(/(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i);
+    if (m && ['oct', 'nov', 'dec'].includes(m[1].toLowerCase())) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 async function main() {
@@ -318,10 +351,27 @@ async function main() {
           url: scrapeRes.url,
         });
 
-        // Always stamp lastPriceCheck so this phone moves to the back of the queue
+        // Handle updates on failure or unreleased status
         if (!DRY_RUN) {
           try {
-            await updatePhone(phone.id, { lastPriceCheck: new Date().toISOString() });
+            const isComingSoon = (cat === "coming_soon" || scrapeRes.isComingSoon) && isEligibleForComingSoon(phone.releaseDate);
+            if (isComingSoon) {
+              const existingSpecs = phone.detailedSpecs || {};
+              const patchData = {
+                status: "Rumored / Unreleased",
+                lastPriceCheck: new Date().toISOString(),
+              };
+              if (scrapeRes.expectedPricePkr) {
+                patchData.detailedSpecs = { ...existingSpecs, expectedPricePkr: scrapeRes.expectedPricePkr };
+                if (!phone.pricePkr || phone.pricePkr === 0) {
+                  patchData.pricePkr = scrapeRes.expectedPricePkr;
+                  patchData.lowestVerifiedPrice = scrapeRes.expectedPricePkr;
+                }
+              }
+              await updatePhone(phone.id, patchData);
+            } else {
+              await updatePhone(phone.id, { lastPriceCheck: new Date().toISOString() });
+            }
           } catch { /* non-fatal */ }
         }
 

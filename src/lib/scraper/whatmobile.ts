@@ -10,6 +10,8 @@ export interface ScrapedPriceResult {
   success: boolean;
   pricePkr?: number;
   usdPrice?: number;
+  isComingSoon?: boolean;
+  expectedPricePkr?: number;
   url: string;
   error?: string;
   statusCode?: number;
@@ -24,6 +26,44 @@ export interface VariantSafetyResult {
   reason?: string;
   expectedVariant?: string;
   actualVariant?: string;
+}
+
+/**
+ * Evaluates whether a phone is legitimately upcoming or unreleased.
+ * Prevents legacy / discontinued phones (e.g. LG K50S from 2019) that WhatMobile
+ * kept as "Coming Soon" from being erroneously marked as "Rumored / Unreleased".
+ */
+export function isEligibleForComingSoon(releaseDate?: string | null): boolean {
+  if (!releaseDate) return false;
+  const cleaned = releaseDate.trim();
+  if (!cleaned) return false;
+
+  // 1. Explicit upcoming signals: "exp", "rumor", "upcoming", "soon", "tba", "tbd"
+  if (/exp|rumor|upcoming|soon|tba|tbd/i.test(cleaned)) {
+    const ym = cleaned.match(/\b(19\d\d|20\d\d)\b/);
+    if (ym && parseInt(ym[1], 10) < 2025) return false;
+    return true;
+  }
+
+  const ym = cleaned.match(/\b(19\d\d|20\d\d)\b/);
+  if (!ym) return false;
+  const year = parseInt(ym[1], 10);
+
+  const now = new Date();
+  const currentYear = now.getFullYear();
+
+  // Future year (>= 2027) or current year (2026)
+  if (year >= currentYear) return true;
+
+  // Previous year (2025): only if within ~12 months (Q4: Oct, Nov, Dec 2025)
+  if (year === currentYear - 1) {
+    const m = cleaned.match(/(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i);
+    if (m && ['oct', 'nov', 'dec'].includes(m[1].toLowerCase())) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 // Canonical map for high-traffic phones where slug differs from WhatMobile URL path
@@ -540,10 +580,15 @@ export async function scrapeWhatMobilePhonePrice(
       const parsed = parseWhatMobilePrice(html);
       if (!parsed || !parsed.pricePkr) {
         if (html.includes("Coming Soon")) {
-          const expMatch = html.match(/Expected\s+Rs\.?:\s*<[^>]+>([\d,]+)<\/[^>]+>/i);
+          const expMatch =
+            html.match(/Expected\s+Rs\.?:\s*<[^>]+>([\d,]+)<\/[^>]+>/i) ||
+            html.match(/Expected\s+Rs\.?:?\s*(?:<strong>|<b>)?\s*([\d,]+)/i) ||
+            html.match(/Expected\s+Price[^<]*in\s+Pakistan\s+is\s+Rs\.?\s*([\d,]+)/i);
           const expPrice = expMatch ? parseInt(expMatch[1].replace(/,/g, ""), 10) : undefined;
           return {
             success: false,
+            isComingSoon: true,
+            expectedPricePkr: expPrice,
             url: fullUrl,
             statusCode: 200,
             heading: pageHeading,

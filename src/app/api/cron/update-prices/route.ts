@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { revalidateTag, updateTag, revalidatePath } from "next/cache";
 import { PHONES_TAG, phoneTag, invalidatePhonesMemoryCache } from "@/lib/phones";
-import { scrapeWhatMobilePhonePrice } from "@/lib/scraper/whatmobile";
+import { scrapeWhatMobilePhonePrice, isEligibleForComingSoon } from "@/lib/scraper/whatmobile";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 60; // Allow up to 60s if on Vercel Pro, or gracefully finishes within 10-15s
@@ -70,6 +70,8 @@ export async function GET(request: NextRequest) {
         lowestVerifiedPrice: true,
         usdPrice: true,
         lastPriceCheck: true,
+        detailedSpecs: true,
+        releaseDate: true,
         retailers: {
           where: { store: "WhatMobile" },
           select: { id: true, price: true, url: true },
@@ -130,12 +132,31 @@ export async function GET(request: NextRequest) {
                 }
               }
 
-              // Always update lastPriceCheck so stale/unannounced/discontinued phones move to back of queue
+              // Only mark as Rumored / Unreleased if the phone is legitimately upcoming or recently announced
               if (!isDryRun) {
-                await prisma.phone.update({
-                  where: { id: phone.id },
-                  data: { lastPriceCheck: new Date() },
-                });
+                const detectedComingSoon = scrapeRes.isComingSoon || Boolean(scrapeRes.error && scrapeRes.error.toLowerCase().includes("coming soon"));
+                const isEligible = detectedComingSoon && isEligibleForComingSoon(phone.releaseDate);
+
+                if (isEligible) {
+                  const existingSpecs = (phone.detailedSpecs as Record<string, any>) || {};
+                  await prisma.phone.update({
+                    where: { id: phone.id },
+                    data: {
+                      status: "Rumored / Unreleased",
+                      lastPriceCheck: new Date(),
+                      ...(scrapeRes.expectedPricePkr ? {
+                        detailedSpecs: { ...existingSpecs, expectedPricePkr: scrapeRes.expectedPricePkr },
+                        pricePkr: phone.pricePkr === 0 ? scrapeRes.expectedPricePkr : phone.pricePkr,
+                        lowestVerifiedPrice: phone.lowestVerifiedPrice === 0 ? scrapeRes.expectedPricePkr : phone.lowestVerifiedPrice,
+                      } : {}),
+                    },
+                  });
+                } else {
+                  await prisma.phone.update({
+                    where: { id: phone.id },
+                    data: { lastPriceCheck: new Date() },
+                  });
+                }
               }
 
               details.push({
