@@ -78,15 +78,15 @@ export function PhoneCard({ phone, isCompared, toggleCompare }: { phone: Phone; 
 
   const isUnreleased = phone.status === "Rumored / Unreleased";
   const isComingSoon = isUnreleased || Boolean(phone.release_date && (phone.release_date.toLowerCase().includes('exp') || phone.release_date.includes('2027') || phone.release_date.includes('2028')));
-  const trendingBadge = phone.popular ? <span className="badge-trending"><span className="badge-full">🔥 Trending</span><span className="badge-short">🔥 Hot</span></span> : null;
+  const trendingBadge = phone.popular ? <span className="badge-trending" style={{ whiteSpace: 'nowrap' }}><span className="badge-full">🔥 Trending</span><span className="badge-short">🔥 Hot</span></span> : null;
 
-  const ptaBadge = isUnreleased
-    ? <span className="badge-pta-non" style={{ background: '#eff6ff', color: '#1d4ed8', border: '1px solid #bfdbfe' }}><span className="badge-full">🕐 Expected Soon</span><span className="badge-short">🕐 Upcoming</span></span>
+  const ptaBadge = (isUnreleased || isComingSoon)
+    ? <span className="badge-pta-non" style={{ background: '#eff6ff', color: '#1d4ed8', border: '1px solid #bfdbfe', whiteSpace: 'nowrap' }}><span className="badge-full">🕐 Coming Soon</span><span className="badge-short">🕐 Soon</span></span>
     : isAvailableWithPrice
     ? (phone.pta_status === 'approved'
-        ? <span className="badge-pta-approved"><span className="badge-full">✓ PTA Approved</span><span className="badge-short">✓ PTA</span></span>
-        : <span className="badge-pta-non" title="Non-PTA (Duty required)"><span className="badge-full">⚠️ Non-PTA / JV</span><span className="badge-short">⚠️ Non-PTA</span></span>)
-    : <span className="badge-pta-non" style={{ background: '#f1f5f9', color: '#64748b', border: '1px solid #e2e8f0' }}><span className="badge-full">Unlisted / Discontinued</span><span className="badge-short">Unlisted</span></span>;
+        ? <span className="badge-pta-approved" style={{ whiteSpace: 'nowrap' }}><span className="badge-full">✓ PTA Approved</span><span className="badge-short">✓ PTA</span></span>
+        : <span className="badge-pta-non" style={{ whiteSpace: 'nowrap' }} title="Non-PTA (Duty required)"><span className="badge-full">⚠️ Non-PTA / JV</span><span className="badge-short">⚠️ Non-PTA</span></span>)
+    : <span className="badge-pta-non" style={{ background: '#f1f5f9', color: '#64748b', border: '1px solid #e2e8f0', whiteSpace: 'nowrap' }}><span className="badge-full">Unlisted / Discontinued</span><span className="badge-short">Unlisted</span></span>;
 
   const ramDisplay = (phone.memory.virtual_ram_gb && phone.memory.virtual_ram_gb > 0)
     ? `${phone.memory.ram_gb}GB + ${phone.memory.virtual_ram_gb}GB`
@@ -113,8 +113,7 @@ export function PhoneCard({ phone, isCompared, toggleCompare }: { phone: Phone; 
         <div className="card-badge-left">
           {ptaBadge}
         </div>
-        <div className="card-badge-right" style={{ display: 'flex', gap: '0.25rem' }}>
-          {isComingSoon && <span className="badge-trending" style={{ background: '#000', color: '#fff' }}>Coming Soon</span>}
+        <div className="card-badge-right">
           {trendingBadge}
         </div>
       </div>

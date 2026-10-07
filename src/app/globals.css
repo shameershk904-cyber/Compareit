@@ -2070,6 +2070,8 @@ button {
   border-bottom: 1px solid #f4f4f6;
   min-height: 40px;
   z-index: 2;
+  gap: 8px;
+  flex-wrap: nowrap;
 }
 
 .card-badge-left,
@@ -2077,6 +2079,8 @@ button {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  white-space: nowrap !important;
+  flex-shrink: 0;
 }
 
 /* Card Top (Pure Seamless White Stage - 100% Blended) */
@@ -2134,6 +2138,11 @@ button {
   border: 1.5px solid #000000;
   letter-spacing: 0.03em;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  white-space: nowrap !important;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  line-height: 1.2;
 }
 
 .badge-pta-non {
@@ -2145,6 +2154,11 @@ button {
   border-radius: var(--radius-full);
   border: 1px solid var(--border-medium);
   letter-spacing: 0.03em;
+  white-space: nowrap !important;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  line-height: 1.2;
 }
 
 .badge-trending {
@@ -2156,14 +2170,28 @@ button {
   border-radius: 4px;
   letter-spacing: 0.03em;
   text-transform: uppercase;
+  white-space: nowrap !important;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  line-height: 1.2;
 }
 
 .badge-short {
-  display: none !important;
+  display: none;
 }
 
 .badge-full {
-  display: inline !important;
+  display: inline;
+}
+
+@media (max-width: 640px) {
+  .badge-short {
+    display: inline !important;
+  }
+  .badge-full {
+    display: none !important;
+  }
 }
 
 .rival-actions {
@@ -4100,6 +4128,7 @@ body.modal-open > *:not(.modal-backdrop) {
   .badge-trending {
     font-size: 0.58rem;
     padding: 2px 5px;
+    white-space: nowrap !important;
   }
   .card-gallery-pill {
     display: none;
