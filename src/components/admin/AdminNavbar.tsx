@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { signOut } from "next-auth/react";
 
@@ -12,6 +13,35 @@ interface AdminNavbarProps {
 }
 
 export function AdminNavbar({ user }: AdminNavbarProps) {
+  const [liveUsers, setLiveUsers] = useState<number | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchLiveUsers = async () => {
+      try {
+        const res = await fetch("/api/admin/analytics/live");
+        if (res.ok) {
+          const data = await res.json();
+          if (isMounted) {
+            setLiveUsers(typeof data.activeUsers === "number" ? data.activeUsers : 0);
+          }
+        } else if (isMounted) {
+          setLiveUsers(0);
+        }
+      } catch {
+        if (isMounted) {
+          setLiveUsers(0);
+        }
+      }
+    };
+
+    fetchLiveUsers();
+    const interval = setInterval(fetchLiveUsers, 30000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, []);
   const handleLogout = async () => {
     await signOut({ callbackUrl: "/admin/login" });
   };
@@ -48,8 +78,16 @@ export function AdminNavbar({ user }: AdminNavbarProps) {
 
           {/* Live Online Badge */}
           <div className="flex items-center gap-1.5 bg-surface-container-lowest px-space-sm py-1.5 rounded-full border border-border-hairline shadow-[0_1px_3px_rgba(15,23,42,0.04)]">
-            <span className="w-2 h-2 rounded-full bg-deal-orange animate-ping"></span>
-            <span className="font-label-sm text-label-sm text-on-surface font-bold">1,284 Online</span>
+            <span
+              className={`w-2 h-2 rounded-full ${
+                (liveUsers ?? 0) > 0
+                  ? "bg-emerald-500 animate-ping"
+                  : "bg-outline/40"
+              }`}
+            ></span>
+            <span className="font-label-sm text-label-sm text-on-surface font-bold font-mono">
+              {liveUsers !== null ? `${liveUsers.toLocaleString()} Online` : "0 Online"}
+            </span>
           </div>
 
           {/* Notifications Button */}
