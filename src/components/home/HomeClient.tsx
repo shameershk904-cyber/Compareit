@@ -9,6 +9,7 @@ import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { AdvisorResults } from "./AdvisorResults";
 import { matchPhoneSearch } from "@/lib/search";
+import { ScaleIcon } from "@/components/shared/ScaleIcon";
 
 const BRAND_POPULARITY_RANK: Record<string, number> = {
   Samsung: 100,
@@ -413,7 +414,7 @@ function HomeClientInner({ initialPhones }: HomeClientProps) {
                 <span className="adv-row-label">Focus:</span>
                 <div className="advisor-pill-group" id="advisor-priority-cards">
                   <button type="button" className={`adv-card-tile ${advisorPriority === 'balanced' ? 'active' : ''}`} onClick={() => setAdvisorPriority('balanced')}>
-                    <span className="adv-tile-icon">⚖️</span>
+                    <span className="adv-tile-icon"><ScaleIcon size={22} color="#f47820" /></span>
                     <span className="adv-tile-name">All-Rounder</span>
                   </button>
                   <button type="button" className={`adv-card-tile ${advisorPriority === 'camera' ? 'active' : ''}`} onClick={() => setAdvisorPriority('camera')}>
@@ -654,7 +655,9 @@ function HomeClientInner({ initialPhones }: HomeClientProps) {
         <div id="compare-dock" className="compare-dock">
           <div className="container compare-dock-inner">
             <div className="dock-info">
-              <span className="dock-title">⚖️ Compare Smartphones</span>
+              <span className="dock-title">
+                <ScaleIcon size={18} color="#f47820" className="mr-1.5" /> Compare Smartphones
+              </span>
               <span className="dock-hint">Selected <strong id="dock-count">{compareList.length}</strong> of 3</span>
             </div>
             <div className="dock-slots" id="dock-slots-container">
@@ -674,8 +677,12 @@ function HomeClientInner({ initialPhones }: HomeClientProps) {
                 className="primary-btn dock-compare-cta"
                 style={{ textDecoration: "none", display: "inline-flex", alignItems: "center", justifyContent: "center" }}
               >
-                <span className="dock-cta-full">Compare Specifications ⚖️</span>
-                <span className="dock-cta-short">Compare ⚖️</span>
+                <span className="dock-cta-full flex items-center gap-1.5">
+                  Compare Specifications <ScaleIcon size={16} color="#ffffff" />
+                </span>
+                <span className="dock-cta-short flex items-center gap-1.5">
+                  Compare <ScaleIcon size={16} color="#ffffff" />
+                </span>
               </Link>
             </div>
           </div>

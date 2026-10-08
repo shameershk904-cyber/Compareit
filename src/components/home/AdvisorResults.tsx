@@ -1,12 +1,15 @@
+"use client";
+
 import { type Phone } from "@/types";
 import { formatPKR, getSupabaseImageUrl } from "@/lib/utils";
 import Link from "next/link";
 import Image from "next/image";
+import { ScrollableSpecCell } from "./PhoneCard";
 
 interface AdvisorResultsProps {
   winner: Phone;
   rivals: Phone[];
-  rationale: string;
+  rationale?: string;
   maxBudget: number;
   minBudget?: number;
   budgetLabel?: string;
@@ -35,6 +38,23 @@ export function AdvisorResults({
     }
     return `${formatPKR(minBudget)} to ${formatPKR(maxBudget).replace("Rs. ", "")}`;
   })();
+
+  const ramDisplay = (winner.memory?.virtual_ram_gb && winner.memory.virtual_ram_gb > 0)
+    ? `${winner.memory.ram_gb}GB + ${winner.memory.virtual_ram_gb}GB`
+    : `${winner.memory?.ram_gb || 8}GB`;
+
+  const displayType = (winner.display?.type || '').split(',')[0].trim();
+  const refreshRate = (winner.display?.type || '').match(/(\d+Hz)/i)?.[1];
+  const displayDisplay = winner.display?.size
+    ? `${winner.display.size}" ${displayType}${refreshRate && !displayType.includes(refreshRate) ? ` ${refreshRate}` : ''}`
+    : (winner.display?.type || 'N/A');
+
+  const hasOis = (winner.camera?.setup || '').includes('OIS') || (winner.camera?.features || '').includes('OIS');
+  const cameraDisplay = `${winner.camera?.main_mp || 50} MP ${hasOis ? 'OIS' : ''}`.trim();
+
+  const batteryDisplay = winner.battery?.capacity_mah
+    ? `${winner.battery.capacity_mah} mAh${winner.battery.charging_watt ? ` (${winner.battery.charging_watt}W)` : ''}`
+    : '5000 mAh';
 
   return (
     <div id="advisor-results-box" className="advisor-results">
@@ -72,9 +92,28 @@ export function AdvisorResults({
             </div>
           </div>
 
-          <div className="rec-rationale">
-            <strong>Why this is your best buy:</strong><br />
-            {rationale}
+          {/* Spec Matrix */}
+          <div className="spec-matrix">
+            <ScrollableSpecCell
+              icon="💾"
+              text={`${ramDisplay} / ${winner.memory?.storage_gb || 128}GB`}
+              title="RAM & Storage"
+            />
+            <ScrollableSpecCell
+              icon="📺"
+              text={displayDisplay}
+              title={`Display: ${winner.display?.size || ''}" ${winner.display?.type || ''}`}
+            />
+            <ScrollableSpecCell
+              icon="⚡"
+              text={batteryDisplay}
+              title="Battery & Fast Charging"
+            />
+            <ScrollableSpecCell
+              icon="📸"
+              text={cameraDisplay}
+              title="Main Camera"
+            />
           </div>
 
           <div className="rec-winner-actions">

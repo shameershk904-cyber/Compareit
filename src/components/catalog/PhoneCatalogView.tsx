@@ -6,6 +6,7 @@ import Link from "next/link";
 import { type Phone } from "@/types";
 import { PhoneCard } from "@/components/home/PhoneCard";
 import { getSupabaseImageUrl } from "@/lib/utils";
+import { ScaleIcon } from "@/components/shared/ScaleIcon";
 
 interface PhoneCatalogViewProps {
   phones: Phone[];
@@ -221,7 +222,9 @@ export function PhoneCatalogView({
         <div id="compare-dock" className="compare-dock">
           <div className="container compare-dock-inner">
             <div className="dock-info">
-              <span className="dock-title">⚖️ Compare Smartphones</span>
+              <span className="dock-title">
+                <ScaleIcon size={18} color="#f47820" className="mr-1.5" /> Compare Smartphones
+              </span>
               <span className="dock-hint">
                 Selected <strong id="dock-count">{compareList.length}</strong> of 3
               </span>
@@ -258,7 +261,7 @@ export function PhoneCatalogView({
               <Link
                 href={`/compare?phones=${comparePhones.map((p) => p.slug).join(",")}&from=/trending`}
                 id="trigger-compare-modal-btn"
-                className="primary-btn"
+                className="primary-btn flex items-center gap-1.5"
                 style={{
                   textDecoration: "none",
                   display: "inline-flex",
@@ -266,7 +269,7 @@ export function PhoneCatalogView({
                   justifyContent: "center",
                 }}
               >
-                Compare Specifications ⚖️
+                Compare Specifications <ScaleIcon size={16} color="#ffffff" />
               </Link>
             </div>
           </div>

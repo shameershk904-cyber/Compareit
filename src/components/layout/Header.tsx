@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
+import { ScaleIcon } from "@/components/shared/ScaleIcon";
 
 const BRANDS = ["Samsung", "Apple", "Oppo", "Huawei"];
 
@@ -418,7 +419,9 @@ export function Header() {
             <span className="btn-label">PTA Tax Calculator</span>
           </button>
           <Link href={pathname === "/compare" ? "/compare" : `/compare?from=${encodeURIComponent(pathname)}`} id="open-compare-btn" className="action-btn compare-btn">
-            <span className="btn-icon">⚖️</span>
+            <span className="btn-icon">
+              <ScaleIcon size={18} color="#f47820" />
+            </span>
             <span className="btn-label">Quick Compare</span>
           </Link>
         </div>
@@ -427,11 +430,11 @@ export function Header() {
         <div className="mobile-header-controls">
           <Link 
             href={pathname === "/compare" ? "/compare" : `/compare?from=${encodeURIComponent(pathname)}`}
-            className="p-2 rounded-xl text-gray-700 hover:bg-gray-100 transition-colors inline-flex items-center justify-center text-lg"
+            className="p-2 rounded-xl text-[#f47820] hover:bg-orange-50 transition-colors inline-flex items-center justify-center text-lg"
             title="Quick Compare"
             aria-label="Quick Compare"
           >
-            ⚖️
+            <ScaleIcon size={22} color="#f47820" />
           </Link>
           <button
             type="button"
@@ -581,7 +584,9 @@ export function Header() {
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="mobile-nav-tool-btn"
                 >
-                  <span className="tool-emoji">⚖️</span>
+                  <span className="tool-emoji">
+                    <ScaleIcon size={20} color="#f47820" />
+                  </span>
                   <div className="flex flex-col text-left">
                     <span className="text-xs font-semibold text-gray-900">Side-by-Side Compare</span>
                     <span className="text-[10px] text-gray-500">Compare specs & prices of up to 4 phones</span>

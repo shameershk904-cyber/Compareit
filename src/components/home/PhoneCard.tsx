@@ -6,7 +6,7 @@ import { formatPKR, getSupabaseImageUrl } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
 
-function ScrollableSpecCell({
+export function ScrollableSpecCell({
   icon,
   text,
   title,

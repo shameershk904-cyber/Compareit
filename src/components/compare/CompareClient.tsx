@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { type Phone } from "@/types";
 import { formatPKR, getSupabaseImageUrl } from "@/lib/utils";
 import { matchPhoneSearch } from "@/lib/search";
+import { ScaleIcon } from "@/components/shared/ScaleIcon";
 
 function subscribeMediaQuery(callback: () => void) {
   const mql = window.matchMedia("(min-width: 768px)");
@@ -1130,7 +1131,9 @@ export function CompareClient({ initialPhones, initialCompareSlugs }: CompareCli
         <section aria-label="Side-by-Side Specification Table" className="pt-2">
           {compareList.length === 0 ? (
             <div className="bg-white rounded-2xl border border-gray-200 p-8 text-center shadow-xs">
-              <div className="text-3xl mb-2">⚖️</div>
+              <div className="flex justify-center mb-2">
+                <ScaleIcon size={36} color="#f47820" />
+              </div>
               <h2 className="text-base font-bold text-gray-900 mb-1">
                 No Smartphones Selected for Comparison
               </h2>
