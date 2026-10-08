@@ -318,11 +318,11 @@ export const getNewInPhones = (limit = 250) =>
         const prevYear = (new Date().getFullYear() - 1).toString(); // e.g. "2025"
 
         // Primary: phones whose release_date mentions this year or last year,
-        // have a price, and are not discontinued. Sorted by price high-to-low.
+        // have a price, and are not discontinued or unreleased. Sorted by price high-to-low.
         const rows = await prisma.phone.findMany({
           where: {
             isActive: true,
-            status: { notIn: ["Discontinued", "discontinued"] },
+            status: { notIn: ["Discontinued", "discontinued", "Rumored / Unreleased", "Coming Soon"] },
             AND: [
               {
                 OR: [
@@ -350,7 +350,7 @@ export const getNewInPhones = (limit = 250) =>
           const fallbackRows = await prisma.phone.findMany({
             where: {
               isActive: true,
-              status: { notIn: ["Discontinued", "discontinued"] },
+              status: { notIn: ["Discontinued", "discontinued", "Rumored / Unreleased", "Coming Soon"] },
               OR: [
                 { lowestVerifiedPrice: { gt: 0 } },
                 { pricePkr: { gt: 0 } },
@@ -374,6 +374,8 @@ export const getNewInPhones = (limit = 250) =>
           .filter(
             (p) =>
               p.status?.toLowerCase() !== "discontinued" &&
+              p.status?.toLowerCase() !== "rumored / unreleased" &&
+              p.status?.toLowerCase() !== "coming soon" &&
               ((p.lowest_verified_price ?? 0) > 0 || (p.price_pkr ?? 0) > 0) &&
               (
                 (p.release_date ?? "").includes(currentYear) ||
@@ -388,7 +390,7 @@ export const getNewInPhones = (limit = 250) =>
           .slice(0, limit);
       }
     },
-    ["getNewInPhones-v3"],
+    ["getNewInPhones-v4"],
     { tags: [PHONES_TAG, "new-in-phones"], revalidate: 60 }
   )();
 
@@ -449,7 +451,7 @@ export const getComingSoonPhones = (limit = 350) =>
           .slice(0, limit);
       }
     },
-    ["getComingSoonPhones-v3"],
+    ["getComingSoonPhones-v4"],
     { tags: [PHONES_TAG, "coming-soon-phones"], revalidate: 60 }
   )();
 

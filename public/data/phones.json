@@ -57376,8 +57376,8 @@
     "brand": "Apple",
     "model": "iPhone Duo",
     "release_date": "Sep 2026",
-    "price_pkr": 0,
-    "lowest_verified_price": 0,
+    "price_pkr": 744999,
+    "lowest_verified_price": 744999,
     "image": "images/phones/apple-iphone-duo.jpg",
     "popular": false,
     "trending_rank": 0,
@@ -57418,8 +57418,8 @@
       "nfc": true
     },
     "retailers": [],
-    "status": "Rumored / Unreleased",
-    "expected_price_pkr": 744999
+    "status": "Available",
+    "pta_status": "approved"
   },
   {
     "id": "apple-iphone-18-pro-max",
@@ -57427,8 +57427,8 @@
     "brand": "Apple",
     "model": "iPhone 18 Pro Max",
     "release_date": "September 18, 2026",
-    "price_pkr": 645000,
-    "lowest_verified_price": 645000,
+    "price_pkr": 579999,
+    "lowest_verified_price": 579999,
     "image": "https://images.priceoye.pk/apple-iphone-18-pro-max-pakistan-priceoye-3jb06-500x500.webp",
     "popular": true,
     "trending_rank": 2,
@@ -57496,8 +57496,8 @@
         "url": "https://priceoye.pk/apple-iphone-18-pro-max"
       }
     ],
-    "status": "Rumored / Unreleased",
-    "pta_status": "non_pta",
+    "status": "Available",
+    "pta_status": "approved",
     "pta_tax": {
       "passport": 92000,
       "cnic": 115000
@@ -57547,8 +57547,7 @@
       "https://images.priceoye.pk/apple-iphone-18-pro-max-pakistan-priceoye-nf8tk-500x500.webp",
       "https://images.priceoye.pk/apple-iphone-18-pro-max-pakistan-priceoye-bc6sl-500x500.webp",
       "https://images.priceoye.pk/apple-iphone-18-pro-max-pakistan-priceoye-u4k78-500x500.webp"
-    ],
-    "expected_price_pkr": 579999
+    ]
   },
   {
     "id": "apple-iphone-18-pro",
@@ -57556,8 +57555,8 @@
     "brand": "Apple",
     "model": "iPhone 18 Pro",
     "release_date": "September 18, 2026",
-    "price_pkr": 580499,
-    "lowest_verified_price": 580499,
+    "price_pkr": 524999,
+    "lowest_verified_price": 524999,
     "image": "https://images.priceoye.pk/apple-iphone-18-pro-pakistan-priceoye-9km7q-500x500.webp",
     "popular": true,
     "trending_rank": 1,
@@ -57625,8 +57624,8 @@
         "url": "https://priceoye.pk/apple-iphone-18-pro"
       }
     ],
-    "status": "Rumored / Unreleased",
-    "pta_status": "non_pta",
+    "status": "Available",
+    "pta_status": "approved",
     "pta_tax": {
       "passport": 85000,
       "cnic": 105000
@@ -57676,8 +57675,7 @@
       "https://images.priceoye.pk/apple-iphone-18-pro-pakistan-priceoye-mppxj-500x500.webp",
       "https://images.priceoye.pk/apple-iphone-18-pro-pakistan-priceoye-p5xa4-500x500.webp",
       "https://images.priceoye.pk/apple-iphone-18-pro-pakistan-priceoye-vg7gk-500x500.webp"
-    ],
-    "expected_price_pkr": 524999
+    ]
   },
   {
     "id": "apple-iphone-air",
