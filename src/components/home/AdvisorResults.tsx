@@ -8,6 +8,8 @@ interface AdvisorResultsProps {
   rivals: Phone[];
   rationale: string;
   maxBudget: number;
+  minBudget?: number;
+  budgetLabel?: string;
   onClose: () => void;
   onToggleCompare: (id: string) => void;
   onCompareTwo: (id1: string, id2: string) => void;
@@ -18,16 +20,28 @@ export function AdvisorResults({
   rivals,
   rationale,
   maxBudget,
+  minBudget,
+  budgetLabel,
   onClose,
   onToggleCompare,
   onCompareTwo
 }: AdvisorResultsProps) {
+  const displayBudget = budgetLabel || (() => {
+    if (minBudget === undefined || minBudget === 0) {
+      return `Under ${formatPKR(maxBudget)}`;
+    }
+    if (maxBudget >= 600000) {
+      return `${formatPKR(minBudget)} to ${formatPKR(maxBudget).replace("Rs. ", "")}+`;
+    }
+    return `${formatPKR(minBudget)} to ${formatPKR(maxBudget).replace("Rs. ", "")}`;
+  })();
+
   return (
     <div id="advisor-results-box" className="advisor-results">
       <div className="advisor-results-header">
         <div className="advisor-results-title">
           <span className="advisor-results-badge">AI Analysis</span>
-          <span className="advisor-results-heading">Best Value Match for {formatPKR(maxBudget)}</span>
+          <span className="advisor-results-heading">Best Value Match for {displayBudget}</span>
         </div>
         <button 
           className="advisor-toggle-btn" 
@@ -40,7 +54,7 @@ export function AdvisorResults({
       
       <div className="rec-layout">
         {/* WINNER CARD */}
-        <div className="rec-winner-card">
+        <div className="rec-winner-card border-2 border-[#f47820] shadow-[0_4px_20px_-2px_rgba(244,120,32,0.15)]">
           <span className="rec-badge-winner">🏆 #1 Top Recommendation</span>
           <div className="rec-winner-hero">
             <Link href={`/phone/${winner.slug || winner.id}`} title={`View ${winner.model}`} style={{ display: 'inline-block' }}>

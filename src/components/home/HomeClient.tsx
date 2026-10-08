@@ -108,7 +108,14 @@ function HomeClientInner({ initialPhones }: HomeClientProps) {
   const [advisorMaxBudget, setAdvisorMaxBudget] = useState(75000);
   const [advisorPriority, setAdvisorPriority] = useState("balanced");
   const [advisorCollapsed, setAdvisorCollapsed] = useState(false);
-  const [advisorResults, setAdvisorResults] = useState<{ winner: Phone; rivals: Phone[]; rationale: string; maxBudget: number } | null>(null);
+  const [advisorResults, setAdvisorResults] = useState<{
+    winner: Phone;
+    rivals: Phone[];
+    rationale: string;
+    minBudget: number;
+    maxBudget: number;
+    budgetLabel: string;
+  } | null>(null);
 
   // Minimize Smart Recommendation Advisor by default on mobile screens
   useEffect(() => {
@@ -178,10 +185,28 @@ function HomeClientInner({ initialPhones }: HomeClientProps) {
     } else if (advisorPriority === 'battery') {
       rationale = `Equipped with ${winner.battery?.capacity_mah ?? 5000} mAh battery and blistering ${winner.battery?.charging_watt ?? 33}W fast charging, ensuring minimal downtime during Pakistani load-shedding.`;
     } else {
-      rationale = `The most complete all-rounder in Pakistan under ${formatPKR(advisorMaxBudget)}. Combines solid performance, ${winner.pta_status === 'approved' ? 'official PTA approval' : 'high specs'}, and reliable local warranty.`;
+      const budgetText = advisorMinBudget === 0
+        ? `under Rs. 35,000`
+        : advisorMaxBudget >= 600000
+        ? `in the Rs. 130,000 to 600,000+ range`
+        : `in the Rs. ${advisorMinBudget.toLocaleString('en-PK')} to ${advisorMaxBudget.toLocaleString('en-PK')} range`;
+      rationale = `The most complete all-rounder in Pakistan ${budgetText}. Combines solid performance, ${winner.pta_status === 'approved' ? 'official PTA approval' : 'high specs'}, and reliable local warranty.`;
     }
 
-    setAdvisorResults({ winner, rivals, rationale, maxBudget: advisorMaxBudget });
+    const budgetLabel = advisorMinBudget === 0
+      ? "Under Rs. 35,000"
+      : advisorMaxBudget >= 600000
+      ? "Rs. 130,000 to 600,000+"
+      : `Rs. ${advisorMinBudget.toLocaleString('en-PK')} to ${advisorMaxBudget.toLocaleString('en-PK')}`;
+
+    setAdvisorResults({
+      winner,
+      rivals,
+      rationale,
+      minBudget: advisorMinBudget,
+      maxBudget: advisorMaxBudget,
+      budgetLabel
+    });
     
     setTimeout(() => {
       document.getElementById('advisor-results-box')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -444,7 +469,9 @@ function HomeClientInner({ initialPhones }: HomeClientProps) {
             winner={advisorResults.winner} 
             rivals={advisorResults.rivals} 
             rationale={advisorResults.rationale} 
+            minBudget={advisorResults.minBudget}
             maxBudget={advisorResults.maxBudget} 
+            budgetLabel={advisorResults.budgetLabel}
             onClose={() => setAdvisorResults(null)} 
             onToggleCompare={toggleCompare} 
             onCompareTwo={toggleCompareTwo} 
