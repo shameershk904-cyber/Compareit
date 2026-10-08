@@ -107,36 +107,39 @@ export function PriceUpdatePanel() {
   };
 
   return (
-    <section className="bg-surface-container-lowest p-space-lg rounded-xl shadow-[0_1px_3px_rgba(15,23,42,0.04)] border border-border-hairline space-y-space-md">
-      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-space-sm">
+    <section className="bg-white p-6 sm:p-7 rounded-2xl border border-zinc-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.03)] space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
         <div>
-          <span className="text-label-sm font-label-sm uppercase tracking-wider text-deal-orange font-bold">
-            Catalog Operations
-          </span>
-          <h3 className="text-headline-sm font-headline-sm text-on-surface tracking-tight">
-            Manual Device Price Update
-          </h3>
-          <p className="text-body-sm font-body-sm text-outline mt-1 max-w-2xl">
-            Search any phone and update its list price or lowest verified market price. Changes go live on the public site immediately.
+          <div className="flex items-center gap-2 mb-1">
+            <span className="w-2 h-2 rounded-full bg-orange-600"></span>
+            <span className="text-xs font-bold uppercase tracking-wider text-orange-600">
+              Live Catalog Operations
+            </span>
+          </div>
+          <h2 className="text-xl font-bold text-zinc-950 tracking-tight">
+            Manual Device Price Adjuster
+          </h2>
+          <p className="text-xs sm:text-sm text-zinc-500 mt-1 max-w-2xl leading-relaxed">
+            Search any smartphone in Pakistan&apos;s catalog to instantly update list price or lowest verified street price. Changes propagate live immediately.
           </p>
         </div>
         <Link
           href="/admin/phones"
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-label-md font-label-md text-on-surface-variant hover:text-on-surface border border-border-hairline bg-surface-subtle transition-colors shrink-0"
+          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-zinc-700 hover:text-zinc-950 border border-zinc-200 bg-zinc-50/60 hover:bg-zinc-100 transition-colors shrink-0 shadow-sm"
         >
-          <span className="material-symbols-outlined text-[18px]">smartphone</span>
-          Full Catalog
+          <span className="material-symbols-outlined text-[17px]">smartphone</span>
+          Full Catalog Management
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-space-md">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Search column */}
         <div className="lg:col-span-5 space-y-3">
-          <label className="block text-label-sm font-label-sm text-on-surface-variant font-semibold uppercase tracking-wider">
+          <label className="block text-xs font-semibold text-zinc-600 uppercase tracking-wider">
             Search Device
           </label>
           <div className="relative">
-            <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[20px] text-outline pointer-events-none">
+            <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-[19px] text-zinc-400 pointer-events-none">
               search
             </span>
             <input
@@ -147,15 +150,15 @@ export function PriceUpdatePanel() {
                 if (selected) setSelected(null);
                 setMessage(null);
               }}
-              placeholder="e.g. iPhone 16, Galaxy S25, Redmi Note…"
-              className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-border-hairline bg-surface-container-lowest text-on-surface text-sm focus:outline-none focus:border-deal-orange focus:ring-1 focus:ring-deal-orange/40"
+              placeholder="e.g. iPhone 16 Pro, Galaxy S25, Redmi Note 13…"
+              className="w-full pl-10 pr-10 py-2.5 rounded-xl border border-zinc-200 bg-zinc-50/60 text-zinc-900 text-sm focus:bg-white focus:outline-none focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 transition-all placeholder:text-zinc-400"
               autoComplete="off"
             />
             {(query || selected) && (
               <button
                 type="button"
                 onClick={clearSelection}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-outline hover:text-on-surface"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-700"
                 aria-label="Clear search"
               >
                 <span className="material-symbols-outlined text-[18px]">close</span>
@@ -164,22 +167,22 @@ export function PriceUpdatePanel() {
           </div>
 
           {isSearching && (
-            <p className="text-xs text-outline flex items-center gap-1.5">
-              <span className="material-symbols-outlined text-[16px] animate-spin">progress_activity</span>
-              Searching catalog…
+            <p className="text-xs text-zinc-500 flex items-center gap-1.5">
+              <span className="material-symbols-outlined text-[16px] animate-spin text-orange-600">progress_activity</span>
+              Searching database catalog…
             </p>
           )}
 
           {results.length > 0 && (
-            <ul className="border border-border-hairline rounded-xl overflow-hidden divide-y divide-border-hairline max-h-80 overflow-y-auto bg-surface-container-lowest shadow-sm">
+            <ul className="border border-zinc-200 rounded-xl overflow-hidden divide-y divide-zinc-100 max-h-80 overflow-y-auto bg-white shadow-lg">
               {results.map((phone) => (
                 <li key={phone.id}>
                   <button
                     type="button"
                     onClick={() => selectPhone(phone)}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 text-left hover:bg-surface-subtle transition-colors"
+                    className="w-full flex items-center gap-3 px-3.5 py-2.5 text-left hover:bg-zinc-50 transition-colors"
                   >
-                    <div className="w-11 h-11 rounded-lg bg-surface-subtle border border-border-hairline flex items-center justify-center overflow-hidden shrink-0">
+                    <div className="w-11 h-11 rounded-lg bg-zinc-100 border border-zinc-200/60 flex items-center justify-center overflow-hidden shrink-0">
                       {phone.image ? (
                         <Image
                           src={getSupabaseImageUrl(phone.image)}
@@ -190,19 +193,19 @@ export function PriceUpdatePanel() {
                           unoptimized
                         />
                       ) : (
-                        <span className="material-symbols-outlined text-outline text-[20px]">smartphone</span>
+                        <span className="material-symbols-outlined text-zinc-400 text-[20px]">smartphone</span>
                       )}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <div className="text-xs font-bold text-deal-orange uppercase tracking-wider truncate">
+                      <div className="text-[10px] font-bold text-orange-600 uppercase tracking-wider truncate">
                         {phone.brand}
                       </div>
-                      <div className="text-sm font-semibold text-on-surface truncate">{phone.model}</div>
-                      <div className="text-[11px] text-outline truncate">
+                      <div className="text-sm font-semibold text-zinc-900 truncate">{phone.model}</div>
+                      <div className="text-xs text-zinc-500 font-mono truncate">
                         List {formatPKR(phone.pricePkr)} · Lowest {formatPKR(phone.lowestVerifiedPrice)}
                       </div>
                     </div>
-                    <span className="material-symbols-outlined text-outline text-[18px] shrink-0">chevron_right</span>
+                    <span className="material-symbols-outlined text-zinc-300 text-[18px] shrink-0">chevron_right</span>
                   </button>
                 </li>
               ))}
@@ -210,26 +213,26 @@ export function PriceUpdatePanel() {
           )}
 
           {!isSearching && query.trim().length >= 2 && results.length === 0 && !selected && (
-            <p className="text-xs text-outline px-1">No devices matched “{query.trim()}”.</p>
+            <p className="text-xs text-zinc-500 px-1">No devices matched “{query.trim()}”.</p>
           )}
         </div>
 
         {/* Editor column */}
         <div className="lg:col-span-7">
           {!selected ? (
-            <div className="h-full min-h-[220px] rounded-xl border border-dashed border-border-hairline bg-surface-subtle/60 flex flex-col items-center justify-center text-center px-6 py-10">
-              <div className="w-12 h-12 rounded-full bg-deal-orange/10 text-deal-orange flex items-center justify-center mb-3">
+            <div className="h-full min-h-[220px] rounded-2xl border border-dashed border-zinc-300 bg-zinc-50/50 flex flex-col items-center justify-center text-center px-6 py-10">
+              <div className="w-12 h-12 rounded-2xl bg-orange-50 text-orange-600 flex items-center justify-center mb-3 shadow-sm">
                 <span className="material-symbols-outlined text-[24px]">sell</span>
               </div>
-              <p className="text-sm font-semibold text-on-surface">Select a device to edit prices</p>
-              <p className="text-xs text-outline mt-1 max-w-sm">
-                Type a brand or model name on the left, then pick a result to update list price and lowest verified price in PKR.
+              <p className="text-sm font-semibold text-zinc-900">Select a device to edit prices</p>
+              <p className="text-xs text-zinc-500 mt-1 max-w-sm leading-relaxed">
+                Type a brand or model name in the search box, pick a result, and adjust official list price or street lowest price in PKR.
               </p>
             </div>
           ) : (
-            <div className="rounded-xl border border-border-hairline bg-surface-subtle/40 p-4 sm:p-5 space-y-4">
-              <div className="flex items-start gap-3">
-                <div className="w-16 h-16 rounded-xl bg-white border border-border-hairline flex items-center justify-center overflow-hidden shrink-0">
+            <div className="rounded-2xl border border-zinc-200 bg-zinc-50/70 p-5 space-y-5">
+              <div className="flex items-start gap-4">
+                <div className="w-16 h-16 rounded-xl bg-white border border-zinc-200/80 flex items-center justify-center overflow-hidden shrink-0 shadow-sm">
                   {selected.image ? (
                     <Image
                       src={getSupabaseImageUrl(selected.image)}
@@ -240,93 +243,93 @@ export function PriceUpdatePanel() {
                       unoptimized
                     />
                   ) : (
-                    <span className="material-symbols-outlined text-outline text-[28px]">smartphone</span>
+                    <span className="material-symbols-outlined text-zinc-400 text-[28px]">smartphone</span>
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="text-[11px] font-bold text-deal-orange uppercase tracking-wider">{selected.brand}</div>
-                  <h4 className="text-base font-bold text-on-surface truncate">{selected.model}</h4>
+                  <div className="text-[10px] font-bold text-orange-600 uppercase tracking-wider">{selected.brand}</div>
+                  <h4 className="text-base font-bold text-zinc-950 truncate">{selected.model}</h4>
                   <div className="flex flex-wrap items-center gap-2 mt-1">
                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
                       selected.isActive
                         ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                        : "bg-slate-100 text-slate-600 border-slate-200"
+                        : "bg-zinc-100 text-zinc-600 border-zinc-200"
                     }`}>
-                      {selected.isActive ? "Active" : "Inactive"}
+                      {selected.isActive ? "Active in Catalog" : "Inactive"}
                     </span>
-                    <span className="text-[10px] font-medium text-outline">{selected.status}</span>
+                    <span className="text-[10px] font-medium text-zinc-500">{selected.status}</span>
                     <Link
                       href={`/phone/${selected.slug}`}
                       target="_blank"
-                      className="text-[10px] font-semibold text-deal-orange hover:underline inline-flex items-center gap-0.5"
+                      className="text-[10px] font-semibold text-orange-600 hover:underline inline-flex items-center gap-0.5"
                     >
-                      View public page
+                      View Live Page
                       <span className="material-symbols-outlined text-[12px]">open_in_new</span>
                     </Link>
                   </div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[11px] font-bold uppercase tracking-wider text-on-surface-variant mb-1.5">
-                    List Price (PKR)
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-zinc-700 mb-1.5">
+                    Official List Price (PKR)
                   </label>
-                  <div className="flex items-center gap-2 rounded-xl border border-border-hairline bg-white px-3 py-2 focus-within:border-deal-orange focus-within:ring-1 focus-within:ring-deal-orange/40">
-                    <span className="text-xs font-bold text-outline shrink-0">Rs.</span>
+                  <div className="flex items-center gap-2 rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 focus-within:border-zinc-900 focus-within:ring-1 focus-within:ring-zinc-900 transition-all shadow-sm">
+                    <span className="text-xs font-bold text-zinc-400 shrink-0">Rs.</span>
                     <input
                       type="number"
                       min={0}
                       step={500}
                       value={pricePkr}
                       onChange={(e) => setPricePkr(e.target.value)}
-                      className="w-full bg-transparent text-sm font-semibold text-on-surface outline-none"
+                      className="w-full bg-transparent text-sm font-bold text-zinc-900 outline-none font-mono"
                     />
                   </div>
-                  <p className="text-[10px] text-outline mt-1">Official / listed market price</p>
+                  <p className="text-[10px] text-zinc-500 mt-1">Manufacturer MSRP or distributor price</p>
                 </div>
                 <div>
-                  <label className="block text-[11px] font-bold uppercase tracking-wider text-on-surface-variant mb-1.5">
-                    Lowest Verified (PKR)
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-zinc-700 mb-1.5">
+                    Lowest Verified Price (PKR)
                   </label>
-                  <div className="flex items-center gap-2 rounded-xl border border-border-hairline bg-white px-3 py-2 focus-within:border-deal-orange focus-within:ring-1 focus-within:ring-deal-orange/40">
-                    <span className="text-xs font-bold text-outline shrink-0">Rs.</span>
+                  <div className="flex items-center gap-2 rounded-xl border border-zinc-200 bg-white px-3.5 py-2.5 focus-within:border-zinc-900 focus-within:ring-1 focus-within:ring-zinc-900 transition-all shadow-sm">
+                    <span className="text-xs font-bold text-zinc-400 shrink-0">Rs.</span>
                     <input
                       type="number"
                       min={0}
                       step={500}
                       value={lowestPrice}
                       onChange={(e) => setLowestPrice(e.target.value)}
-                      className="w-full bg-transparent text-sm font-semibold text-on-surface outline-none"
+                      className="w-full bg-transparent text-sm font-bold text-zinc-900 outline-none font-mono"
                     />
                   </div>
-                  <p className="text-[10px] text-outline mt-1">Best price shown on product cards</p>
+                  <p className="text-[10px] text-zinc-500 mt-1">Best deal displayed on cards across site</p>
                 </div>
               </div>
 
-              <div className="flex flex-wrap items-center gap-2 pt-1">
+              <div className="flex flex-wrap items-center gap-2.5 pt-1">
                 <button
                   type="button"
                   onClick={handleSave}
                   disabled={isSaving}
-                  className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-deal-orange hover:bg-deal-orange/90 text-white text-sm font-semibold shadow-sm disabled:opacity-60 transition-colors"
+                  className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-zinc-950 hover:bg-zinc-800 text-white text-xs font-semibold shadow-sm disabled:opacity-60 transition-all cursor-pointer"
                 >
                   {isSaving ? (
                     <>
-                      <span className="material-symbols-outlined text-[18px] animate-spin">progress_activity</span>
-                      Saving…
+                      <span className="material-symbols-outlined text-[17px] animate-spin">progress_activity</span>
+                      Saving to Database…
                     </>
                   ) : (
                     <>
-                      <span className="material-symbols-outlined text-[18px]">save</span>
-                      Save Price Update
+                      <span className="material-symbols-outlined text-[17px]">save</span>
+                      Update Prices
                     </>
                   )}
                 </button>
                 <button
                   type="button"
                   onClick={clearSelection}
-                  className="inline-flex items-center gap-1.5 px-3 py-2.5 rounded-xl border border-border-hairline bg-white text-sm font-medium text-on-surface-variant hover:text-on-surface transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl border border-zinc-200 bg-white text-xs font-medium text-zinc-700 hover:bg-zinc-100 transition-colors"
                 >
                   Cancel
                 </button>
@@ -338,13 +341,16 @@ export function PriceUpdatePanel() {
 
       {message && (
         <div
-          className={`rounded-xl px-4 py-3 text-sm font-medium border ${
+          className={`rounded-xl px-4 py-3 text-xs font-semibold border flex items-center gap-2 ${
             message.type === "success"
               ? "bg-emerald-50 text-emerald-800 border-emerald-200"
-              : "bg-red-50 text-red-700 border-red-200"
+              : "bg-rose-50 text-rose-700 border-rose-200"
           }`}
         >
-          {message.text}
+          <span className="material-symbols-outlined text-[18px]">
+            {message.type === "success" ? "check_circle" : "error"}
+          </span>
+          <span>{message.text}</span>
         </div>
       )}
     </section>

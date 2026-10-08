@@ -20,8 +20,8 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="bg-surface font-body-md text-on-surface min-h-screen">
-      {/* Fixed Sidebar */}
+    <div className="bg-[#fafafa] text-zinc-900 min-h-screen antialiased selection:bg-orange-500 selection:text-white">
+      {/* Fixed Sidebar (256px / w-64) */}
       <AdminSidebar
         user={{
           name: session.user.name,
@@ -31,7 +31,7 @@ export default async function AdminLayout({
       />
 
       {/* Main Content Area */}
-      <div className="pl-72">
+      <div className="pl-64 flex flex-col min-h-screen">
         <AdminNavbar
           user={{
             email: session.user.email,
@@ -40,8 +40,8 @@ export default async function AdminLayout({
           }}
         />
 
-        <main className="relative pt-16 bg-surface min-h-screen">
-          <div className="flex flex-col w-full px-space-lg py-space-md space-y-space-lg font-['Poppins',sans-serif] bg-surface">
+        <main className="flex-1 pt-16 bg-[#fafafa]">
+          <div className="max-w-[1520px] mx-auto px-6 sm:px-8 lg:px-10 py-8 space-y-8">
             {children}
           </div>
         </main>

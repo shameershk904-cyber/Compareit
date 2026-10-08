@@ -45,319 +45,245 @@ export function DashboardClient({ stats, liveBanners, error }: DashboardClientPr
   const tabletPct = totalDevices > 0 ? (((stats.devices?.tablet || 0) / totalDevices) * 100).toFixed(1) : "0";
 
   return (
-    <div className="space-y-space-lg">
+    <div className="space-y-8">
       {error && (
-        <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-body-sm flex items-center gap-3">
-          <span className="material-symbols-outlined text-rose-600">error</span>
+        <div className="p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-800 text-xs sm:text-sm flex items-center gap-3 shadow-sm">
+          <span className="material-symbols-outlined text-rose-600 text-[20px] shrink-0">error</span>
           <span className="font-medium">{error}</span>
         </div>
       )}
 
-      {/* TOP DASHBOARD SUMMARY & OPERATIONS BAR */}
-      <section className="flex flex-col xl:flex-row xl:items-center justify-between gap-space-md bg-surface-container-lowest p-space-lg rounded-xl shadow-[0_1px_3px_rgba(15,23,42,0.04)] border border-border-hairline">
-        <div className="space-y-1">
+      {/* TOP DASHBOARD EXECUTIVE OPERATIONS BAR */}
+      <section className="bg-white p-6 sm:p-8 rounded-2xl border border-zinc-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.03)] flex flex-col xl:flex-row xl:items-center justify-between gap-6">
+        <div className="space-y-1.5">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-deal-orange animate-ping"></span>
-            <span className="text-label-sm font-label-sm tracking-wider uppercase text-deal-orange font-bold">
-              Live Data Telemetry &bull; Pakistan Network
+            <span className="w-2.5 h-2.5 rounded-full bg-orange-600 animate-ping"></span>
+            <span className="text-[11px] font-bold tracking-wider uppercase text-orange-600">
+              Live Edge Telemetry &bull; Pakistan Network
             </span>
           </div>
-          <h1 className="text-headline-md font-headline-md text-on-surface tracking-tight">
-            CompareIt.pk Intelligence &amp; Operations Center
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-zinc-950 tracking-tight">
+            Executive Intelligence &amp; Operations Center
           </h1>
-          <p className="text-body-sm font-body-sm text-outline">
-            Real-time consumer hardware benchmarking, regional price monitoring, and media campaigns.
+          <p className="text-xs sm:text-sm text-zinc-500 font-normal leading-relaxed max-w-3xl">
+            Real-time consumer hardware benchmarking, market price indexing, and search intent telemetry aggregated from across Pakistan.
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-space-sm">
+        <div className="flex flex-wrap items-center gap-3">
           {/* Date Filter Segmented Group */}
-          <div className="flex items-center bg-surface-subtle p-1 rounded-lg border border-border-hairline">
-            <button
-              onClick={() => setDateFilter("today")}
-              className={`px-3 py-1.5 text-label-sm font-label-sm rounded transition-colors ${
-                dateFilter === "today"
-                  ? "bg-primary-container text-on-primary font-bold shadow-sm"
-                  : "text-on-surface-variant hover:text-on-surface"
-              }`}
-              type="button"
-            >
-              Today
-            </button>
-            <button
-              onClick={() => setDateFilter("7d")}
-              className={`px-3 py-1.5 text-label-sm font-label-sm rounded transition-colors ${
-                dateFilter === "7d"
-                  ? "bg-primary-container text-on-primary font-bold shadow-sm"
-                  : "text-on-surface-variant hover:text-on-surface"
-              }`}
-              type="button"
-            >
-              Last 7 Days
-            </button>
-            <button
-              onClick={() => setDateFilter("30d")}
-              className={`px-3 py-1.5 text-label-sm font-label-sm rounded transition-colors ${
-                dateFilter === "30d"
-                  ? "bg-primary-container text-on-primary font-bold shadow-sm"
-                  : "text-on-surface-variant hover:text-on-surface"
-              }`}
-              type="button"
-            >
-              Last 30 Days
-            </button>
-            <button
-              onClick={() => setDateFilter("quarterly")}
-              className={`px-3 py-1.5 text-label-sm font-label-sm rounded transition-colors ${
-                dateFilter === "quarterly"
-                  ? "bg-primary-container text-on-primary font-bold shadow-sm"
-                  : "text-on-surface-variant hover:text-on-surface"
-              }`}
-              type="button"
-            >
-              Quarterly
-            </button>
+          <div className="flex items-center bg-zinc-100 p-1 rounded-xl border border-zinc-200/60">
+            {(
+              [
+                { id: "today", label: "Today" },
+                { id: "7d", label: "Last 7 Days" },
+                { id: "30d", label: "Last 30 Days" },
+                { id: "quarterly", label: "Quarterly" },
+              ] as const
+            ).map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setDateFilter(tab.id)}
+                className={`px-3.5 py-1.5 text-xs rounded-lg transition-all cursor-pointer ${
+                  dateFilter === tab.id
+                    ? "bg-white text-zinc-950 font-bold shadow-sm"
+                    : "text-zinc-600 hover:text-zinc-900 font-medium"
+                }`}
+                type="button"
+              >
+                {tab.label}
+              </button>
+            ))}
           </div>
 
           {/* Action Buttons */}
           <Link
             href="/api/admin/activity?export=csv"
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-surface-container-low hover:bg-surface-container text-on-surface font-label-md text-label-md transition-colors border border-border-hairline"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white hover:bg-zinc-50 text-zinc-700 text-xs font-semibold transition-all border border-zinc-200 shadow-sm"
           >
-            <span className="material-symbols-outlined text-[18px]">download</span>
+            <span className="material-symbols-outlined text-[17px]">download</span>
             <span>Export CSV Audit</span>
           </Link>
 
           <Link
             href="/admin/banners"
-            className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-deal-orange hover:bg-deal-orange/90 text-on-primary font-label-md text-label-md shadow-md shadow-deal-orange/20 transition-all transform active:scale-95"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-zinc-950 hover:bg-zinc-800 text-white text-xs font-semibold shadow-sm transition-all"
           >
-            <span className="material-symbols-outlined text-[18px]">campaign</span>
-            <span>+ Deploy New Banner Campaign</span>
+            <span className="material-symbols-outlined text-[17px]">campaign</span>
+            <span>+ Deploy Banner</span>
           </Link>
         </div>
       </section>
 
       {/* KEY PERFORMANCE METRIC CARDS (4 GRID) */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-space-md">
+      <section className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6">
         {/* Metric 1: Visitors */}
         <Link
           href="/admin/analytics"
-          className="bg-surface-container-lowest p-space-md rounded-xl shadow-[0_1px_3px_rgba(15,23,42,0.04)] border border-border-hairline hover:shadow-md transition-shadow flex flex-col justify-between relative overflow-hidden group block"
+          className="bg-white p-6 rounded-2xl border border-zinc-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-md hover:-translate-y-0.5 transition-all flex flex-col justify-between group block"
         >
           <div className="flex items-start justify-between">
             <div>
-              <span className="text-label-sm font-label-sm text-outline uppercase tracking-wider">
+              <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">
                 Total Unique Visitors
               </span>
-              <h2 className="text-headline-lg font-headline-lg text-on-surface mt-1 tracking-tight">
+              <div className="text-3xl sm:text-4xl font-extrabold text-zinc-950 mt-2 font-mono tracking-tight">
                 {formattedVisitors}
-              </h2>
+              </div>
             </div>
-            <div className="w-10 h-10 rounded-lg bg-primary-container/10 flex items-center justify-center text-primary">
+            <div className="w-11 h-11 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center shrink-0 shadow-sm group-hover:scale-105 transition-transform">
               <span className="material-symbols-outlined text-[22px]">group</span>
             </div>
           </div>
-          <div className="mt-4 flex items-center justify-between">
-            <svg className="w-28 h-8 text-deal-orange" fill="none" viewBox="0 0 100 30" xmlns="http://www.w3.org/2000/svg">
-              <path
-                d="M0 24 Q 15 26, 30 18 T 60 12 T 80 15 T 100 4"
-                fill="none"
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeWidth="2.5"
-              />
-              <path
-                d="M0 24 Q 15 26, 30 18 T 60 12 T 80 15 T 100 4 L 100 30 L 0 30 Z"
-                fill="currentColor"
-                fillOpacity="0.08"
-              />
-            </svg>
-            <div className="text-right">
-              <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-deal-orange/10 text-deal-orange text-label-sm font-label-sm font-bold">
-                <span className="material-symbols-outlined text-[14px]">visibility</span> Telemetry
-              </span>
-              <p className="text-body-sm font-body-sm text-outline mt-0.5">Recorded page hits</p>
-            </div>
+          <div className="mt-5 pt-4 border-t border-zinc-100 flex items-center justify-between">
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-orange-50 text-orange-700 text-[11px] font-bold">
+              <span className="w-1.5 h-1.5 rounded-full bg-orange-600"></span> Verified Hits
+            </span>
+            <span className="text-xs text-zinc-400 font-medium">Recorded telemetry</span>
           </div>
         </Link>
 
         {/* Metric 2: Searches */}
         <Link
           href="/admin/search"
-          className="bg-surface-container-lowest p-space-md rounded-xl shadow-[0_1px_3px_rgba(15,23,42,0.04)] border border-border-hairline hover:shadow-md transition-shadow flex flex-col justify-between relative overflow-hidden group block"
+          className="bg-white p-6 rounded-2xl border border-zinc-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-md hover:-translate-y-0.5 transition-all flex flex-col justify-between group block"
         >
           <div className="flex items-start justify-between">
             <div>
-              <span className="text-label-sm font-label-sm text-outline uppercase tracking-wider">
-                Smartphone Searches
+              <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">
+                Catalog Searches
               </span>
-              <h2 className="text-headline-lg font-headline-lg text-on-surface mt-1 tracking-tight">
+              <div className="text-3xl sm:text-4xl font-extrabold text-zinc-950 mt-2 font-mono tracking-tight">
                 {formattedSearches}
-              </h2>
+              </div>
             </div>
-            <div className="w-10 h-10 rounded-lg bg-tertiary-fixed flex items-center justify-center text-tertiary-container">
+            <div className="w-11 h-11 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 shadow-sm group-hover:scale-105 transition-transform">
               <span className="material-symbols-outlined text-[22px]">search_insights</span>
             </div>
           </div>
-          <div className="mt-4 flex items-center justify-between">
-            <svg className="w-28 h-8 text-primary-container" fill="none" viewBox="0 0 100 30" xmlns="http://www.w3.org/2000/svg">
-              <path
-                d="M0 26 Q 20 22, 40 16 T 70 8 T 100 2"
-                fill="none"
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeWidth="2.5"
-              />
-              <path
-                d="M0 26 Q 20 22, 40 16 T 70 8 T 100 2 L 100 30 L 0 30 Z"
-                fill="currentColor"
-                fillOpacity="0.08"
-              />
-            </svg>
-            <div className="text-right">
-              <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-primary-container text-on-primary text-label-sm font-label-sm font-bold">
-                <span className="material-symbols-outlined text-[14px]">search</span> Catalog
-              </span>
-              <p className="text-body-sm font-body-sm text-outline mt-0.5">Logged search events</p>
-            </div>
+          <div className="mt-5 pt-4 border-t border-zinc-100 flex items-center justify-between">
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 text-[11px] font-bold">
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-600"></span> Intent Engine
+            </span>
+            <span className="text-xs text-zinc-400 font-medium">Logged queries</span>
           </div>
         </Link>
 
         {/* Metric 3: Shootouts Run */}
         <Link
           href="/admin/analytics"
-          className="bg-surface-container-lowest p-space-md rounded-xl shadow-[0_1px_3px_rgba(15,23,42,0.04)] border border-border-hairline hover:shadow-md transition-shadow flex flex-col justify-between relative overflow-hidden group block"
+          className="bg-white p-6 rounded-2xl border border-zinc-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-md hover:-translate-y-0.5 transition-all flex flex-col justify-between group block"
         >
           <div className="flex items-start justify-between">
             <div>
-              <span className="text-label-sm font-label-sm text-outline uppercase tracking-wider">
+              <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">
                 Device Shootouts Run
               </span>
-              <h2 className="text-headline-lg font-headline-lg text-on-surface mt-1 tracking-tight">
+              <div className="text-3xl sm:text-4xl font-extrabold text-zinc-950 mt-2 font-mono tracking-tight">
                 {shootoutsCount}
-              </h2>
+              </div>
             </div>
-            <div className="w-10 h-10 rounded-lg bg-badge-blue-tint flex items-center justify-center text-tertiary-container">
+            <div className="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 shadow-sm group-hover:scale-105 transition-transform">
               <span className="material-symbols-outlined text-[22px]">compare</span>
             </div>
           </div>
-          <div className="mt-4 flex items-center justify-between">
-            <svg className="w-28 h-8 text-deal-orange" fill="none" viewBox="0 0 100 30" xmlns="http://www.w3.org/2000/svg">
-              <path
-                d="M0 20 Q 25 24, 45 14 T 75 16 T 100 6"
-                fill="none"
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeWidth="2.5"
-              />
-              <path
-                d="M0 20 Q 25 24, 45 14 T 75 16 T 100 6 L 100 30 L 0 30 Z"
-                fill="currentColor"
-                fillOpacity="0.08"
-              />
-            </svg>
-            <div className="text-right">
-              <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-deal-orange/10 text-deal-orange text-label-sm font-label-sm font-bold">
-                <span className="material-symbols-outlined text-[14px]">compare_arrows</span> Specs
-              </span>
-              <p className="text-body-sm font-body-sm text-outline mt-0.5">Comparison views</p>
-            </div>
+          <div className="mt-5 pt-4 border-t border-zinc-100 flex items-center justify-between">
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-bold">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-600"></span> Side-by-Side
+            </span>
+            <span className="text-xs text-zinc-400 font-medium">Comparison views</span>
           </div>
         </Link>
 
         {/* Metric 4: Active Promo Banners */}
         <Link
           href="/admin/banners"
-          className="bg-surface-container-lowest p-space-md rounded-xl shadow-[0_1px_3px_rgba(15,23,42,0.04)] border border-border-hairline hover:shadow-md transition-shadow flex flex-col justify-between relative overflow-hidden group block"
+          className="bg-white p-6 rounded-2xl border border-zinc-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-md hover:-translate-y-0.5 transition-all flex flex-col justify-between group block"
         >
           <div className="flex items-start justify-between">
             <div>
-              <span className="text-label-sm font-label-sm text-outline uppercase tracking-wider">
-                Active Promo Banners
+              <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">
+                Active Campaigns
               </span>
-              <h2 className="text-headline-lg font-headline-lg text-on-surface mt-1 tracking-tight">
-                {stats.banners} Live <span className="text-body-lg font-body-lg text-outline">/ 14 slots</span>
-              </h2>
+              <div className="text-3xl sm:text-4xl font-extrabold text-zinc-950 mt-2 font-mono tracking-tight">
+                {stats.banners} <span className="text-sm font-normal text-zinc-400">/ 14 slots</span>
+              </div>
             </div>
-            <div className="w-10 h-10 rounded-lg bg-primary-container text-on-primary flex items-center justify-center">
+            <div className="w-11 h-11 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0 shadow-sm group-hover:scale-105 transition-transform">
               <span className="material-symbols-outlined text-[22px]">ads_click</span>
             </div>
           </div>
-          <div className="mt-4 flex items-center justify-between">
-            <div className="flex flex-col">
-              <span className="text-body-sm font-body-sm font-bold text-on-surface">CTR: {ctrFormatted}</span>
-              <span className="text-label-sm font-label-sm text-outline">{totalImpressions.toLocaleString()} Total Impr.</span>
-            </div>
-            <div className="text-right">
-              <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed text-label-sm font-label-sm font-bold">
-                <span className="material-symbols-outlined text-[14px]">ads_click</span> {totalClicks.toLocaleString()} Clicks
-              </span>
-              <p className="text-body-sm font-body-sm text-outline mt-0.5">Active campaigns</p>
-            </div>
+          <div className="mt-5 pt-4 border-t border-zinc-100 flex items-center justify-between text-xs">
+            <span className="font-semibold text-zinc-900 font-mono">CTR: {ctrFormatted}</span>
+            <span className="text-zinc-500 font-mono">{totalClicks.toLocaleString()} Clicks</span>
           </div>
         </Link>
       </section>
-
 
       {/* MANUAL PRICE UPDATE */}
       <PriceUpdatePanel />
 
       {/* TWO-COLUMN ANALYTICS ROW */}
-      <section className="grid grid-cols-1 lg:grid-cols-12 gap-space-md">
+      <section className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Left Card: Visitor & Search Traffic Trends (col-span-8) */}
-        <div className="lg:col-span-8 bg-surface-container-lowest p-space-lg rounded-xl shadow-[0_1px_3px_rgba(15,23,42,0.04)] border border-border-hairline flex flex-col justify-between">
+        <div className="lg:col-span-8 bg-white p-6 sm:p-7 rounded-2xl border border-zinc-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.03)] flex flex-col justify-between space-y-6">
           <div>
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm mb-space-md">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
               <div>
-                <span className="text-label-sm font-label-sm uppercase tracking-wider text-deal-orange font-bold">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-orange-600 block">
                   Traffic Dynamics
                 </span>
-                <h3 className="text-headline-sm font-headline-sm text-on-surface">
+                <h3 className="text-lg font-bold text-zinc-950 tracking-tight">
                   Visitor Volume &amp; Telemetry Breakdown
                 </h3>
               </div>
               <Link
                 href="/admin/analytics"
-                className="px-3 py-1.5 text-label-sm font-label-sm rounded-lg bg-surface-subtle hover:bg-surface-container text-on-surface border border-border-hairline transition-colors flex items-center gap-1.5 font-semibold"
+                className="px-3.5 py-1.5 text-xs font-semibold rounded-xl bg-zinc-50 hover:bg-zinc-100 text-zinc-800 border border-zinc-200 transition-colors flex items-center gap-1.5 self-start sm:self-auto"
               >
                 <span>Full Telemetry Studio</span>
-                <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+                <span className="material-symbols-outlined text-[15px]">arrow_forward</span>
               </Link>
             </div>
 
             {/* Quick Metrics Summary Strip */}
-            <div className="grid grid-cols-3 gap-3 p-4 bg-surface-subtle rounded-xl border border-border-hairline mb-space-md">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 bg-zinc-50/70 rounded-xl border border-zinc-200/70 mb-6">
               <div>
-                <span className="text-label-sm font-label-sm text-outline uppercase tracking-wider">Total Pageviews</span>
-                <div className="text-headline-sm font-headline-sm font-bold text-on-surface mt-0.5">
+                <span className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider block">
+                  Total Pageviews
+                </span>
+                <div className="text-xl font-extrabold text-zinc-950 mt-1 font-mono">
                   {stats.pageViews.toLocaleString()}
                 </div>
-                <span className="text-body-sm font-body-sm text-outline">Verified telemetry hits</span>
+                <span className="text-[11px] text-zinc-400">Verified hits</span>
               </div>
               <div>
-                <span className="text-label-sm font-label-sm text-outline uppercase tracking-wider">Search Queries</span>
-                <div className="text-headline-sm font-headline-sm font-bold text-deal-orange mt-0.5">
+                <span className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider block">
+                  Search Queries
+                </span>
+                <div className="text-xl font-extrabold text-orange-600 mt-1 font-mono">
                   {stats.searchLogs.toLocaleString()}
                 </div>
-                <span className="text-body-sm font-body-sm text-outline">Consumer lookups</span>
+                <span className="text-[11px] text-zinc-400">Consumer lookups</span>
               </div>
               <div>
-                <span className="text-label-sm font-label-sm text-outline uppercase tracking-wider">Shootout Views</span>
-                <div className="text-headline-sm font-headline-sm font-bold text-primary-container mt-0.5">
+                <span className="text-[11px] font-semibold text-zinc-500 uppercase tracking-wider block">
+                  Shootout Views
+                </span>
+                <div className="text-xl font-extrabold text-zinc-950 mt-1 font-mono">
                   {shootoutsCount}
                 </div>
-                <span className="text-body-sm font-body-sm text-outline">Side-by-side specs</span>
+                <span className="text-[11px] text-zinc-400">Side-by-side specs</span>
               </div>
             </div>
 
             {/* Top Visited Public Pages */}
             <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-label-sm font-label-sm uppercase tracking-wider text-outline font-semibold">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-xs font-bold uppercase tracking-wider text-zinc-500">
                   Most Visited Pages (Real DB Telemetry)
                 </span>
-                <Link href="/admin/analytics" className="text-label-sm font-label-sm text-deal-orange font-bold hover:underline">
+                <Link href="/admin/analytics" className="text-xs text-orange-600 font-semibold hover:underline">
                   View All &rarr;
                 </Link>
               </div>
@@ -369,65 +295,65 @@ export function DashboardClient({ stats, liveBanners, error }: DashboardClientPr
                     return (
                       <div
                         key={page.path}
-                        className="flex items-center justify-between p-2.5 rounded-lg bg-surface-subtle hover:bg-surface-container-low border border-border-hairline transition-colors text-body-sm"
+                        className="flex items-center justify-between p-3 rounded-xl bg-zinc-50/60 hover:bg-zinc-100/80 border border-zinc-200/60 transition-colors text-xs"
                       >
-                        <div className="flex items-center gap-2.5 truncate max-w-md">
-                          <span className="w-5 h-5 rounded-full bg-surface-container flex items-center justify-center text-label-sm font-mono text-outline shrink-0">
+                        <div className="flex items-center gap-3 truncate max-w-md">
+                          <span className="w-5 h-5 rounded-full bg-zinc-200 text-zinc-700 flex items-center justify-center text-[10px] font-mono font-bold shrink-0">
                             {idx + 1}
                           </span>
-                          <span className="font-mono text-on-surface truncate font-medium">{page.path}</span>
+                          <span className="font-mono text-zinc-900 truncate font-semibold">{page.path}</span>
                         </div>
                         <div className="flex items-center gap-3 shrink-0">
-                          <span className="font-mono font-bold text-on-surface">{page.count.toLocaleString()} views</span>
-                          <span className="text-label-sm font-mono text-outline w-10 text-right">{pct}%</span>
+                          <span className="font-mono font-bold text-zinc-950">{page.count.toLocaleString()} views</span>
+                          <span className="text-[11px] font-mono text-zinc-400 w-10 text-right">{pct}%</span>
                         </div>
                       </div>
                     );
                   })}
                 </div>
               ) : (
-                <div className="p-6 text-center text-outline text-body-sm bg-surface-subtle rounded-xl border border-border-hairline">
+                <div className="p-6 text-center text-zinc-500 text-xs bg-zinc-50 rounded-xl border border-zinc-200/60">
                   {error ? "Unable to load pageview paths from database." : "No pageview records logged in database yet."}
                 </div>
               )}
             </div>
           </div>
 
-          <div className="pt-space-md mt-space-md border-t border-border-hairline flex items-center justify-between text-label-sm text-outline">
+          <div className="pt-4 border-t border-zinc-100 flex items-center justify-between text-xs text-zinc-500">
             <span>Aggregated directly from PostgreSQL <code>page_views</code> table</span>
-            <Link href="/admin/analytics" className="text-deal-orange font-bold hover:underline">
+            <Link href="/admin/analytics" className="text-orange-600 font-semibold hover:underline">
               Inspect Full Telemetry &rarr;
             </Link>
           </div>
         </div>
 
         {/* Right Card: User Source Devices & Platforms (col-span-4) */}
-        <div className="lg:col-span-4 bg-surface-container-lowest p-space-lg rounded-xl shadow-[0_1px_3px_rgba(15,23,42,0.04)] border border-border-hairline flex flex-col justify-between">
+        <div className="lg:col-span-4 bg-white p-6 sm:p-7 rounded-2xl border border-zinc-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.03)] flex flex-col justify-between space-y-6">
           <div>
-            <div className="flex items-center justify-between mb-space-sm">
+            <div className="flex items-center justify-between mb-4">
               <div>
-                <span className="text-label-sm font-label-sm uppercase tracking-wider text-deal-orange font-bold">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-orange-600 block">
                   Hardware Breakdown
                 </span>
-                <h3 className="text-headline-sm font-headline-sm text-on-surface">Devices &amp; Platforms</h3>
+                <h3 className="text-lg font-bold text-zinc-950 tracking-tight">Devices &amp; Platforms</h3>
               </div>
-              <span className="material-symbols-outlined text-outline">devices</span>
+              <span className="material-symbols-outlined text-zinc-400">devices</span>
             </div>
 
             {totalDevices > 0 ? (
-              <div className="my-space-md p-space-md bg-surface-subtle rounded-xl flex items-center gap-space-md border border-border-hairline">
+              <div className="p-5 bg-zinc-50/70 rounded-2xl flex items-center gap-5 border border-zinc-200/60 my-4">
                 {/* Circular Visual (SVG Donut) */}
                 <div className="relative w-24 h-24 flex-shrink-0 flex items-center justify-center">
                   <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
                     <path
-                      className="text-surface-container-high"
+                      className="text-zinc-200"
                       d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                       fill="none"
                       stroke="currentColor"
                       strokeWidth="4.5"
                     ></path>
                     <path
-                      className="text-deal-orange"
+                      className="text-orange-600"
                       d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                       fill="none"
                       stroke="currentColor"
@@ -436,7 +362,7 @@ export function DashboardClient({ stats, liveBanners, error }: DashboardClientPr
                       strokeWidth="4.5"
                     ></path>
                     <path
-                      className="text-primary-container"
+                      className="text-zinc-900"
                       d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                       fill="none"
                       stroke="currentColor"
@@ -446,64 +372,58 @@ export function DashboardClient({ stats, liveBanners, error }: DashboardClientPr
                     ></path>
                   </svg>
                   <div className="absolute flex flex-col items-center justify-center">
-                    <span className="text-headline-sm font-headline-sm font-bold text-on-surface leading-none">
+                    <span className="text-base font-bold text-zinc-950 font-mono leading-none">
                       {desktopPct}%
                     </span>
-                    <span className="text-[9px] uppercase tracking-wider text-outline font-semibold">Desktop</span>
+                    <span className="text-[8px] uppercase tracking-wider text-zinc-400 font-semibold mt-0.5">Desktop</span>
                   </div>
                 </div>
 
                 {/* Real Device Breakdown */}
-                <div className="flex-1 space-y-2">
-                  <div>
-                    <div className="flex justify-between text-body-sm font-body-sm">
-                      <span className="text-on-surface font-semibold flex items-center gap-1">
-                        <span className="w-2 h-2 rounded-full bg-deal-orange"></span> Desktop
-                      </span>
-                      <span className="font-bold text-on-surface">
-                        {desktopPct}% ({stats.devices?.desktop || 0})
-                      </span>
-                    </div>
+                <div className="flex-1 space-y-2.5">
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-zinc-700 font-semibold flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-orange-600"></span> Desktop
+                    </span>
+                    <span className="font-mono font-bold text-zinc-950">
+                      {desktopPct}% ({stats.devices?.desktop || 0})
+                    </span>
                   </div>
-                  <div>
-                    <div className="flex justify-between text-body-sm font-body-sm">
-                      <span className="text-on-surface font-semibold flex items-center gap-1">
-                        <span className="w-2 h-2 rounded-full bg-primary-container"></span> Mobile
-                      </span>
-                      <span className="font-bold text-on-surface">
-                        {mobilePct}% ({stats.devices?.mobile || 0})
-                      </span>
-                    </div>
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-zinc-700 font-semibold flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-zinc-900"></span> Mobile
+                    </span>
+                    <span className="font-mono font-bold text-zinc-950">
+                      {mobilePct}% ({stats.devices?.mobile || 0})
+                    </span>
                   </div>
-                  <div>
-                    <div className="flex justify-between text-body-sm font-body-sm">
-                      <span className="text-on-surface font-semibold flex items-center gap-1">
-                        <span className="w-2 h-2 rounded-full bg-surface-tint"></span> Tablet
-                      </span>
-                      <span className="font-bold text-on-surface">
-                        {tabletPct}% ({stats.devices?.tablet || 0})
-                      </span>
-                    </div>
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-zinc-700 font-semibold flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-zinc-400"></span> Tablet
+                    </span>
+                    <span className="font-mono font-bold text-zinc-950">
+                      {tabletPct}% ({stats.devices?.tablet || 0})
+                    </span>
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="my-space-md p-6 bg-surface-subtle rounded-xl text-center text-outline text-body-sm border border-border-hairline">
+              <div className="p-6 bg-zinc-50 rounded-xl text-center text-zinc-500 text-xs border border-zinc-200/60 my-4">
                 {error ? "Unable to load device data." : "No device telemetry logged yet."}
               </div>
             )}
 
-            <div className="p-3 bg-surface-subtle rounded-lg border border-border-hairline text-body-sm space-y-1">
-              <span className="text-label-sm font-label-sm text-outline uppercase tracking-wider">Device Tracking</span>
-              <p className="text-on-surface text-body-sm">
-                Tracked via Client User-Agent parsing in <code>/api/track</code>.
+            <div className="p-3.5 bg-zinc-50/80 rounded-xl border border-zinc-200/60 text-xs space-y-1">
+              <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider block">Device Tracking</span>
+              <p className="text-zinc-600 text-xs leading-relaxed">
+                Tracked via Client User-Agent parsing in <code>/api/track</code> on every public page load.
               </p>
             </div>
           </div>
 
-          <div className="mt-space-md pt-space-sm border-t border-border-hairline flex items-center justify-between text-label-sm">
-            <span className="text-outline">{totalDevices} logged sessions</span>
-            <Link href="/admin/analytics" className="text-deal-orange font-bold hover:underline">
+          <div className="pt-4 border-t border-zinc-100 flex items-center justify-between text-xs">
+            <span className="text-zinc-500">{totalDevices} logged sessions</span>
+            <Link href="/admin/analytics" className="text-orange-600 font-semibold hover:underline">
               View Detailed OS &rarr;
             </Link>
           </div>
@@ -511,79 +431,79 @@ export function DashboardClient({ stats, liveBanners, error }: DashboardClientPr
       </section>
 
       {/* PAKISTANI REGIONAL DEMOGRAPHICS & SEARCH INTELLIGENCE ROW */}
-      <section className="grid grid-cols-1 lg:grid-cols-2 gap-space-md">
+      <section className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Left Card: Pakistan Regional Network Telemetry */}
-        <div className="bg-surface-container-lowest p-space-lg rounded-xl shadow-[0_1px_3px_rgba(15,23,42,0.04)] border border-border-hairline flex flex-col justify-between">
+        <div className="bg-white p-6 sm:p-7 rounded-2xl border border-zinc-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.03)] flex flex-col justify-between space-y-6">
           <div>
-            <div className="flex items-center justify-between mb-space-md">
+            <div className="flex items-center justify-between mb-4">
               <div>
-                <span className="text-label-sm font-label-sm uppercase tracking-wider text-deal-orange font-bold">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-orange-600 block">
                   Network Coverage
                 </span>
-                <h3 className="text-headline-sm font-headline-sm text-on-surface">
+                <h3 className="text-lg font-bold text-zinc-950 tracking-tight">
                   Pakistan National Network Reach
                 </h3>
               </div>
-              <span className="px-2.5 py-1 rounded bg-surface-subtle text-label-sm font-label-sm font-semibold text-outline border border-border-hairline">
+              <span className="px-2.5 py-1 rounded-full bg-emerald-50 text-[10px] font-bold text-emerald-800 border border-emerald-200">
                 Active Telemetry
               </span>
             </div>
 
             <div className="space-y-3">
-              <div className="p-3.5 bg-surface-subtle rounded-lg border border-border-hairline flex items-start gap-3">
-                <span className="material-symbols-outlined text-deal-orange mt-0.5 text-[20px]">public</span>
+              <div className="p-4 bg-zinc-50/70 rounded-xl border border-zinc-200/60 flex items-start gap-3.5">
+                <span className="material-symbols-outlined text-orange-600 mt-0.5 text-[20px]">public</span>
                 <div>
-                  <div className="text-body-md font-bold text-on-surface">Country Code: PK (Pakistan)</div>
-                  <div className="text-body-sm text-outline mt-0.5">
+                  <div className="text-xs font-bold text-zinc-950">Country Code: PK (Pakistan)</div>
+                  <div className="text-xs text-zinc-500 mt-0.5 leading-relaxed">
                     Traffic originates through PTCL, Nayatel, Jazz, Zong, and Telenor broadband networks.
                   </div>
                 </div>
               </div>
 
-              <div className="p-3.5 bg-surface-subtle rounded-lg border border-border-hairline flex items-start gap-3">
-                <span className="material-symbols-outlined text-primary-container mt-0.5 text-[20px]">security</span>
+              <div className="p-4 bg-zinc-50/70 rounded-xl border border-zinc-200/60 flex items-start gap-3.5">
+                <span className="material-symbols-outlined text-zinc-900 mt-0.5 text-[20px]">security</span>
                 <div>
-                  <div className="text-body-md font-bold text-on-surface">Privacy-Preserving Salted Hashes</div>
-                  <div className="text-body-sm text-outline mt-0.5">
+                  <div className="text-xs font-bold text-zinc-950">Privacy-Preserving Salted Hashes</div>
+                  <div className="text-xs text-zinc-500 mt-0.5 leading-relaxed">
                     Client IPs are transformed daily into one-way cryptographic hashes. No raw PII or IP addresses are stored.
                   </div>
                 </div>
               </div>
 
-              <div className="p-3.5 bg-surface-subtle rounded-lg border border-border-hairline flex items-start gap-3">
-                <span className="material-symbols-outlined text-tertiary-container mt-0.5 text-[20px]">database</span>
+              <div className="p-4 bg-zinc-50/70 rounded-xl border border-zinc-200/60 flex items-start gap-3.5">
+                <span className="material-symbols-outlined text-blue-600 mt-0.5 text-[20px]">database</span>
                 <div>
-                  <div className="text-body-md font-bold text-on-surface">Verified Record Count</div>
-                  <div className="text-body-sm text-outline mt-0.5">
-                    {stats.pageViews.toLocaleString()} total pageview rows in database.
+                  <div className="text-xs font-bold text-zinc-950">Verified Database Records</div>
+                  <div className="text-xs text-zinc-500 mt-0.5 leading-relaxed">
+                    {stats.pageViews.toLocaleString()} total pageview rows currently indexed in Supabase.
                   </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="mt-space-md pt-space-sm flex items-center justify-between text-label-sm font-label-sm text-outline border-t border-border-hairline">
+          <div className="pt-4 flex items-center justify-between text-xs text-zinc-500 border-t border-zinc-100">
             <span>Verified via Supabase Postgres</span>
-            <Link href="/admin/analytics" className="text-deal-orange font-bold hover:underline">
+            <Link href="/admin/analytics" className="text-orange-600 font-semibold hover:underline">
               Inspect Demographics &rarr;
             </Link>
           </div>
         </div>
 
         {/* Right Card: Real-Time Search & Intent Intelligence */}
-        <div className="bg-surface-container-lowest p-space-lg rounded-xl shadow-[0_1px_3px_rgba(15,23,42,0.04)] border border-border-hairline flex flex-col justify-between">
+        <div className="bg-white p-6 sm:p-7 rounded-2xl border border-zinc-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.03)] flex flex-col justify-between space-y-6">
           <div>
-            <div className="flex items-center justify-between mb-space-md">
+            <div className="flex items-center justify-between mb-4">
               <div>
-                <span className="text-label-sm font-label-sm uppercase tracking-wider text-deal-orange font-bold">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-orange-600 block">
                   Live Consumer Intent
                 </span>
-                <h3 className="text-headline-sm font-headline-sm text-on-surface">
+                <h3 className="text-lg font-bold text-zinc-950 tracking-tight">
                   Top Trending Searches (Real Data)
                 </h3>
               </div>
-              <span className="flex items-center gap-1 text-label-sm font-label-sm text-deal-orange font-bold bg-deal-orange/10 px-2 py-1 rounded">
-                <span className="w-2 h-2 rounded-full bg-deal-orange animate-pulse"></span> DB Verified
+              <span className="flex items-center gap-1.5 text-[10px] font-bold text-orange-700 bg-orange-50 px-2.5 py-1 rounded-full border border-orange-200">
+                <span className="w-1.5 h-1.5 rounded-full bg-orange-600 animate-pulse"></span> DB Verified
               </span>
             </div>
 
@@ -592,28 +512,28 @@ export function DashboardClient({ stats, liveBanners, error }: DashboardClientPr
                 stats.topSearches.map((item, idx) => (
                   <div
                     key={item.query}
-                    className="flex items-center justify-between p-3 rounded-lg bg-surface-subtle hover:bg-surface-container-low transition-colors border border-border-hairline"
+                    className="flex items-center justify-between p-3 rounded-xl bg-zinc-50/60 hover:bg-zinc-100/80 transition-colors border border-zinc-200/60"
                   >
                     <div className="flex items-center gap-3">
-                      <span className="material-symbols-outlined text-deal-orange text-[20px]">
+                      <span className="material-symbols-outlined text-orange-600 text-[19px]">
                         {idx === 0 ? "local_fire_department" : "search"}
                       </span>
                       <div className="flex flex-col">
-                        <span className="text-body-md font-body-md font-bold text-on-surface">
+                        <span className="text-xs font-bold text-zinc-950">
                           “{item.query}”
                         </span>
-                        <span className="text-label-sm font-label-sm text-outline">
+                        <span className="text-[10px] text-zinc-400">
                           Consumer catalog lookup
                         </span>
                       </div>
                     </div>
-                    <span className="px-2.5 py-1 rounded bg-deal-orange text-on-primary text-label-sm font-label-sm font-bold shadow-sm font-mono">
+                    <span className="px-2.5 py-1 rounded-lg bg-zinc-900 text-white text-[11px] font-bold shadow-sm font-mono">
                       {item.count} search{item.count > 1 ? "es" : ""}
                     </span>
                   </div>
                 ))
               ) : (
-                <div className="p-6 text-center text-outline text-body-sm bg-surface-subtle rounded-xl border border-border-hairline">
+                <div className="p-6 text-center text-zinc-500 text-xs bg-zinc-50 rounded-xl border border-zinc-200/60">
                   {error ? "Unable to load search queries from database." : "No search queries recorded in database yet."}
                 </div>
               )}
@@ -621,23 +541,23 @@ export function DashboardClient({ stats, liveBanners, error }: DashboardClientPr
           </div>
 
           {/* Zero-Result Searches Alert Callout */}
-          <div className="mt-space-md p-space-sm rounded-xl bg-deal-orange/10 border border-deal-orange/20 flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm">
-            <div className="flex items-center gap-space-sm">
-              <div className="w-8 h-8 rounded-lg bg-deal-orange text-on-primary flex items-center justify-center flex-shrink-0">
-                <span className="material-symbols-outlined text-[18px]">warning</span>
+          <div className="p-4 rounded-xl bg-orange-50/70 border border-orange-200/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-orange-600 text-white flex items-center justify-center flex-shrink-0 shadow-sm">
+                <span className="material-symbols-outlined text-[19px]">warning</span>
               </div>
               <div>
-                <h4 className="text-label-lg font-label-lg text-on-surface font-bold">
+                <h4 className="text-xs font-bold text-zinc-950">
                   {(stats.zeroResultCount ?? 0).toLocaleString()} Zero-Result Searches Logged
                 </h4>
-                <p className="text-body-sm font-body-sm text-outline">
+                <p className="text-[11px] text-zinc-600 mt-0.5">
                   Unfulfilled queries indicate catalog demand for missing or upcoming phone models.
                 </p>
               </div>
             </div>
             <Link
               href="/admin/search"
-              className="px-3.5 py-2 rounded-lg bg-primary-container hover:bg-primary-container/90 text-on-primary text-label-sm font-label-sm font-bold whitespace-nowrap shadow-sm text-center"
+              className="px-3.5 py-1.5 rounded-xl bg-zinc-950 hover:bg-zinc-800 text-white text-xs font-semibold whitespace-nowrap shadow-sm text-center shrink-0"
             >
               Inspect Demand &rarr;
             </Link>
@@ -646,31 +566,31 @@ export function DashboardClient({ stats, liveBanners, error }: DashboardClientPr
       </section>
 
       {/* BANNER & MEDIA MANAGER SECTION (FULL WIDTH HUB) */}
-      <section className="bg-surface-container-lowest p-space-lg rounded-xl shadow-[0_1px_3px_rgba(15,23,42,0.04)] border border-border-hairline space-y-space-md">
+      <section className="bg-white p-6 sm:p-8 rounded-2xl border border-zinc-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.03)] space-y-6">
         {/* Hub Header and Filter Controls */}
-        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md pb-space-sm border-b border-border-hairline">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-zinc-100">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <span className="material-symbols-outlined text-deal-orange">perm_media</span>
-              <span className="text-label-sm font-label-sm uppercase tracking-wider text-deal-orange font-bold">
-                Campaign Asset Orchestrator
+              <span className="material-symbols-outlined text-orange-600 text-[18px]">perm_media</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-orange-600">
+                Campaign Orchestrator
               </span>
             </div>
-            <h2 className="text-headline-md font-headline-md text-on-surface tracking-tight">
+            <h2 className="text-xl font-bold text-zinc-950 tracking-tight">
               Site Banner &amp; Media Asset Manager
             </h2>
-            <p className="text-body-sm font-body-sm text-outline">
-              Oversee sponsored inventory, sticky trays, and regional dealer display takeovers.
+            <p className="text-xs sm:text-sm text-zinc-500 leading-relaxed">
+              Oversee sponsored inventory, sticky comparison trays, and regional dealer display takeovers.
             </p>
           </div>
 
-          <div className="flex flex-wrap items-center gap-space-sm">
+          <div className="flex flex-wrap items-center gap-3">
             {/* Placement Filter Select */}
             <div className="relative">
               <select
                 value={selectedPlacement}
                 onChange={(e) => setSelectedPlacement(e.target.value)}
-                className="appearance-none bg-surface-subtle text-on-surface text-label-md font-label-md px-3.5 py-2 pr-8 rounded-lg border border-border-hairline focus:outline-none cursor-pointer"
+                className="appearance-none bg-zinc-50 text-zinc-900 text-xs font-semibold px-3.5 py-2 pr-8 rounded-xl border border-zinc-200 focus:outline-none cursor-pointer"
               >
                 <option value="all">All Placements (14 Slots)</option>
                 <option value="HERO">Homepage Hero Header (728x90 / 1200x300)</option>
@@ -678,62 +598,61 @@ export function DashboardClient({ stats, liveBanners, error }: DashboardClientPr
                 <option value="TOP_BAR">Product Page Top Bar Ad</option>
                 <option value="POPUP">PTA Tax Calculator Modal</option>
               </select>
-              <span className="material-symbols-outlined pointer-events-none absolute right-2 top-2.5 text-outline text-[18px]">
+              <span className="material-symbols-outlined pointer-events-none absolute right-2.5 top-2.5 text-zinc-400 text-[18px]">
                 expand_more
               </span>
             </div>
 
             <Link
               href="/admin/banners"
-              className="flex items-center gap-1.5 px-4 py-2 rounded-lg bg-deal-orange hover:bg-deal-orange/90 text-on-primary font-label-md text-label-md shadow-md shadow-deal-orange/20 transition-all"
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-zinc-950 hover:bg-zinc-800 text-white text-xs font-semibold shadow-sm transition-all"
             >
-              <span className="material-symbols-outlined text-[18px]">add_photo_alternate</span>
+              <span className="material-symbols-outlined text-[17px]">add_photo_alternate</span>
               <span>+ Upload New Banner</span>
             </Link>
           </div>
         </div>
 
         {/* Active Banners Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-space-md">
-          {/* Card 1: Hafeez Centre / Ramadan Sale Live Banner */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
           {liveBanners.length > 0 ? (
             liveBanners.map((b) => (
               <div
                 key={b.id}
-                className="bg-surface-subtle rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between border border-border-hairline"
+                className="bg-zinc-50/70 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between border border-zinc-200/70"
               >
                 <div>
-                  <div className="relative h-36 w-full bg-primary-container overflow-hidden flex items-center justify-center">
+                  <div className="relative h-36 w-full bg-zinc-900 overflow-hidden flex items-center justify-center">
                     <img
                       src={b.desktopImage}
                       alt={b.title}
                       className="w-full h-full object-cover opacity-90 hover:scale-105 transition-transform duration-300"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-primary-container/80 via-transparent to-transparent"></div>
-                    <span className="absolute top-2 left-2 px-2 py-0.5 rounded bg-primary-container text-on-primary text-[10px] font-bold tracking-wider uppercase">
+                    <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/80 via-transparent to-transparent"></div>
+                    <span className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-md bg-zinc-900/90 text-white text-[10px] font-bold tracking-wider uppercase backdrop-blur-sm">
                       {b.placement}
                     </span>
-                    <span className="absolute top-2 right-2 flex items-center gap-1 px-2 py-0.5 rounded bg-primary-container text-on-primary text-label-sm font-label-sm font-bold shadow-sm">
-                      <span className="w-2 h-2 rounded-full bg-deal-orange animate-pulse"></span>
-                      {b.isActive ? "Live & Active" : "Paused"}
+                    <span className="absolute top-2.5 right-2.5 flex items-center gap-1 px-2 py-0.5 rounded-md bg-zinc-900/90 text-white text-[10px] font-bold shadow-sm backdrop-blur-sm">
+                      <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse"></span>
+                      {b.isActive ? "Live" : "Paused"}
                     </span>
                   </div>
 
-                  <div className="p-space-md space-y-2">
-                    <h3 className="text-headline-sm font-headline-sm text-on-surface line-clamp-1">{b.title}</h3>
-                    <p className="text-body-sm font-body-sm text-outline truncate">
+                  <div className="p-4 space-y-2">
+                    <h3 className="text-sm font-bold text-zinc-950 line-clamp-1">{b.title}</h3>
+                    <p className="text-xs text-zinc-500 truncate">
                       Target: {b.linkUrl}
                     </p>
-                    <div className="grid grid-cols-2 gap-2 pt-2 text-body-sm font-body-sm">
-                      <div className="bg-surface-container-lowest p-2 rounded border border-border-hairline">
-                        <span className="text-label-sm font-label-sm text-outline block">Impressions</span>
-                        <span className="text-on-surface font-bold text-body-md font-body-md">
+                    <div className="grid grid-cols-2 gap-2 pt-2 text-xs">
+                      <div className="bg-white p-2 rounded-xl border border-zinc-200/60">
+                        <span className="text-[10px] font-semibold text-zinc-400 block uppercase">Impressions</span>
+                        <span className="text-zinc-950 font-bold font-mono">
                           {b.impressions.toLocaleString()}
                         </span>
                       </div>
-                      <div className="bg-surface-container-lowest p-2 rounded border border-border-hairline">
-                        <span className="text-label-sm font-label-sm text-outline block">Clicks (CTR)</span>
-                        <span className="text-deal-orange font-bold text-body-md font-body-md">
+                      <div className="bg-white p-2 rounded-xl border border-zinc-200/60">
+                        <span className="text-[10px] font-semibold text-zinc-400 block uppercase">Clicks (CTR)</span>
+                        <span className="text-orange-600 font-bold font-mono">
                           {b.clicks} ({b.impressions > 0 ? ((b.clicks / b.impressions) * 100).toFixed(1) : 0}%)
                         </span>
                       </div>
@@ -741,17 +660,15 @@ export function DashboardClient({ stats, liveBanners, error }: DashboardClientPr
                   </div>
                 </div>
 
-                <div className="p-space-md pt-0 flex items-center justify-between border-t border-border-hairline/60 mt-2">
-                  <div className="flex items-center gap-1">
-                    <Link
-                      href="/admin/banners"
-                      className="p-1.5 rounded hover:bg-surface-container text-outline hover:text-on-surface"
-                      title="Manage banner"
-                    >
-                      <span className="material-symbols-outlined text-[18px]">edit</span>
-                    </Link>
-                  </div>
-                  <span className="text-label-sm font-label-sm text-deal-orange font-bold">
+                <div className="p-4 pt-0 flex items-center justify-between border-t border-zinc-200/60 mt-2">
+                  <Link
+                    href="/admin/banners"
+                    className="p-1 rounded-lg hover:bg-zinc-200 text-zinc-500 hover:text-zinc-900 transition-colors"
+                    title="Manage banner"
+                  >
+                    <span className="material-symbols-outlined text-[17px]">edit</span>
+                  </Link>
+                  <span className="text-xs font-bold text-orange-600 font-mono">
                     Priority: #{b.priority}
                   </span>
                 </div>
@@ -759,159 +676,155 @@ export function DashboardClient({ stats, liveBanners, error }: DashboardClientPr
             ))
           ) : null}
 
-          {/* Preset Reference Banner 2: Itel A50C Launch */}
-          <div className="bg-surface-subtle rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between border border-border-hairline">
+          {/* Reference Banner 1 */}
+          <div className="bg-zinc-50/70 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between border border-zinc-200/70">
             <div>
-              <div className="relative h-36 w-full bg-primary-container overflow-hidden flex items-center justify-center">
+              <div className="relative h-36 w-full bg-zinc-900 overflow-hidden flex items-center justify-center">
                 <img
                   alt="Itel A50C Special Edition promotional banner display"
                   className="w-full h-full object-cover object-center opacity-90 hover:scale-105 transition-transform duration-300"
                   src="https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=600&auto=format&fit=crop&q=80"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-primary-container/80 via-transparent to-transparent"></div>
-                <span className="absolute top-2 left-2 px-2 py-0.5 rounded bg-primary-container text-on-primary text-[10px] font-bold tracking-wider uppercase">
+                <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/80 via-transparent to-transparent"></div>
+                <span className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-md bg-zinc-900/90 text-white text-[10px] font-bold tracking-wider uppercase backdrop-blur-sm">
                   300x600 Sidebar
                 </span>
-                <span className="absolute top-2 right-2 flex items-center gap-1 px-2 py-0.5 rounded bg-primary-container text-on-primary text-label-sm font-label-sm font-bold shadow-sm">
-                  <span className="w-2 h-2 rounded-full bg-deal-orange animate-pulse"></span> Live &amp; Active
+                <span className="absolute top-2.5 right-2.5 flex items-center gap-1 px-2 py-0.5 rounded-md bg-zinc-900/90 text-white text-[10px] font-bold shadow-sm backdrop-blur-sm">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Live &amp; Active
                 </span>
               </div>
-              <div className="p-space-md space-y-2">
-                <h3 className="text-headline-sm font-headline-sm text-on-surface line-clamp-1">
+              <div className="p-4 space-y-2">
+                <h3 className="text-sm font-bold text-zinc-950 line-clamp-1">
                   Itel A50C Special Edition Launch
                 </h3>
-                <p className="text-body-sm font-body-sm text-outline">Placement: Product Sidebar &amp; Sponsor</p>
-                <div className="grid grid-cols-2 gap-2 pt-2 text-body-sm font-body-sm">
-                  <div className="bg-surface-container-lowest p-2 rounded border border-border-hairline">
-                    <span className="text-label-sm font-label-sm text-outline block">Impressions</span>
-                    <span className="text-on-surface font-bold text-body-md font-body-md">418,900</span>
+                <p className="text-xs text-zinc-500">Placement: Product Sidebar &amp; Sponsor</p>
+                <div className="grid grid-cols-2 gap-2 pt-2 text-xs">
+                  <div className="bg-white p-2 rounded-xl border border-zinc-200/60">
+                    <span className="text-[10px] font-semibold text-zinc-400 block uppercase">Impressions</span>
+                    <span className="text-zinc-950 font-bold font-mono">418,900</span>
                   </div>
-                  <div className="bg-surface-container-lowest p-2 rounded border border-border-hairline">
-                    <span className="text-label-sm font-label-sm text-outline block">Clicks (CTR)</span>
-                    <span className="text-deal-orange font-bold text-body-md font-body-md">26.8k (6.4%)</span>
+                  <div className="bg-white p-2 rounded-xl border border-zinc-200/60">
+                    <span className="text-[10px] font-semibold text-zinc-400 block uppercase">Clicks (CTR)</span>
+                    <span className="text-orange-600 font-bold font-mono">26.8k (6.4%)</span>
                   </div>
                 </div>
               </div>
             </div>
-            <div className="p-space-md pt-0 flex items-center justify-between border-t border-border-hairline/60 mt-2">
-              <span className="text-label-sm font-label-sm text-deal-orange font-bold">Top ROI &bull; 6.4%</span>
-              <span className="text-label-sm font-label-sm text-outline font-semibold">Ends: Nov 15</span>
+            <div className="p-4 pt-0 flex items-center justify-between border-t border-zinc-200/60 mt-2 text-xs">
+              <span className="text-orange-600 font-bold font-mono">Top ROI &bull; 6.4%</span>
+              <span className="text-zinc-400 font-medium">Ends: Nov 15</span>
             </div>
           </div>
 
-          {/* Preset Reference Banner 3: DIRBS PTA Tax Calculator */}
-          <div className="bg-surface-subtle rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between border border-border-hairline">
+          {/* Reference Banner 2 */}
+          <div className="bg-zinc-50/70 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between border border-zinc-200/70">
             <div>
-              <div className="relative h-36 w-full bg-primary-container overflow-hidden flex items-center justify-center">
+              <div className="relative h-36 w-full bg-zinc-900 overflow-hidden flex items-center justify-center">
                 <img
                   alt="PTA Duty Calculator"
                   className="w-full h-full object-cover opacity-85 hover:scale-105 transition-transform duration-300"
                   src="https://images.unsplash.com/photo-1563986768609-322da13575f3?w=600&auto=format&fit=crop&q=80"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-primary-container/80 via-transparent to-transparent"></div>
-                <span className="absolute top-2 left-2 px-2 py-0.5 rounded bg-primary-container text-on-primary text-[10px] font-bold tracking-wider uppercase">
+                <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/80 via-transparent to-transparent"></div>
+                <span className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-md bg-zinc-900/90 text-white text-[10px] font-bold tracking-wider uppercase backdrop-blur-sm">
                   Modal Banner 468x60
                 </span>
-                <span className="absolute top-2 right-2 px-2 py-0.5 rounded bg-badge-blue-tint text-tertiary-container text-label-sm font-label-sm font-bold shadow-sm">
-                  Scheduled: Nov 1
+                <span className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-md bg-blue-100 text-blue-800 text-[10px] font-bold shadow-sm">
+                  Scheduled
                 </span>
               </div>
-              <div className="p-space-md space-y-2">
-                <h3 className="text-headline-sm font-headline-sm text-on-surface line-clamp-1">
+              <div className="p-4 space-y-2">
+                <h3 className="text-sm font-bold text-zinc-950 line-clamp-1">
                   DIRBS PTA Duty Free Calculator
                 </h3>
-                <p className="text-body-sm font-body-sm text-outline">Placement: PTA Tax Modal Banner</p>
-                <div className="grid grid-cols-2 gap-2 pt-2 text-body-sm font-body-sm">
-                  <div className="bg-surface-container-lowest p-2 rounded border border-border-hairline">
-                    <span className="text-label-sm font-label-sm text-outline block">Impressions</span>
-                    <span className="text-outline font-bold text-body-md font-body-md">—</span>
+                <p className="text-xs text-zinc-500">Placement: PTA Tax Modal Banner</p>
+                <div className="grid grid-cols-2 gap-2 pt-2 text-xs">
+                  <div className="bg-white p-2 rounded-xl border border-zinc-200/60">
+                    <span className="text-[10px] font-semibold text-zinc-400 block uppercase">Impressions</span>
+                    <span className="text-zinc-400 font-bold font-mono">—</span>
                   </div>
-                  <div className="bg-surface-container-lowest p-2 rounded border border-border-hairline">
-                    <span className="text-label-sm font-label-sm text-outline block">Status</span>
-                    <span className="text-primary-container font-bold text-body-md font-body-md">Queued</span>
+                  <div className="bg-white p-2 rounded-xl border border-zinc-200/60">
+                    <span className="text-[10px] font-semibold text-zinc-400 block uppercase">Status</span>
+                    <span className="text-blue-700 font-bold">Queued</span>
                   </div>
                 </div>
               </div>
             </div>
-            <div className="p-space-md pt-0 flex items-center justify-between border-t border-border-hairline/60 mt-2">
-              <span className="text-label-sm font-label-sm text-outline font-semibold">Priority: #5</span>
+            <div className="p-4 pt-0 flex items-center justify-between border-t border-zinc-200/60 mt-2 text-xs">
+              <span className="text-zinc-400 font-mono">Priority: #5</span>
               <Link
                 href="/admin/banners"
-                className="px-2.5 py-1 rounded bg-primary-container text-on-primary text-label-sm font-label-sm font-bold"
+                className="px-2.5 py-1 rounded-lg bg-zinc-900 text-white text-[11px] font-bold hover:bg-zinc-800"
               >
                 Launch Now
               </Link>
             </div>
           </div>
 
-          {/* Preset Reference Banner 4: Price Drop Hafeez Centre */}
-          <div className="bg-surface-subtle rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between opacity-80 hover:opacity-100 border border-border-hairline">
+          {/* Reference Banner 3 */}
+          <div className="bg-zinc-50/70 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between border border-zinc-200/70">
             <div>
-              <div className="relative h-36 w-full bg-primary-container overflow-hidden flex items-center justify-center">
+              <div className="relative h-36 w-full bg-zinc-900 overflow-hidden flex items-center justify-center">
                 <img
                   alt="Price Drop Flash Deals"
                   className="w-full h-full object-cover opacity-60 grayscale hover:grayscale-0 transition-all duration-300"
                   src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&auto=format&fit=crop&q=80"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-primary-container/80 via-transparent to-transparent"></div>
-                <span className="absolute top-2 left-2 px-2 py-0.5 rounded bg-primary-container text-on-primary text-[10px] font-bold tracking-wider uppercase">
+                <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/80 via-transparent to-transparent"></div>
+                <span className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-md bg-zinc-900/90 text-white text-[10px] font-bold tracking-wider uppercase backdrop-blur-sm">
                   Mobile Footer Bar
                 </span>
-                <span className="absolute top-2 right-2 px-2 py-0.5 rounded bg-surface-container-high text-on-surface-variant text-label-sm font-label-sm font-bold">
+                <span className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-md bg-zinc-200 text-zinc-600 text-[10px] font-bold">
                   Paused
                 </span>
               </div>
-              <div className="p-space-md space-y-2">
-                <h3 className="text-headline-sm font-headline-sm text-on-surface line-clamp-1">
+              <div className="p-4 space-y-2">
+                <h3 className="text-sm font-bold text-zinc-950 line-clamp-1">
                   Price Drop Hafeez Centre Flash
                 </h3>
-                <p className="text-body-sm font-body-sm text-outline">Placement: Mobile Sticky Footer Ad</p>
-                <div className="grid grid-cols-2 gap-2 pt-2 text-body-sm font-body-sm">
-                  <div className="bg-surface-container-lowest p-2 rounded border border-border-hairline">
-                    <span className="text-label-sm font-label-sm text-outline block">Impressions</span>
-                    <span className="text-on-surface font-bold text-body-md font-body-md">210,400</span>
+                <p className="text-xs text-zinc-500">Placement: Mobile Sticky Footer Ad</p>
+                <div className="grid grid-cols-2 gap-2 pt-2 text-xs">
+                  <div className="bg-white p-2 rounded-xl border border-zinc-200/60">
+                    <span className="text-[10px] font-semibold text-zinc-400 block uppercase">Impressions</span>
+                    <span className="text-zinc-950 font-bold font-mono">210,400</span>
                   </div>
-                  <div className="bg-surface-container-lowest p-2 rounded border border-border-hairline">
-                    <span className="text-label-sm font-label-sm text-outline block">Clicks (CTR)</span>
-                    <span className="text-on-surface-variant font-bold text-body-md font-body-md">7.8k (3.7%)</span>
+                  <div className="bg-white p-2 rounded-xl border border-zinc-200/60">
+                    <span className="text-[10px] font-semibold text-zinc-400 block uppercase">Clicks (CTR)</span>
+                    <span className="text-zinc-700 font-bold font-mono">7.8k (3.7%)</span>
                   </div>
                 </div>
               </div>
             </div>
-            <div className="p-space-md pt-0 flex items-center justify-between border-t border-border-hairline/60 mt-2">
-              <span className="text-label-sm font-label-sm text-outline font-semibold">Priority: #1</span>
-              <span className="text-label-sm font-label-sm text-outline">Paused by Admin</span>
+            <div className="p-4 pt-0 flex items-center justify-between border-t border-zinc-200/60 mt-2 text-xs">
+              <span className="text-zinc-400 font-mono">Priority: #1</span>
+              <span className="text-zinc-400 font-medium">Paused by Admin</span>
             </div>
           </div>
         </div>
 
-        {/* QUICK UPLOAD DROPZONE / MEDIA DRAWER */}
+        {/* QUICK UPLOAD DROPZONE */}
         <Link
           href="/admin/banners"
-          className="p-space-lg rounded-xl bg-surface-subtle flex flex-col items-center justify-center text-center cursor-pointer hover:bg-surface-container-low transition-colors group border border-dashed border-border-hairline block"
+          className="p-8 rounded-2xl bg-zinc-50/70 hover:bg-zinc-100/70 flex flex-col items-center justify-center text-center cursor-pointer transition-all group border border-dashed border-zinc-300 block"
         >
-          <div className="w-14 h-14 rounded-full bg-deal-orange/10 group-hover:bg-deal-orange text-deal-orange group-hover:text-on-primary flex items-center justify-center transition-colors mb-space-sm mx-auto">
+          <div className="w-14 h-14 rounded-2xl bg-orange-50 group-hover:bg-orange-600 text-orange-600 group-hover:text-white flex items-center justify-center transition-all mb-3 mx-auto shadow-sm">
             <span className="material-symbols-outlined text-[28px]">cloud_upload</span>
           </div>
-          <h3 className="text-headline-sm font-headline-sm text-on-surface">
+          <h3 className="text-base font-bold text-zinc-950">
             Drag &amp; Drop New Banner Creative or Browse Assets
           </h3>
-          <p className="text-body-sm font-body-sm text-outline max-w-xl mt-1 mx-auto">
-            Supports PNG, JPG, WebP up to 2MB. Smart Supabase pipeline automatically validates and serves responsive assets for Karachi, Lahore, and Islamabad cellular edges.
+          <p className="text-xs sm:text-sm text-zinc-500 max-w-xl mt-1.5 mx-auto leading-relaxed">
+            Supports PNG, JPG, WebP up to 2MB. Responsive image pipelines optimize and serve assets for Karachi, Lahore, and Islamabad networks.
           </p>
-          <div className="mt-space-md flex flex-wrap items-center justify-center gap-2">
-            <span className="px-2.5 py-1 rounded bg-surface-container-lowest text-label-sm font-label-sm text-on-surface font-semibold border border-border-hairline">
-              1200x300 Hero
-            </span>
-            <span className="px-2.5 py-1 rounded bg-surface-container-lowest text-label-sm font-label-sm text-on-surface font-semibold border border-border-hairline">
-              728x90 Leaderboard
-            </span>
-            <span className="px-2.5 py-1 rounded bg-surface-container-lowest text-label-sm font-label-sm text-on-surface font-semibold border border-border-hairline">
-              300x250 Medium Rect
-            </span>
-            <span className="px-2.5 py-1 rounded bg-surface-container-lowest text-label-sm font-label-sm text-on-surface font-semibold border border-border-hairline">
-              320x50 Mobile Sticky
-            </span>
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+            {["1200x300 Hero", "728x90 Leaderboard", "300x250 Medium Rect", "320x50 Mobile Sticky"].map((tag) => (
+              <span
+                key={tag}
+                className="px-3 py-1 rounded-lg bg-white text-xs font-semibold text-zinc-700 border border-zinc-200/80 shadow-2xs"
+              >
+                {tag}
+              </span>
+            ))}
           </div>
         </Link>
       </section>
