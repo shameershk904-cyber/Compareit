@@ -12,20 +12,47 @@ interface DashboardClientProps {
     banners: number;
     users: number;
     activityLogs: number;
+    shootoutsCount?: number;
+    totalImpressions?: number;
+    totalClicks?: number;
+    devices?: {
+      desktop: number;
+      mobile: number;
+      tablet: number;
+    };
+    topSearches?: Array<{ query: string; count: number }>;
+    zeroResultCount?: number;
+    topPages?: Array<{ path: string; count: number }>;
   };
   liveBanners: BannerRecord[];
+  error?: string | null;
 }
 
-export function DashboardClient({ stats, liveBanners }: DashboardClientProps) {
+export function DashboardClient({ stats, liveBanners, error }: DashboardClientProps) {
   const [dateFilter, setDateFilter] = useState<"today" | "7d" | "30d" | "quarterly">("30d");
   const [selectedPlacement, setSelectedPlacement] = useState<string>("all");
 
-  const formattedVisitors = stats.pageViews > 0 ? stats.pageViews.toLocaleString() : "842,580";
-  const formattedSearches = stats.searchLogs > 0 ? stats.searchLogs.toLocaleString() : "1,420,910";
-  const shootoutsCount = (Math.max(stats.pageViews * 0.45, 389204)).toLocaleString();
+  const formattedVisitors = stats.pageViews.toLocaleString();
+  const formattedSearches = stats.searchLogs.toLocaleString();
+  const shootoutsCount = (stats.shootoutsCount ?? 0).toLocaleString();
+  const totalImpressions = stats.totalImpressions ?? 0;
+  const totalClicks = stats.totalClicks ?? 0;
+  const ctrFormatted = totalImpressions > 0 ? ((totalClicks / totalImpressions) * 100).toFixed(2) + "%" : "0.00%";
+
+  const totalDevices = (stats.devices?.desktop || 0) + (stats.devices?.mobile || 0) + (stats.devices?.tablet || 0);
+  const desktopPct = totalDevices > 0 ? (((stats.devices?.desktop || 0) / totalDevices) * 100).toFixed(1) : "0";
+  const mobilePct = totalDevices > 0 ? (((stats.devices?.mobile || 0) / totalDevices) * 100).toFixed(1) : "0";
+  const tabletPct = totalDevices > 0 ? (((stats.devices?.tablet || 0) / totalDevices) * 100).toFixed(1) : "0";
 
   return (
     <div className="space-y-space-lg">
+      {error && (
+        <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-body-sm flex items-center gap-3">
+          <span className="material-symbols-outlined text-rose-600">error</span>
+          <span className="font-medium">{error}</span>
+        </div>
+      )}
+
       {/* TOP DASHBOARD SUMMARY & OPERATIONS BAR */}
       <section className="flex flex-col xl:flex-row xl:items-center justify-between gap-space-md bg-surface-container-lowest p-space-lg rounded-xl shadow-[0_1px_3px_rgba(15,23,42,0.04)] border border-border-hairline">
         <div className="space-y-1">
@@ -132,7 +159,6 @@ export function DashboardClient({ stats, liveBanners }: DashboardClientProps) {
             </div>
           </div>
           <div className="mt-4 flex items-center justify-between">
-            {/* Sparkline */}
             <svg className="w-28 h-8 text-deal-orange" fill="none" viewBox="0 0 100 30" xmlns="http://www.w3.org/2000/svg">
               <path
                 d="M0 24 Q 15 26, 30 18 T 60 12 T 80 15 T 100 4"
@@ -149,9 +175,9 @@ export function DashboardClient({ stats, liveBanners }: DashboardClientProps) {
             </svg>
             <div className="text-right">
               <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-deal-orange/10 text-deal-orange text-label-sm font-label-sm font-bold">
-                <span className="material-symbols-outlined text-[14px]">trending_up</span> +18.4%
+                <span className="material-symbols-outlined text-[14px]">visibility</span> Telemetry
               </span>
-              <p className="text-body-sm font-body-sm text-outline mt-0.5">Avg. 28,086 daily shoppers</p>
+              <p className="text-body-sm font-body-sm text-outline mt-0.5">Recorded page hits</p>
             </div>
           </div>
         </Link>
@@ -191,9 +217,9 @@ export function DashboardClient({ stats, liveBanners }: DashboardClientProps) {
             </svg>
             <div className="text-right">
               <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-primary-container text-on-primary text-label-sm font-label-sm font-bold">
-                <span className="material-symbols-outlined text-[14px]">arrow_upward</span> +24.1%
+                <span className="material-symbols-outlined text-[14px]">search</span> Catalog
               </span>
-              <p className="text-body-sm font-body-sm text-outline mt-0.5">Top: “Under 35k 120Hz”</p>
+              <p className="text-body-sm font-body-sm text-outline mt-0.5">Logged search events</p>
             </div>
           </div>
         </Link>
@@ -233,9 +259,9 @@ export function DashboardClient({ stats, liveBanners }: DashboardClientProps) {
             </svg>
             <div className="text-right">
               <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-deal-orange/10 text-deal-orange text-label-sm font-label-sm font-bold">
-                <span className="material-symbols-outlined text-[14px]">trending_up</span> +12.7%
+                <span className="material-symbols-outlined text-[14px]">compare_arrows</span> Specs
               </span>
-              <p className="text-body-sm font-body-sm text-outline mt-0.5">Top: S24 Ultra vs 16 Pro Max</p>
+              <p className="text-body-sm font-body-sm text-outline mt-0.5">Comparison views</p>
             </div>
           </div>
         </Link>
@@ -260,18 +286,19 @@ export function DashboardClient({ stats, liveBanners }: DashboardClientProps) {
           </div>
           <div className="mt-4 flex items-center justify-between">
             <div className="flex flex-col">
-              <span className="text-body-sm font-body-sm font-bold text-on-surface">CTR: 4.82%</span>
-              <span className="text-label-sm font-label-sm text-outline">2.1M Total Impr.</span>
+              <span className="text-body-sm font-body-sm font-bold text-on-surface">CTR: {ctrFormatted}</span>
+              <span className="text-label-sm font-label-sm text-outline">{totalImpressions.toLocaleString()} Total Impr.</span>
             </div>
             <div className="text-right">
               <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed text-label-sm font-label-sm font-bold">
-                <span className="material-symbols-outlined text-[14px]">arrow_drop_up</span> +0.6% CTR
+                <span className="material-symbols-outlined text-[14px]">ads_click</span> {totalClicks.toLocaleString()} Clicks
               </span>
-              <p className="text-body-sm font-body-sm text-outline mt-0.5">Mega Sale Top Performer</p>
+              <p className="text-body-sm font-body-sm text-outline mt-0.5">Active campaigns</p>
             </div>
           </div>
         </Link>
       </section>
+
 
       {/* MANUAL PRICE UPDATE */}
       <PriceUpdatePanel />
@@ -287,151 +314,90 @@ export function DashboardClient({ stats, liveBanners }: DashboardClientProps) {
                   Traffic Dynamics
                 </span>
                 <h3 className="text-headline-sm font-headline-sm text-on-surface">
-                  Visitor Volume vs. Smartphone Searches
+                  Visitor Volume &amp; Telemetry Breakdown
                 </h3>
               </div>
-              <div className="flex items-center bg-surface-subtle p-1 rounded-lg border border-border-hairline">
-                <button
-                  className="px-3 py-1 text-label-sm font-label-sm rounded text-on-surface-variant hover:text-on-surface transition-colors"
-                  type="button"
-                >
-                  Daily
-                </button>
-                <button
-                  className="px-3 py-1 text-label-sm font-label-sm rounded bg-primary-container text-on-primary font-bold shadow-sm"
-                  type="button"
-                >
-                  Weekly
-                </button>
-                <button
-                  className="px-3 py-1 text-label-sm font-label-sm rounded text-on-surface-variant hover:text-on-surface transition-colors"
-                  type="button"
-                >
-                  Hourly Peak
-                </button>
+              <Link
+                href="/admin/analytics"
+                className="px-3 py-1.5 text-label-sm font-label-sm rounded-lg bg-surface-subtle hover:bg-surface-container text-on-surface border border-border-hairline transition-colors flex items-center gap-1.5 font-semibold"
+              >
+                <span>Full Telemetry Studio</span>
+                <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+              </Link>
+            </div>
+
+            {/* Quick Metrics Summary Strip */}
+            <div className="grid grid-cols-3 gap-3 p-4 bg-surface-subtle rounded-xl border border-border-hairline mb-space-md">
+              <div>
+                <span className="text-label-sm font-label-sm text-outline uppercase tracking-wider">Total Pageviews</span>
+                <div className="text-headline-sm font-headline-sm font-bold text-on-surface mt-0.5">
+                  {stats.pageViews.toLocaleString()}
+                </div>
+                <span className="text-body-sm font-body-sm text-outline">Verified telemetry hits</span>
+              </div>
+              <div>
+                <span className="text-label-sm font-label-sm text-outline uppercase tracking-wider">Search Queries</span>
+                <div className="text-headline-sm font-headline-sm font-bold text-deal-orange mt-0.5">
+                  {stats.searchLogs.toLocaleString()}
+                </div>
+                <span className="text-body-sm font-body-sm text-outline">Consumer lookups</span>
+              </div>
+              <div>
+                <span className="text-label-sm font-label-sm text-outline uppercase tracking-wider">Shootout Views</span>
+                <div className="text-headline-sm font-headline-sm font-bold text-primary-container mt-0.5">
+                  {shootoutsCount}
+                </div>
+                <span className="text-body-sm font-body-sm text-outline">Side-by-side specs</span>
               </div>
             </div>
 
-            {/* Legend indicators */}
-            <div className="flex items-center gap-6 mb-4 text-label-sm font-label-sm">
-              <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full bg-deal-orange"></span>
-                <span className="text-on-surface font-semibold">Unique Visitors</span>
+            {/* Top Visited Public Pages */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-label-sm font-label-sm uppercase tracking-wider text-outline font-semibold">
+                  Most Visited Pages (Real DB Telemetry)
+                </span>
+                <Link href="/admin/analytics" className="text-label-sm font-label-sm text-deal-orange font-bold hover:underline">
+                  View All &rarr;
+                </Link>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full bg-primary-container"></span>
-                <span className="text-on-surface font-semibold">Search Queries Executed</span>
-              </div>
-              <div className="flex items-center gap-1.5 ml-auto text-outline hidden sm:flex">
-                <span className="material-symbols-outlined text-[16px]">info</span>
-                <span>Spike correlate: Karachi &amp; Lahore weekend bazars</span>
-              </div>
-            </div>
 
-            {/* SVG Analytics Curve with Tooltip Pin */}
-            <div className="relative w-full h-64 bg-surface-subtle rounded-lg p-2 overflow-hidden flex items-end border border-border-hairline">
-              <svg className="w-full h-full" fill="none" preserveAspectRatio="none" viewBox="0 0 800 220">
-                {/* Grid Lines */}
-                <line stroke="#e2e8f0" strokeDasharray="4 4" strokeWidth="1" x1="0" x2="800" y1="40" y2="40"></line>
-                <line stroke="#e2e8f0" strokeDasharray="4 4" strokeWidth="1" x1="0" x2="800" y1="90" y2="90"></line>
-                <line stroke="#e2e8f0" strokeDasharray="4 4" strokeWidth="1" x1="0" x2="800" y1="140" y2="140"></line>
-                <line stroke="#e2e8f0" strokeDasharray="4 4" strokeWidth="1" x1="0" x2="800" y1="190" y2="190"></line>
-
-                {/* Searches Path (Navy) */}
-                <path
-                  d="M 0 160 C 80 140, 140 180, 200 120 C 260 60, 320 130, 400 90 C 480 50, 540 80, 600 25 C 660 110, 720 90, 800 70 L 800 220 L 0 220 Z"
-                  fill="#131b2e"
-                  fillOpacity="0.06"
-                ></path>
-                <path
-                  d="M 0 160 C 80 140, 140 180, 200 120 C 260 60, 320 130, 400 90 C 480 50, 540 80, 600 25 C 660 110, 720 90, 800 70"
-                  fill="none"
-                  stroke="#131b2e"
-                  strokeLinecap="round"
-                  strokeWidth="3"
-                ></path>
-
-                {/* Visitors Path (Orange) */}
-                <path
-                  d="M 0 180 C 80 165, 140 190, 200 145 C 260 100, 320 150, 400 115 C 480 85, 540 105, 600 48 C 660 130, 720 120, 800 95 L 800 220 L 0 220 Z"
-                  fill="#ea580c"
-                  fillOpacity="0.12"
-                ></path>
-                <path
-                  d="M 0 180 C 80 165, 140 190, 200 145 C 260 100, 320 150, 400 115 C 480 85, 540 105, 600 48 C 660 130, 720 120, 800 95"
-                  fill="none"
-                  stroke="#ea580c"
-                  strokeLinecap="round"
-                  strokeWidth="3.5"
-                ></path>
-
-                {/* Peak Marker Vertical Line */}
-                <line stroke="#ea580c" strokeDasharray="3 3" strokeWidth="1.5" x1="600" x2="600" y1="20" y2="200"></line>
-                <circle cx="600" cy="48" fill="#ea580c" r="6" stroke="#ffffff" strokeWidth="2"></circle>
-                <circle cx="600" cy="25" fill="#131b2e" r="5" stroke="#ffffff" strokeWidth="2"></circle>
-              </svg>
-
-              {/* Floating Tooltip Pin */}
-              <div className="absolute left-[70%] top-4 -translate-x-1/2 bg-primary-container text-on-primary p-2.5 rounded-lg shadow-xl pointer-events-none z-10 text-left">
-                <div className="flex items-center gap-1.5 mb-1">
-                  <span className="w-2 h-2 rounded-full bg-deal-orange"></span>
-                  <span className="text-label-sm font-label-sm font-bold text-surface-container-high">
-                    Peak Activity Detected
-                  </span>
+              {stats.topPages && stats.topPages.length > 0 ? (
+                <div className="space-y-2">
+                  {stats.topPages.map((page, idx) => {
+                    const pct = stats.pageViews > 0 ? Math.round((page.count / stats.pageViews) * 100) : 0;
+                    return (
+                      <div
+                        key={page.path}
+                        className="flex items-center justify-between p-2.5 rounded-lg bg-surface-subtle hover:bg-surface-container-low border border-border-hairline transition-colors text-body-sm"
+                      >
+                        <div className="flex items-center gap-2.5 truncate max-w-md">
+                          <span className="w-5 h-5 rounded-full bg-surface-container flex items-center justify-center text-label-sm font-mono text-outline shrink-0">
+                            {idx + 1}
+                          </span>
+                          <span className="font-mono text-on-surface truncate font-medium">{page.path}</span>
+                        </div>
+                        <div className="flex items-center gap-3 shrink-0">
+                          <span className="font-mono font-bold text-on-surface">{page.count.toLocaleString()} views</span>
+                          <span className="text-label-sm font-mono text-outline w-10 text-right">{pct}%</span>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
-                <div className="text-body-sm font-body-sm font-bold">42,850 Visits &bull; 68,900 Searches</div>
-                <div className="text-label-sm font-label-sm text-outline-variant">
-                  Catalyst: Hafeez Centre Price Drops
+              ) : (
+                <div className="p-6 text-center text-outline text-body-sm bg-surface-subtle rounded-xl border border-border-hairline">
+                  {error ? "Unable to load pageview paths from database." : "No pageview records logged in database yet."}
                 </div>
-              </div>
+              )}
             </div>
           </div>
 
-          {/* Key Traffic Channels Breakdown Underneath */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-space-sm pt-space-md mt-space-md bg-surface-subtle p-space-sm rounded-lg border border-border-hairline">
-            <div className="flex flex-col">
-              <div className="flex items-center justify-between text-body-sm font-body-sm">
-                <span className="text-on-surface-variant font-medium">Direct / PWA</span>
-                <span className="font-bold text-on-surface">42%</span>
-              </div>
-              <div className="w-full bg-surface-container h-1.5 rounded-full mt-1.5 overflow-hidden">
-                <div className="bg-deal-orange h-full rounded-full" style={{ width: "42%" }}></div>
-              </div>
-              <span className="text-label-sm font-label-sm text-outline mt-1">353.8k users</span>
-            </div>
-
-            <div className="flex flex-col">
-              <div className="flex items-center justify-between text-body-sm font-body-sm">
-                <span className="text-on-surface-variant font-medium">Google Organic</span>
-                <span className="font-bold text-on-surface">36%</span>
-              </div>
-              <div className="w-full bg-surface-container h-1.5 rounded-full mt-1.5 overflow-hidden">
-                <div className="bg-primary-container h-full rounded-full" style={{ width: "36%" }}></div>
-              </div>
-              <span className="text-label-sm font-label-sm text-outline mt-1">303.3k users</span>
-            </div>
-
-            <div className="flex flex-col">
-              <div className="flex items-center justify-between text-body-sm font-body-sm">
-                <span className="text-on-surface-variant font-medium">TikTok &amp; Tech YT</span>
-                <span className="font-bold text-on-surface">14%</span>
-              </div>
-              <div className="w-full bg-surface-container h-1.5 rounded-full mt-1.5 overflow-hidden">
-                <div className="bg-deal-orange/70 h-full rounded-full" style={{ width: "14%" }}></div>
-              </div>
-              <span className="text-label-sm font-label-sm text-outline mt-1">117.9k users</span>
-            </div>
-
-            <div className="flex flex-col">
-              <div className="flex items-center justify-between text-body-sm font-body-sm">
-                <span className="text-on-surface-variant font-medium">Price Drop Alerts</span>
-                <span className="font-bold text-on-surface">8%</span>
-              </div>
-              <div className="w-full bg-surface-container h-1.5 rounded-full mt-1.5 overflow-hidden">
-                <div className="bg-surface-tint h-full rounded-full" style={{ width: "8%" }}></div>
-              </div>
-              <span className="text-label-sm font-label-sm text-outline mt-1">67.4k users</span>
-            </div>
+          <div className="pt-space-md mt-space-md border-t border-border-hairline flex items-center justify-between text-label-sm text-outline">
+            <span>Aggregated directly from PostgreSQL <code>page_views</code> table</span>
+            <Link href="/admin/analytics" className="text-deal-orange font-bold hover:underline">
+              Inspect Full Telemetry &rarr;
+            </Link>
           </div>
         </div>
 
@@ -443,284 +409,163 @@ export function DashboardClient({ stats, liveBanners }: DashboardClientProps) {
                 <span className="text-label-sm font-label-sm uppercase tracking-wider text-deal-orange font-bold">
                   Hardware Breakdown
                 </span>
-                <h3 className="text-headline-sm font-headline-sm text-on-surface">Devices &amp; OS Shares</h3>
+                <h3 className="text-headline-sm font-headline-sm text-on-surface">Devices &amp; Platforms</h3>
               </div>
               <span className="material-symbols-outlined text-outline">devices</span>
             </div>
 
-            {/* Donut & Bar Representation */}
-            <div className="my-space-md p-space-md bg-surface-subtle rounded-xl flex items-center gap-space-md border border-border-hairline">
-              {/* Circular Visual (SVG Donut) */}
-              <div className="relative w-24 h-24 flex-shrink-0 flex items-center justify-center">
-                <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
-                  <path
-                    className="text-surface-container-high"
-                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="4.5"
-                  ></path>
-                  {/* Android Segment (68.4%) */}
-                  <path
-                    className="text-deal-orange"
-                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeDasharray="68.4, 100"
-                    strokeLinecap="round"
-                    strokeWidth="4.5"
-                  ></path>
-                  {/* iOS Segment (21.2%) */}
-                  <path
-                    className="text-primary-container"
-                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeDasharray="21.2, 100"
-                    strokeDashoffset="-68.4"
-                    strokeWidth="4.5"
-                  ></path>
-                </svg>
-                <div className="absolute flex flex-col items-center justify-center">
-                  <span className="text-headline-sm font-headline-sm font-bold text-on-surface leading-none">
-                    89.6%
-                  </span>
-                  <span className="text-[9px] uppercase tracking-wider text-outline font-semibold">Mobile</span>
+            {totalDevices > 0 ? (
+              <div className="my-space-md p-space-md bg-surface-subtle rounded-xl flex items-center gap-space-md border border-border-hairline">
+                {/* Circular Visual (SVG Donut) */}
+                <div className="relative w-24 h-24 flex-shrink-0 flex items-center justify-center">
+                  <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
+                    <path
+                      className="text-surface-container-high"
+                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="4.5"
+                    ></path>
+                    <path
+                      className="text-deal-orange"
+                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeDasharray={`${desktopPct}, 100`}
+                      strokeLinecap="round"
+                      strokeWidth="4.5"
+                    ></path>
+                    <path
+                      className="text-primary-container"
+                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeDasharray={`${mobilePct}, 100`}
+                      strokeDashoffset={`-${desktopPct}`}
+                      strokeWidth="4.5"
+                    ></path>
+                  </svg>
+                  <div className="absolute flex flex-col items-center justify-center">
+                    <span className="text-headline-sm font-headline-sm font-bold text-on-surface leading-none">
+                      {desktopPct}%
+                    </span>
+                    <span className="text-[9px] uppercase tracking-wider text-outline font-semibold">Desktop</span>
+                  </div>
                 </div>
-              </div>
 
-              {/* Quick OS stats */}
-              <div className="flex-1 space-y-2">
-                <div>
-                  <div className="flex justify-between text-body-sm font-body-sm">
-                    <span className="text-on-surface font-semibold flex items-center gap-1">
-                      <span className="w-2 h-2 rounded-full bg-deal-orange"></span> Android
-                    </span>
-                    <span className="font-bold text-on-surface">68.4% (576k)</span>
+                {/* Real Device Breakdown */}
+                <div className="flex-1 space-y-2">
+                  <div>
+                    <div className="flex justify-between text-body-sm font-body-sm">
+                      <span className="text-on-surface font-semibold flex items-center gap-1">
+                        <span className="w-2 h-2 rounded-full bg-deal-orange"></span> Desktop
+                      </span>
+                      <span className="font-bold text-on-surface">
+                        {desktopPct}% ({stats.devices?.desktop || 0})
+                      </span>
+                    </div>
                   </div>
-                </div>
-                <div>
-                  <div className="flex justify-between text-body-sm font-body-sm">
-                    <span className="text-on-surface font-semibold flex items-center gap-1">
-                      <span className="w-2 h-2 rounded-full bg-primary-container"></span> iOS / iPhone
-                    </span>
-                    <span className="font-bold text-on-surface">21.2% (178k)</span>
+                  <div>
+                    <div className="flex justify-between text-body-sm font-body-sm">
+                      <span className="text-on-surface font-semibold flex items-center gap-1">
+                        <span className="w-2 h-2 rounded-full bg-primary-container"></span> Mobile
+                      </span>
+                      <span className="font-bold text-on-surface">
+                        {mobilePct}% ({stats.devices?.mobile || 0})
+                      </span>
+                    </div>
                   </div>
-                </div>
-                <div>
-                  <div className="flex justify-between text-body-sm font-body-sm">
-                    <span className="text-on-surface font-semibold flex items-center gap-1">
-                      <span className="w-2 h-2 rounded-full bg-surface-tint"></span> Desktop Web
-                    </span>
-                    <span className="font-bold text-on-surface">9.1% (76k)</span>
-                  </div>
-                </div>
-                <div>
-                  <div className="flex justify-between text-body-sm font-body-sm">
-                    <span className="text-on-surface font-semibold flex items-center gap-1">
-                      <span className="w-2 h-2 rounded-full bg-outline-variant"></span> Tablet / Other
-                    </span>
-                    <span className="font-bold text-on-surface">1.3% (11k)</span>
+                  <div>
+                    <div className="flex justify-between text-body-sm font-body-sm">
+                      <span className="text-on-surface font-semibold flex items-center gap-1">
+                        <span className="w-2 h-2 rounded-full bg-surface-tint"></span> Tablet
+                      </span>
+                      <span className="font-bold text-on-surface">
+                        {tabletPct}% ({stats.devices?.tablet || 0})
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            ) : (
+              <div className="my-space-md p-6 bg-surface-subtle rounded-xl text-center text-outline text-body-sm border border-border-hairline">
+                {error ? "Unable to load device data." : "No device telemetry logged yet."}
+              </div>
+            )}
 
-            {/* Top Browsers in Pakistan */}
-            <div className="space-y-2">
-              <span className="text-label-sm font-label-sm text-outline uppercase tracking-wider">
-                Top Browsers Used
-              </span>
-              <div className="grid grid-cols-2 gap-2 text-body-sm font-body-sm">
-                <div className="bg-surface-subtle p-2 rounded border border-border-hairline flex items-center justify-between">
-                  <span className="text-on-surface">Chrome Mobile</span>
-                  <span className="font-bold text-deal-orange">62%</span>
-                </div>
-                <div className="bg-surface-subtle p-2 rounded border border-border-hairline flex items-center justify-between">
-                  <span className="text-on-surface">Safari Mobile</span>
-                  <span className="font-bold text-primary">19%</span>
-                </div>
-                <div className="bg-surface-subtle p-2 rounded border border-border-hairline flex items-center justify-between">
-                  <span className="text-on-surface">Opera Mini</span>
-                  <span className="font-bold text-on-surface-variant">11%</span>
-                </div>
-                <div className="bg-surface-subtle p-2 rounded border border-border-hairline flex items-center justify-between">
-                  <span className="text-on-surface">Samsung Browser</span>
-                  <span className="font-bold text-on-surface-variant">8%</span>
-                </div>
-              </div>
+            <div className="p-3 bg-surface-subtle rounded-lg border border-border-hairline text-body-sm space-y-1">
+              <span className="text-label-sm font-label-sm text-outline uppercase tracking-wider">Device Tracking</span>
+              <p className="text-on-surface text-body-sm">
+                Tracked via Client User-Agent parsing in <code>/api/track</code>.
+              </p>
             </div>
           </div>
 
-          {/* Actionable Insight Badge */}
-          <div className="mt-space-md p-space-sm rounded-lg bg-badge-blue-tint text-tertiary-container flex items-center gap-space-sm border border-blue-200">
-            <span className="material-symbols-outlined text-tertiary-container text-[20px]">smartphone</span>
-            <p className="text-body-sm font-body-sm leading-snug font-medium">
-              <strong>89.6% Mobile Dominance:</strong> Prioritize lightweight mobile comparison trays and 1-tap WhatsApp retailer inquiries.
-            </p>
+          <div className="mt-space-md pt-space-sm border-t border-border-hairline flex items-center justify-between text-label-sm">
+            <span className="text-outline">{totalDevices} logged sessions</span>
+            <Link href="/admin/analytics" className="text-deal-orange font-bold hover:underline">
+              View Detailed OS &rarr;
+            </Link>
           </div>
         </div>
       </section>
 
       {/* PAKISTANI REGIONAL DEMOGRAPHICS & SEARCH INTELLIGENCE ROW */}
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-space-md">
-        {/* Left Card: Visitor Demographics by Pakistani Cities & Hubs */}
+        {/* Left Card: Pakistan Regional Network Telemetry */}
         <div className="bg-surface-container-lowest p-space-lg rounded-xl shadow-[0_1px_3px_rgba(15,23,42,0.04)] border border-border-hairline flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-space-md">
               <div>
                 <span className="text-label-sm font-label-sm uppercase tracking-wider text-deal-orange font-bold">
-                  Regional Distribution
+                  Network Coverage
                 </span>
                 <h3 className="text-headline-sm font-headline-sm text-on-surface">
-                  Top Pakistani City Hubs &amp; Budgets
+                  Pakistan National Network Reach
                 </h3>
               </div>
               <span className="px-2.5 py-1 rounded bg-surface-subtle text-label-sm font-label-sm font-semibold text-outline border border-border-hairline">
-                5 Active Macro Clusters
+                Active Telemetry
               </span>
             </div>
 
-            <div className="space-y-4">
-              {/* City 1: Karachi */}
-              <div className="p-space-sm bg-surface-subtle rounded-lg space-y-1.5 hover:bg-surface-container-low transition-colors border border-border-hairline">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="w-6 h-6 rounded-full bg-deal-orange text-on-primary flex items-center justify-center font-bold text-label-sm">
-                      1
-                    </span>
-                    <span className="font-label-lg text-label-lg text-on-surface font-bold">Karachi</span>
-                    <span className="text-label-sm font-label-sm text-outline">(Saddar &amp; Star City Hubs)</span>
+            <div className="space-y-3">
+              <div className="p-3.5 bg-surface-subtle rounded-lg border border-border-hairline flex items-start gap-3">
+                <span className="material-symbols-outlined text-deal-orange mt-0.5 text-[20px]">public</span>
+                <div>
+                  <div className="text-body-md font-bold text-on-surface">Country Code: PK (Pakistan)</div>
+                  <div className="text-body-sm text-outline mt-0.5">
+                    Traffic originates through PTCL, Nayatel, Jazz, Zong, and Telenor broadband networks.
                   </div>
-                  <div className="text-right">
-                    <span className="font-bold text-on-surface text-body-md font-body-md">34.2%</span>
-                    <span className="text-label-sm font-label-sm text-outline ml-1">(288k visits)</span>
-                  </div>
-                </div>
-                <div className="w-full bg-surface-container h-2 rounded-full overflow-hidden">
-                  <div className="bg-deal-orange h-full rounded-full" style={{ width: "34.2%" }}></div>
-                </div>
-                <div className="flex items-center justify-between text-label-sm font-label-sm text-on-surface-variant">
-                  <span>
-                    Avg. Search Budget: <strong className="text-on-surface font-semibold">PKR 25,000 – 45,000</strong>
-                  </span>
-                  <span className="text-deal-orange font-bold">Entry Budget &amp; Installment focus</span>
                 </div>
               </div>
 
-              {/* City 2: Lahore */}
-              <div className="p-space-sm bg-surface-subtle rounded-lg space-y-1.5 hover:bg-surface-container-low transition-colors border border-border-hairline">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="w-6 h-6 rounded-full bg-primary-container text-on-primary flex items-center justify-center font-bold text-label-sm">
-                      2
-                    </span>
-                    <span className="font-label-lg text-label-lg text-on-surface font-bold">Lahore</span>
-                    <span className="text-label-sm font-label-sm text-outline">(Hafeez Centre &amp; Hall Road)</span>
+              <div className="p-3.5 bg-surface-subtle rounded-lg border border-border-hairline flex items-start gap-3">
+                <span className="material-symbols-outlined text-primary-container mt-0.5 text-[20px]">security</span>
+                <div>
+                  <div className="text-body-md font-bold text-on-surface">Privacy-Preserving Salted Hashes</div>
+                  <div className="text-body-sm text-outline mt-0.5">
+                    Client IPs are transformed daily into one-way cryptographic hashes. No raw PII or IP addresses are stored.
                   </div>
-                  <div className="text-right">
-                    <span className="font-bold text-on-surface text-body-md font-body-md">28.6%</span>
-                    <span className="text-label-sm font-label-sm text-outline ml-1">(241k visits)</span>
-                  </div>
-                </div>
-                <div className="w-full bg-surface-container h-2 rounded-full overflow-hidden">
-                  <div className="bg-primary-container h-full rounded-full" style={{ width: "28.6%" }}></div>
-                </div>
-                <div className="flex items-center justify-between text-label-sm font-label-sm text-on-surface-variant">
-                  <span>
-                    Avg. Search Budget: <strong className="text-on-surface font-semibold">PKR 35,000 – 80,000</strong>
-                  </span>
-                  <span className="text-primary font-bold">High Mid-range Gamer Demand</span>
                 </div>
               </div>
 
-              {/* City 3: Rawalpindi / Islamabad */}
-              <div className="p-space-sm bg-surface-subtle rounded-lg space-y-1.5 hover:bg-surface-container-low transition-colors border border-border-hairline">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="w-6 h-6 rounded-full bg-surface-tint text-on-primary flex items-center justify-center font-bold text-label-sm">
-                      3
-                    </span>
-                    <span className="font-label-lg text-label-lg text-on-surface font-bold">
-                      Rawalpindi / Islamabad
-                    </span>
-                    <span className="text-label-sm font-label-sm text-outline">(Blue Area &amp; Saddar)</span>
+              <div className="p-3.5 bg-surface-subtle rounded-lg border border-border-hairline flex items-start gap-3">
+                <span className="material-symbols-outlined text-tertiary-container mt-0.5 text-[20px]">database</span>
+                <div>
+                  <div className="text-body-md font-bold text-on-surface">Verified Record Count</div>
+                  <div className="text-body-sm text-outline mt-0.5">
+                    {stats.pageViews.toLocaleString()} total pageview rows in database.
                   </div>
-                  <div className="text-right">
-                    <span className="font-bold text-on-surface text-body-md font-body-md">16.4%</span>
-                    <span className="text-label-sm font-label-sm text-outline ml-1">(138k visits)</span>
-                  </div>
-                </div>
-                <div className="w-full bg-surface-container h-2 rounded-full overflow-hidden">
-                  <div className="bg-surface-tint h-full rounded-full" style={{ width: "16.4%" }}></div>
-                </div>
-                <div className="flex items-center justify-between text-label-sm font-label-sm text-on-surface-variant">
-                  <span>
-                    Avg. Search Budget: <strong className="text-on-surface font-semibold">PKR 75,000 – 150,000+</strong>
-                  </span>
-                  <span className="text-tertiary-container font-bold">DIRBS PTA Tax &amp; Pro Max</span>
-                </div>
-              </div>
-
-              {/* City 4: Faisalabad & Multan */}
-              <div className="p-space-sm bg-surface-subtle rounded-lg space-y-1.5 hover:bg-surface-container-low transition-colors border border-border-hairline">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="w-6 h-6 rounded-full bg-outline text-surface-container-lowest flex items-center justify-center font-bold text-label-sm">
-                      4
-                    </span>
-                    <span className="font-label-lg text-label-lg text-on-surface font-bold">Faisalabad &amp; Multan</span>
-                    <span className="text-label-sm font-label-sm text-outline">(Katchery Bazar &amp; Cantonment)</span>
-                  </div>
-                  <div className="text-right">
-                    <span className="font-bold text-on-surface text-body-md font-body-md">11.8%</span>
-                    <span className="text-label-sm font-label-sm text-outline ml-1">(99k visits)</span>
-                  </div>
-                </div>
-                <div className="w-full bg-surface-container h-2 rounded-full overflow-hidden">
-                  <div className="bg-outline h-full rounded-full" style={{ width: "11.8%" }}></div>
-                </div>
-                <div className="flex items-center justify-between text-label-sm font-label-sm text-on-surface-variant">
-                  <span>
-                    Avg. Search Budget: <strong className="text-on-surface font-semibold">PKR 20,000 – 35,000</strong>
-                  </span>
-                  <span className="text-outline font-semibold">Battery Life &amp; Hotspot seekers</span>
-                </div>
-              </div>
-
-              {/* City 5: Peshawar & Quetta */}
-              <div className="p-space-sm bg-surface-subtle rounded-lg space-y-1.5 hover:bg-surface-container-low transition-colors border border-border-hairline">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="w-6 h-6 rounded-full bg-outline-variant text-on-surface flex items-center justify-center font-bold text-label-sm">
-                      5
-                    </span>
-                    <span className="font-label-lg text-label-lg text-on-surface font-bold">
-                      Peshawar, Quetta &amp; Others
-                    </span>
-                  </div>
-                  <div className="text-right">
-                    <span className="font-bold text-on-surface text-body-md font-body-md">9.0%</span>
-                    <span className="text-label-sm font-label-sm text-outline ml-1">(76k visits)</span>
-                  </div>
-                </div>
-                <div className="w-full bg-surface-container h-2 rounded-full overflow-hidden">
-                  <div className="bg-outline-variant h-full rounded-full" style={{ width: "9.0%" }}></div>
-                </div>
-                <div className="flex items-center justify-between text-label-sm font-label-sm text-on-surface-variant">
-                  <span>
-                    Avg. Search Budget: <strong className="text-on-surface font-semibold">PKR 30,000 – 60,000</strong>
-                  </span>
-                  <span className="text-outline font-semibold">Non-PTA &amp; Official Warranty queries</span>
                 </div>
               </div>
             </div>
           </div>
 
           <div className="mt-space-md pt-space-sm flex items-center justify-between text-label-sm font-label-sm text-outline border-t border-border-hairline">
-            <span>*Geo-IP aggregated through PTCL, Nayatel, Jazz, and Zong networks</span>
+            <span>Verified via Supabase Postgres</span>
             <Link href="/admin/analytics" className="text-deal-orange font-bold hover:underline">
-              View Detailed Demographics &rarr;
+              Inspect Demographics &rarr;
             </Link>
           </div>
         </div>
@@ -734,104 +579,44 @@ export function DashboardClient({ stats, liveBanners }: DashboardClientProps) {
                   Live Consumer Intent
                 </span>
                 <h3 className="text-headline-sm font-headline-sm text-on-surface">
-                  Top Trending Searches &amp; Spikes
+                  Top Trending Searches (Real Data)
                 </h3>
               </div>
               <span className="flex items-center gap-1 text-label-sm font-label-sm text-deal-orange font-bold bg-deal-orange/10 px-2 py-1 rounded">
-                <span className="w-2 h-2 rounded-full bg-deal-orange animate-pulse"></span> Live Stream
+                <span className="w-2 h-2 rounded-full bg-deal-orange animate-pulse"></span> DB Verified
               </span>
             </div>
 
-            <div className="space-y-3">
-              {/* Query 1 */}
-              <div className="flex items-center justify-between p-3 rounded-lg bg-surface-subtle hover:bg-surface-container-low transition-colors border border-border-hairline">
-                <div className="flex items-center gap-3">
-                  <span className="material-symbols-outlined text-deal-orange text-[20px]">local_fire_department</span>
-                  <div className="flex flex-col">
-                    <span className="text-body-md font-body-md font-bold text-on-surface">
-                      “Itel A50C official price”
-                    </span>
-                    <span className="text-label-sm font-label-sm text-deal-orange font-semibold">
-                      Hafeez Centre deal trigger &bull; 94,200 searches
-                    </span>
-                  </div>
-                </div>
-                <span className="px-2.5 py-1 rounded bg-deal-orange text-on-primary text-label-sm font-label-sm font-bold shadow-sm">
-                  +48%
-                </span>
-              </div>
-
-              {/* Query 2 */}
-              <div className="flex items-center justify-between p-3 rounded-lg bg-surface-subtle hover:bg-surface-container-low transition-colors border border-border-hairline">
-                <div className="flex items-center gap-3">
-                  <span className="material-symbols-outlined text-primary-container text-[20px]">search</span>
-                  <div className="flex flex-col">
-                    <span className="text-body-md font-body-md font-bold text-on-surface">
-                      “Under 50000 best camera phone”
-                    </span>
-                    <span className="text-label-sm font-label-sm text-outline">
-                      Macro shopping intent &bull; 81,400 searches
+            <div className="space-y-2">
+              {stats.topSearches && stats.topSearches.length > 0 ? (
+                stats.topSearches.map((item, idx) => (
+                  <div
+                    key={item.query}
+                    className="flex items-center justify-between p-3 rounded-lg bg-surface-subtle hover:bg-surface-container-low transition-colors border border-border-hairline"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="material-symbols-outlined text-deal-orange text-[20px]">
+                        {idx === 0 ? "local_fire_department" : "search"}
+                      </span>
+                      <div className="flex flex-col">
+                        <span className="text-body-md font-body-md font-bold text-on-surface">
+                          “{item.query}”
+                        </span>
+                        <span className="text-label-sm font-label-sm text-outline">
+                          Consumer catalog lookup
+                        </span>
+                      </div>
+                    </div>
+                    <span className="px-2.5 py-1 rounded bg-deal-orange text-on-primary text-label-sm font-label-sm font-bold shadow-sm font-mono">
+                      {item.count} search{item.count > 1 ? "es" : ""}
                     </span>
                   </div>
+                ))
+              ) : (
+                <div className="p-6 text-center text-outline text-body-sm bg-surface-subtle rounded-xl border border-border-hairline">
+                  {error ? "Unable to load search queries from database." : "No search queries recorded in database yet."}
                 </div>
-                <span className="px-2.5 py-1 rounded bg-primary-container text-on-primary text-label-sm font-label-sm font-bold">
-                  +19%
-                </span>
-              </div>
-
-              {/* Query 3 */}
-              <div className="flex items-center justify-between p-3 rounded-lg bg-surface-subtle hover:bg-surface-container-low transition-colors border border-border-hairline">
-                <div className="flex items-center gap-3">
-                  <span className="material-symbols-outlined text-deal-orange text-[20px]">receipt_long</span>
-                  <div className="flex flex-col">
-                    <span className="text-body-md font-body-md font-bold text-on-surface">
-                      “iPhone 16 Pro Max PTA Tax CNIC”
-                    </span>
-                    <span className="text-label-sm font-label-sm text-outline">
-                      DIRBS Tax calculator trigger &bull; 67,100 searches
-                    </span>
-                  </div>
-                </div>
-                <span className="px-2.5 py-1 rounded bg-deal-orange text-on-primary text-label-sm font-label-sm font-bold">
-                  +31%
-                </span>
-              </div>
-
-              {/* Query 4 */}
-              <div className="flex items-center justify-between p-3 rounded-lg bg-surface-subtle hover:bg-surface-container-low transition-colors border border-border-hairline">
-                <div className="flex items-center gap-3">
-                  <span className="material-symbols-outlined text-primary-container text-[20px]">sports_esports</span>
-                  <div className="flex flex-col">
-                    <span className="text-body-md font-body-md font-bold text-on-surface">
-                      “Infinix GT 20 Pro PUBG 90fps”
-                    </span>
-                    <span className="text-label-sm font-label-sm text-outline">
-                      Gaming benchmark queries &bull; 54,800 searches
-                    </span>
-                  </div>
-                </div>
-                <span className="px-2.5 py-1 rounded bg-primary-container text-on-primary text-label-sm font-label-sm font-bold">
-                  +12%
-                </span>
-              </div>
-
-              {/* Query 5 */}
-              <div className="flex items-center justify-between p-3 rounded-lg bg-surface-subtle hover:bg-surface-container-low transition-colors border border-border-hairline">
-                <div className="flex items-center gap-3">
-                  <span className="material-symbols-outlined text-outline text-[20px]">price_check</span>
-                  <div className="flex flex-col">
-                    <span className="text-body-md font-body-md font-bold text-on-surface">
-                      “Samsung S24 Ultra price drop”
-                    </span>
-                    <span className="text-label-sm font-label-sm text-outline">
-                      Flagship retailer tracking &bull; 42,300 searches
-                    </span>
-                  </div>
-                </div>
-                <span className="px-2.5 py-1 rounded bg-surface-container-high text-on-surface-variant text-label-sm font-label-sm font-bold">
-                  -4%
-                </span>
-              </div>
+              )}
             </div>
           </div>
 
@@ -843,10 +628,10 @@ export function DashboardClient({ stats, liveBanners }: DashboardClientProps) {
               </div>
               <div>
                 <h4 className="text-label-lg font-label-lg text-on-surface font-bold">
-                  1,240 Zero-Result Searches: “Redmi Note 14”
+                  {(stats.zeroResultCount ?? 0).toLocaleString()} Zero-Result Searches Logged
                 </h4>
                 <p className="text-body-sm font-body-sm text-outline">
-                  High unfulfilled consumer demand detected for an unreleased model.
+                  Unfulfilled queries indicate catalog demand for missing or upcoming phone models.
                 </p>
               </div>
             </div>

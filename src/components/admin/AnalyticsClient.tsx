@@ -22,6 +22,7 @@ import {
   Download,
   ArrowUpRight,
   RefreshCw,
+  AlertCircle,
 } from "lucide-react";
 
 interface AnalyticsData {
@@ -44,6 +45,7 @@ export function AnalyticsClient({ initialData }: { initialData: AnalyticsData | 
   const [range, setRange] = useState<"today" | "7d" | "30d" | "all">("7d");
   const [data, setData] = useState<AnalyticsData | null>(initialData);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Live active users pulse
   const [liveUsers, setLiveUsers] = useState<number>(0);
@@ -51,18 +53,24 @@ export function AnalyticsClient({ initialData }: { initialData: AnalyticsData | 
 
   const fetchStats = useCallback(async (selectedRange: string) => {
     setLoading(true);
+    setError(null);
     try {
       const res = await fetch(`/api/admin/analytics/stats?range=${selectedRange}`);
       if (res.ok) {
         const json = await res.json();
         setData(json);
+      } else {
+        const errJson = await res.json().catch(() => null);
+        setError(errJson?.error || "Unable to load analytics data from database.");
       }
     } catch (err) {
       console.error("Stats fetch error:", err);
+      setError("Network error while connecting to analytics service.");
     } finally {
       setLoading(false);
     }
   }, []);
+
 
   const fetchLive = useCallback(async () => {
     try {
@@ -156,6 +164,13 @@ export function AnalyticsClient({ initialData }: { initialData: AnalyticsData | 
         </div>
       </div>
 
+      {error && (
+        <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-body-sm flex items-center gap-3">
+          <AlertCircle className="w-5 h-5 shrink-0 text-rose-600" />
+          <span className="font-medium">{error}</span>
+        </div>
+      )}
+
       {/* Live Active Pulse Banner */}
       <div className="p-space-md rounded-xl bg-surface-container-lowest border border-border-hairline shadow-[0_1px_3px_rgba(15,23,42,0.04)] flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
@@ -165,7 +180,7 @@ export function AnalyticsClient({ initialData }: { initialData: AnalyticsData | 
           </div>
           <div>
             <div className="text-body-md font-bold text-on-surface flex items-center gap-2">
-              <span>{liveUsers > 0 ? liveUsers : 1284} Active Visitors Right Now</span>
+              <span>{liveUsers.toLocaleString()} Active Visitors Right Now</span>
               <span className="text-label-sm font-mono text-deal-orange bg-deal-orange/10 px-1.5 py-0.5 rounded font-bold">
                 Live (5m window)
               </span>
@@ -176,11 +191,12 @@ export function AnalyticsClient({ initialData }: { initialData: AnalyticsData | 
                   Trending active paths: {livePages.map((p) => p.path).join(", ")}
                 </span>
               ) : (
-                <span>Monitoring live sessions across Karachi, Lahore &amp; Islamabad...</span>
+                <span>No active sessions detected in current 5-minute telemetry window</span>
               )}
             </div>
           </div>
         </div>
+
 
         <button
           onClick={() => {

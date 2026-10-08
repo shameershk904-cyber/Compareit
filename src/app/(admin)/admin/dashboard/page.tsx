@@ -20,19 +20,70 @@ export default async function AdminDashboardPage() {
   let bannersCount = 0;
   let users = 1;
   let activityLogs = 0;
+  let shootoutsCount = 0;
+  let totalImpressions = 0;
+  let totalClicks = 0;
   let liveBanners: BannerRecord[] = [];
+  let devices = { desktop: 0, mobile: 0, tablet: 0 };
+  let topSearches: Array<{ query: string; count: number }> = [];
+  let zeroResultCount = 0;
+  let topPages: Array<{ path: string; count: number }> = [];
+  let dbError: string | null = null;
 
   try {
-    const [pCount, sCount, bCount, uCount, aCount, rawBanners] = await Promise.all([
+    const [
+      pCount,
+      sCount,
+      bCount,
+      uCount,
+      aCount,
+      compareCount,
+      bannerAgg,
+      rawBanners,
+      deviceGroups,
+      searchGroups,
+      zeroCount,
+      pageGroups,
+    ] = await Promise.all([
       prisma.pageView.count(),
       prisma.searchLog.count(),
       prisma.banner.count(),
       prisma.user.count(),
       prisma.activityLog.count(),
+      prisma.pageView.count({
+        where: {
+          path: { startsWith: "/compare" },
+        },
+      }),
+      prisma.banner.aggregate({
+        _sum: {
+          impressions: true,
+          clicks: true,
+        },
+      }),
       prisma.banner.findMany({
         take: 4,
         orderBy: [{ priority: "desc" }, { createdAt: "desc" }],
       }),
+      prisma.pageView.groupBy({
+        by: ["device"],
+        _count: { id: true },
+      }).catch(() => []),
+      prisma.searchLog.groupBy({
+        by: ["query"],
+        _count: { id: true },
+        orderBy: { _count: { id: "desc" } },
+        take: 5,
+      }).catch(() => []),
+      prisma.searchLog.count({
+        where: { resultsCount: 0 },
+      }).catch(() => 0),
+      prisma.pageView.groupBy({
+        by: ["path"],
+        _count: { id: true },
+        orderBy: { _count: { id: "desc" } },
+        take: 5,
+      }).catch(() => []),
     ]);
 
     pageViews = pCount;
@@ -40,6 +91,27 @@ export default async function AdminDashboardPage() {
     bannersCount = bCount;
     users = uCount;
     activityLogs = aCount;
+    shootoutsCount = compareCount;
+    totalImpressions = bannerAgg._sum.impressions || 0;
+    totalClicks = bannerAgg._sum.clicks || 0;
+    zeroResultCount = zeroCount;
+
+    for (const d of deviceGroups) {
+      const dev = d.device?.toLowerCase() as "desktop" | "mobile" | "tablet";
+      if (dev && dev in devices) {
+        devices[dev] = d._count.id;
+      }
+    }
+
+    topSearches = searchGroups.map((s) => ({
+      query: s.query,
+      count: s._count.id,
+    }));
+
+    topPages = pageGroups.map((p) => ({
+      path: p.path,
+      count: p._count.id,
+    }));
 
     liveBanners = rawBanners.map((b) => ({
       id: b.id,
@@ -57,8 +129,9 @@ export default async function AdminDashboardPage() {
       clicks: b.clicks,
       createdAt: b.createdAt.toISOString(),
     }));
-  } catch (err) {
+  } catch (err: unknown) {
     console.warn("Prisma dashboard prefetch notice:", err);
+    dbError = "Unable to connect to database. Live metrics could not be loaded.";
   }
 
   return (
@@ -71,9 +144,18 @@ export default async function AdminDashboardPage() {
           banners: bannersCount,
           users,
           activityLogs,
+          shootoutsCount,
+          totalImpressions,
+          totalClicks,
+          devices,
+          topSearches,
+          zeroResultCount,
+          topPages,
         }}
         liveBanners={liveBanners}
+        error={dbError}
       />
     </>
   );
 }
+
