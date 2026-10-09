@@ -1,0 +1,229 @@
+/* =========================================================================
+   ANIMATED WAVE FOOTER (INSPIRED BY NADINE COELHO / MODERN FLUID MOTION)
+   ========================================================================= */
+
+.wave-footer {
+  position: relative;
+  width: 100%;
+  background: #3586ff;
+  min-height: 120px;
+  padding: 30px 20px 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  margin-top: 110px;
+  box-sizing: border-box;
+}
+
+/* ── Waves Container (Prevents horizontal scrollbar) ── */
+.wave-footer .waves-wrapper {
+  position: absolute;
+  top: -100px;
+  left: 0;
+  width: 100%;
+  height: 100px;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.wave-footer .wave {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 100px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 100' preserveAspectRatio='none'%3E%3Cpath fill='%233586ff' d='M 0 50 C 150 15, 350 15, 500 50 C 650 85, 850 85, 1000 50 L 1000 100 L 0 100 Z' /%3E%3C/svg%3E");
+  background-size: 1000px 100px;
+  background-repeat: repeat-x;
+}
+
+.wave-footer .wave#wave1 {
+  z-index: 10;
+  opacity: 1;
+  bottom: 0;
+  animation: animateWaves 4s linear infinite;
+}
+
+.wave-footer .wave#wave2 {
+  z-index: 9;
+  opacity: 0.5;
+  bottom: 10px;
+  animation: animateWavesReverse 4s linear infinite;
+}
+
+.wave-footer .wave#wave3 {
+  z-index: 8;
+  opacity: 0.2;
+  bottom: 15px;
+  animation: animateWaves 3s linear infinite;
+}
+
+.wave-footer .wave#wave4 {
+  z-index: 7;
+  opacity: 0.7;
+  bottom: 20px;
+  animation: animateWavesReverse 3s linear infinite;
+}
+
+@keyframes animateWaves {
+  0% {
+    background-position-x: 1000px;
+  }
+  100% {
+    background-position-x: 0px;
+  }
+}
+
+@keyframes animateWavesReverse {
+  0% {
+    background-position-x: -1000px;
+  }
+  100% {
+    background-position-x: 0px;
+  }
+}
+
+/* ── Social Media Icons ── */
+.wave-footer .social-icons {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 10px 0 16px;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 0;
+  list-style: none;
+  z-index: 15;
+}
+
+.wave-footer .social-item {
+  list-style: none;
+}
+
+.wave-footer .social-link {
+  font-size: 1.4rem;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(8px);
+  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  text-decoration: none;
+}
+
+.wave-footer .social-link:hover {
+  transform: translateY(-8px) scale(1.08);
+  background: #ffffff;
+  color: #3586ff;
+  border-color: #ffffff;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.wave-footer .social-link svg {
+  width: 20px;
+  height: 20px;
+  fill: currentColor;
+  transition: fill 0.35s ease;
+}
+
+/* ── Menu Navigation Links ── */
+.wave-footer .footer-menu {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 8px 0 18px;
+  flex-wrap: wrap;
+  gap: 24px;
+  padding: 0;
+  list-style: none;
+  z-index: 15;
+}
+
+.wave-footer .menu-item {
+  list-style: none;
+}
+
+.wave-footer .menu-link {
+  font-size: 1.05rem;
+  color: #ffffff;
+  display: inline-block;
+  text-decoration: none;
+  opacity: 0.82;
+  font-weight: 400;
+  letter-spacing: 0.015em;
+  transition: all 0.25s ease;
+  position: relative;
+}
+
+.wave-footer .menu-link:hover {
+  opacity: 1;
+  transform: translateY(-2px);
+}
+
+/* ── Copyright Text ── */
+.wave-footer .footer-copyright {
+  color: rgba(255, 255, 255, 0.85);
+  margin: 10px 0 0;
+  font-size: 0.92rem;
+  font-weight: 300;
+  letter-spacing: 0.02em;
+  text-align: center;
+  z-index: 15;
+}
+
+.wave-footer .footer-copyright a {
+  color: #ffffff;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  font-weight: 500;
+  transition: opacity 0.2s;
+}
+
+.wave-footer .footer-copyright a:hover {
+  opacity: 0.85;
+}
+
+/* ── Responsive Mobile Adjustments ── */
+@media (max-width: 640px) {
+  .wave-footer {
+    padding: 24px 16px 32px;
+    margin-top: 90px;
+  }
+  .wave-footer .waves-wrapper {
+    top: -80px;
+    height: 80px;
+  }
+  .wave-footer .wave {
+    height: 80px;
+    background-size: 800px 80px;
+  }
+  .wave-footer .social-icons {
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .wave-footer .social-link {
+    width: 38px;
+    height: 38px;
+  }
+  .wave-footer .social-link svg {
+    width: 18px;
+    height: 18px;
+  }
+  .wave-footer .footer-menu {
+    gap: 16px;
+    margin-bottom: 14px;
+  }
+  .wave-footer .menu-link {
+    font-size: 0.95rem;
+  }
+  .wave-footer .footer-copyright {
+    font-size: 0.82rem;
+  }
+}

@@ -1599,64 +1599,6 @@ export function CompareClient({ initialPhones, initialCompareSlugs }: CompareCli
         </div>
       )}
 
-      {/* ========================================================================= */}
-      {/* NATIVE SITE FOOTER (LUXURY MINIMALIST EDITORIAL)                          */}
-      {/* ========================================================================= */}
-      <footer className="site-footer mt-16">
-        <div className="container">
-          <div className="footer-inner">
-            <div className="footer-col">
-              <h3>
-                CompareIt<span className="text-[#ea580c]">.pk</span>
-              </h3>
-              <p>
-                Pakistan&apos;s premier tech analytics, device comparison, real-time wholesale rates from Hafeez Centre Lahore, Saddar Karachi, and accurate PTA DIRBS tax calculations.
-              </p>
-            </div>
-            <div className="footer-col">
-              <h4>Quick Links</h4>
-              <ul className="footer-links">
-                <li>
-                  <Link href="/#phones">Latest Smartphones</Link>
-                </li>
-                <li>
-                  <Link href="/trending">Trending Devices</Link>
-                </li>
-                <li>
-                  <Link href="/new-in">New Arrivals</Link>
-                </li>
-                <li>
-                  <Link href="/coming-soon">Coming Soon</Link>
-                </li>
-                <li>
-                  <Link href="/compare">Side-by-Side Comparison</Link>
-                </li>
-              </ul>
-            </div>
-            <div className="footer-col">
-              <h4>Taxes & Trust</h4>
-              <ul className="footer-links">
-                <li>
-                  <Link href="/?taxCalc=open">PTA DIRBS Tax Calculator</Link>
-                </li>
-                <li>
-                  <Link href="/contact">Editorial & Contact</Link>
-                </li>
-                <li>
-                  <a href="#">Privacy Policy</a>
-                </li>
-                <li>
-                  <a href="#">Terms of Service</a>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div className="footer-meta mt-8 pt-6 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-gray-400">
-            <span>© 2025 CompareIt.pk. All rights reserved. Real-time rates tracked across Pakistan stores.</span>
-            <span>PTA DIRBS Approved Rates 2025</span>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }
