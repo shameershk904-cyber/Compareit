@@ -24,6 +24,13 @@ enum BannerPlacement {
   SIDEBAR
 }
 
+enum MessageStatus {
+  UNREAD
+  READ
+  RESOLVED
+  ARCHIVED
+}
+
 // ----------------------------------------------------
 // 1. User & Authentication (Auth.js / NextAuth & Roles)
 // ----------------------------------------------------
@@ -226,4 +233,25 @@ model PhoneRetailer {
   @@index([phoneId])
   @@index([store])
   @@map("phone_retailers")
+}
+
+// ----------------------------------------------------
+// 7. Contact Messages & User Inquiries
+// ----------------------------------------------------
+model ContactMessage {
+  id        String        @id @default(cuid())
+  name      String
+  email     String
+  inquiry   String
+  subject   String
+  message   String
+  status    MessageStatus @default(UNREAD)
+  notes     String?
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+  @@index([inquiry])
+  @@map("contact_messages")
 }

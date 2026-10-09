@@ -40,6 +40,7 @@ const FAQ = [
 export function ContactClient() {
   const [activeInquiry, setActiveInquiry] = useState("general");
   const [formState, setFormState] = useState<FormState>("idle");
+  const [errorMessage, setErrorMessage] = useState("");
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [charCount, setCharCount] = useState(0);
   const formRef = useRef<HTMLFormElement>(null);
@@ -47,6 +48,7 @@ export function ContactClient() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setFormState("submitting");
+    setErrorMessage("");
 
     const fd = new FormData(e.currentTarget);
     const payload = {
@@ -57,24 +59,27 @@ export function ContactClient() {
       message: fd.get("message") as string,
     };
 
-    // Simulate a short delay (replace with real fetch to /api/contact when ready)
-    await new Promise((r) => setTimeout(r, 1200));
-
-    // For now always resolve as success since there is no backend endpoint yet.
-    // When you wire up the API route, replace the line below with a real fetch.
     try {
-      await fetch("/api/contact", {
+      const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-    } catch {
-      // Swallow — we show success regardless so UX is not broken in dev
-    }
 
-    setFormState("success");
-    formRef.current?.reset();
-    setCharCount(0);
+      const data = await res.json().catch(() => null);
+
+      if (!res.ok) {
+        throw new Error(data?.error || "Failed to send message. Please try again.");
+      }
+
+      setFormState("success");
+      formRef.current?.reset();
+      setCharCount(0);
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Something went wrong. Please try again.";
+      setErrorMessage(message);
+      setFormState("error");
+    }
   };
 
   return (
@@ -245,7 +250,7 @@ export function ContactClient() {
 
                 {formState === "error" && (
                   <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-xl px-4 py-2.5">
-                    Something went wrong. Please try again or email us directly.
+                    {errorMessage || "Something went wrong. Please try again or email us directly."}
                   </p>
                 )}
 
