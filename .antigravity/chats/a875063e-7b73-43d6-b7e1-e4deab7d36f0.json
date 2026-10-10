@@ -1,8 +1,33 @@
 {
   "sessionId": "a875063e-7b73-43d6-b7e1-e4deab7d36f0",
-  "name": "<script async src=\"https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9249290010477279\" crossorigin=\"anonymous\"></script> Please add",
+  "name": "Web development work",
   "createdAt": "2026-10-10T09:47:42.220Z",
   "filename": "a875063e-7b73-43d6-b7e1-e4deab7d36f0.json",
-  "geminiStarted": false,
-  "messages": []
+  "geminiStarted": true,
+  "messages": [
+    {
+      "id": "0fd16155-ba81-4d9a-b663-97e0cc75f944",
+      "role": "user",
+      "content": "<script async src=\"https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9249290010477279\"\n     crossorigin=\"anonymous\"></script>\n\nPlease add this tag so google ads can start working.\n\n\nPlease add a nice pre-loader when the website is opened\n\nAlso please add nextjs top loader so when a page is loading on the server side, it shows a lot at the top instead of just assuming that things it's loading ￼\n\n\nAnd just like we have filters on the homepage also add those filters on Trending page.",
+      "status": "cancelled",
+      "model": "gemini-3.8-flash-high",
+      "client_type": "gemini-bridge",
+      "parent_message_id": null,
+      "created_at": "2026-10-10T09:48:55.357Z",
+      "sender": "ios",
+      "is_cancelled": true
+    },
+    {
+      "id": "a6638ad7-478e-49ef-9cc8-7f066da51fb7",
+      "role": "user",
+      "content": "<script async src=\"https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9249290010477279\"\n     crossorigin=\"anonymous\"></script>\n\nPlease add this tag so google ads can start working.\n\n\nPlease add a nice pre-loader when the website is opened\n\nAlso please add nextjs top loader so when a page is loading on the server side, it shows a lot at the top instead of just assuming that things it's loading ￼\n\n\nAnd just like we have filters on the homepage also add those filters on Trending page.",
+      "status": "pending",
+      "model": "gemini-3.8-flash-high",
+      "client_type": "gemini-bridge",
+      "parent_message_id": null,
+      "created_at": "2026-10-10T09:50:26.976Z",
+      "sender": "ios",
+      "is_cancelled": false
+    }
+  ]
 }
