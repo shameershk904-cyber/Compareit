@@ -4794,3 +4794,46 @@ body.modal-open > *:not(.modal-backdrop) {
   margin-top: 0.15rem;
 }
 
+/* ==========================================================================
+   APP PRELOADER STYLES
+   ========================================================================== */
+@keyframes preloader-slide {
+  0% {
+    left: -40%;
+    width: 35%;
+  }
+  50% {
+    left: 25%;
+    width: 60%;
+  }
+  100% {
+    left: 100%;
+    width: 35%;
+  }
+}
+
+.preloader-bar {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, #f47820, #ff944d);
+  border-radius: 9999px;
+  animation: preloader-slide 1.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes pulse-gentle {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(0.97);
+    opacity: 0.9;
+  }
+}
+
+.animate-pulse-gentle {
+  animation: pulse-gentle 2s ease-in-out infinite;
+}
+
+
