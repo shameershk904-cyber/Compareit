@@ -138,15 +138,16 @@ export function Header() {
     setIsHeaderHidden(false);
   }, [pathname]);
 
-  // Lock body scroll when mobile drawer is open
+  // Lock page scroll when mobile drawer is open (class-based so fixed drawer isn't clipped)
   useEffect(() => {
+    const root = document.documentElement;
     if (isMobileMenuOpen) {
-      document.body.style.overflow = "hidden";
+      root.classList.add("mobile-nav-open");
     } else {
-      document.body.style.overflow = "";
+      root.classList.remove("mobile-nav-open");
     }
     return () => {
-      document.body.style.overflow = "";
+      root.classList.remove("mobile-nav-open");
     };
   }, [isMobileMenuOpen]);
 

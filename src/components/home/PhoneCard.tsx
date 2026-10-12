@@ -122,7 +122,7 @@ export function PhoneCard({ phone, isCompared, toggleCompare }: { phone: Phone; 
       <Link 
         href={productUrl} 
         className="card-top" 
-        style={{ textDecoration: 'none', display: 'flex', cursor: 'pointer' }}
+        style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
         title={`View details for ${phone.brand} ${phone.model}`}
       >
         <Image 
@@ -131,7 +131,8 @@ export function PhoneCard({ phone, isCompared, toggleCompare }: { phone: Phone; 
           className="card-img" 
           width={250} 
           height={300} 
-          unoptimized 
+          unoptimized
+          style={{ width: 'auto', height: 'auto', maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
         />
         {galleryPill}
       </Link>

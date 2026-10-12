@@ -617,7 +617,7 @@ function HomeClientInner({ initialPhones }: HomeClientProps) {
               </div>
             </div>
 
-            <div className="phones-grid">
+            <div className="phones-grid grid grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3 w-full min-w-0">
               {visiblePhones.map(phone => (
                 <PhoneCard 
                   key={phone.id} 
