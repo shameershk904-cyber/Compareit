@@ -17,7 +17,7 @@ const INQUIRY_TYPES = [
 const FAQ = [
   {
     q: "How often are prices updated?",
-    a: "Our market prices are refreshed continuously from major Pakistani retailers including Hafeez Centre, PriceOye, Phone Bazaar, and more. Most prices are verified within 24–48 hours.",
+    a: "Our market prices are refreshed continuously from major Pakistani retailers including PriceOye, WhatMobile, Telemart, and more. Most prices are verified within 24–48 hours.",
   },
   {
     q: "Are the prices official or estimated?",
@@ -288,6 +288,13 @@ export function ContactClient() {
             <h3 className="text-base font-bold text-gray-900">Other ways to reach us</h3>
             {[
               {
+                icon: "📞",
+                title: "Phone & WhatsApp",
+                value: "+92 324 4737777",
+                sub: "Call or message us directly",
+                href: "tel:+923244737777",
+              },
+              {
                 icon: "📧",
                 title: "Email",
                 value: "hello@compareit.pk",
@@ -332,10 +339,16 @@ export function ContactClient() {
               <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
               <span className="text-sm font-bold text-emerald-700">Live Support Available</span>
             </div>
-            <p className="text-xs text-emerald-700/80 leading-relaxed">
+            <p className="text-xs text-emerald-700/80 leading-relaxed mb-2">
               Our team is based in Pakistan (PKT, UTC+5) and typically responds
               to all inquiries within 24 hours on business days.
             </p>
+            <a
+              href="tel:+923244737777"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 hover:text-emerald-950 transition-colors"
+            >
+              <span>📞 Call / WhatsApp: +92 324 4737777</span>
+            </a>
           </div>
 
           {/* Quick links */}

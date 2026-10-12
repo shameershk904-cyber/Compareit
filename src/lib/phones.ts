@@ -78,16 +78,21 @@ function dbPhoneToPhone(row: any): Phone {
     banners: row.banners as string[] ?? undefined,
     // Map PhoneRetailer rows back to the Retailer shape
     retailers: Array.isArray(row.retailers)
-      ? (row.retailers as { store: string; price: number; delivery: string; inStock: boolean; condition: string; url: string }[]).map(
-          (r): Retailer => ({
-            store: r.store,
-            price: r.price,
-            delivery: r.delivery ?? "",
-            in_stock: r.inStock ?? true,
-            condition: r.condition ?? "",
-            url: r.url ?? "",
+      ? (row.retailers as { store: string; price: number; delivery: string; inStock: boolean; condition: string; url: string }[])
+          .filter((r) => {
+            const s = (r.store || "").toLowerCase();
+            return !s.includes("hafeez") && !s.includes("saddar");
           })
-        )
+          .map(
+            (r): Retailer => ({
+              store: r.store,
+              price: r.price,
+              delivery: r.delivery ?? "",
+              in_stock: r.inStock ?? true,
+              condition: r.condition ?? "",
+              url: r.url ?? "",
+            })
+          )
       : undefined,
   };
 }

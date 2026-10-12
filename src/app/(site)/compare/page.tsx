@@ -7,7 +7,7 @@ import type { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Compare Smartphones in Pakistan - Side-by-Side Specs Matrix | CompareIt.pk",
   description:
-    "Compare latest smartphones side-by-side in Pakistan. Real-time Hafeez Centre rates, PriceOye deals, PTA DIRBS tax calculations, benchmark scores, and comprehensive spec shootout.",
+    "Compare latest smartphones side-by-side in Pakistan. Real-time market rates, PriceOye deals, PTA DIRBS tax calculations, benchmark scores, and comprehensive spec shootout.",
 };
 
 export default async function ComparePage(props: {

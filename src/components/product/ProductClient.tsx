@@ -197,11 +197,16 @@ export function ProductClient({ phone, competitors }: ProductClientProps) {
   // Pricing calculations: sort retailers strictly lowest-to-highest so the best deal is always on top
   const sortedRetailers = useMemo(() => {
     if (!phone.retailers || phone.retailers.length === 0) return [];
-    return [...phone.retailers].sort((a, b) => {
-      const priceA = a.price && a.price > 0 ? a.price : Infinity;
-      const priceB = b.price && b.price > 0 ? b.price : Infinity;
-      return priceA - priceB;
-    });
+    return [...phone.retailers]
+      .filter((r) => {
+        const s = (r.store || "").toLowerCase();
+        return !s.includes("hafeez") && !s.includes("saddar");
+      })
+      .sort((a, b) => {
+        const priceA = a.price && a.price > 0 ? a.price : Infinity;
+        const priceB = b.price && b.price > 0 ? b.price : Infinity;
+        return priceA - priceB;
+      });
   }, [phone.retailers]);
 
   const minRetailerPrice =

@@ -76,18 +76,18 @@ export function Footer() {
           </Link>
         </li>
         <li className="menu-item">
-          <Link href="/contact" className="menu-link">
-            About
-          </Link>
-        </li>
-        <li className="menu-item">
-          <Link href="/compare" className="menu-link">
-            Services
-          </Link>
-        </li>
-        <li className="menu-item">
           <Link href="/trending" className="menu-link">
-            Team
+            Trending
+          </Link>
+        </li>
+        <li className="menu-item">
+          <Link href="/new-in" className="menu-link">
+            New In
+          </Link>
+        </li>
+        <li className="menu-item">
+          <Link href="/coming-soon" className="menu-link">
+            Coming Soon
           </Link>
         </li>
         <li className="menu-item">

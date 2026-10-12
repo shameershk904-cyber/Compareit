@@ -426,7 +426,7 @@ export function CompareClient({ initialPhones, initialCompareSlugs }: CompareCli
           getRawValue: (p) => p.price_pkr || 0,
         },
         {
-          label: "Hafeez Centre Benchmark",
+          label: "Market Cash Benchmark",
           getValue: (p) => {
             const price = p.lowest_verified_price || p.price_pkr;
             const isAvail = price > 0 && p.status !== "Discontinued";
@@ -822,7 +822,7 @@ export function CompareClient({ initialPhones, initialCompareSlugs }: CompareCli
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white border border-gray-200 text-[11px] text-gray-700 font-medium shadow-2xs">
               <span className="w-1.5 h-1.5 rounded-full bg-[#f47820] animate-pulse"></span>
-              Live Hafeez Centre Benchmark Rates
+              Live Market Benchmark Rates
             </span>
           </div>
         </div>

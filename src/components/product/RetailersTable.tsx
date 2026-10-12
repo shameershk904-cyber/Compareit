@@ -3,7 +3,12 @@ import { formatPKR } from "@/lib/utils";
 import { ShoppingCart } from "lucide-react";
 
 export function RetailersTable({ retailers, phoneName }: { retailers?: Retailer[], phoneName: string }) {
-  if (!retailers || retailers.length === 0) {
+  const filteredRetailers = (retailers || []).filter((r) => {
+    const s = (r.store || "").toLowerCase();
+    return !s.includes("hafeez") && !s.includes("saddar");
+  });
+
+  if (filteredRetailers.length === 0) {
     return null;
   }
 
@@ -23,7 +28,7 @@ export function RetailersTable({ retailers, phoneName }: { retailers?: Retailer[
             </tr>
           </thead>
           <tbody>
-            {retailers.map((retailer, idx) => (
+            {filteredRetailers.map((retailer, idx) => (
               <tr key={idx} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
                 <td className="py-4 px-4">
                   <div className="font-bold text-gray-900">{retailer.store}</div>
