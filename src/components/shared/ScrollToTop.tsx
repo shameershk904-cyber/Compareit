@@ -1,0 +1,88 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { ArrowUp } from "lucide-react";
+
+export function ScrollToTop() {
+  const [isVisible, setIsVisible] = useState(false);
+  const [hasDock, setHasDock] = useState(false);
+
+  useEffect(() => {
+    let ticking = false;
+
+    const checkScrollAndDock = () => {
+      // Show when scrolled down 300px
+      const scrolled = window.scrollY > 300;
+      setIsVisible(scrolled);
+
+      // Check if compare dock is present and active
+      const dock = document.getElementById("compare-dock");
+      const isDockActive = !!dock && !dock.classList.contains("hidden");
+      setHasDock(isDockActive);
+
+      ticking = false;
+    };
+
+    const onScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(checkScrollAndDock);
+        ticking = true;
+      }
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    // Also periodically check dock in case compare items changed without scrolling
+    const dockInterval = setInterval(checkScrollAndDock, 500);
+
+    // Initial check
+    checkScrollAndDock();
+
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      clearInterval(dockInterval);
+    };
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={scrollToTop}
+      aria-label="Back to top"
+      title="Back to top"
+      style={{
+        position: "fixed",
+        right: "20px",
+        bottom: hasDock ? "96px" : "24px",
+        zIndex: 80,
+        width: "44px",
+        height: "44px",
+        borderRadius: "50%",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: "#09090b",
+        color: "#ffffff",
+        border: "1.5px solid #27272a",
+        boxShadow: "0 8px 24px rgba(0, 0, 0, 0.25), 0 2px 6px rgba(0, 0, 0, 0.15)",
+        cursor: "pointer",
+        transition: "opacity 0.25s ease, transform 0.25s ease, bottom 0.25s ease, border-color 0.2s ease, background-color 0.2s ease",
+        opacity: isVisible ? 1 : 0,
+        pointerEvents: isVisible ? "auto" : "none",
+        transform: isVisible ? "translateY(0) scale(1)" : "translateY(12px) scale(0.9)",
+      }}
+      className="hover:!bg-black hover:!border-[#f47820] hover:scale-105 active:scale-95 group"
+    >
+      <ArrowUp
+        className="w-5 h-5 text-zinc-300 group-hover:text-[#f47820] transition-colors"
+        strokeWidth={2.5}
+      />
+    </button>
+  );
+}
