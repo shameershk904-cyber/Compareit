@@ -4,6 +4,7 @@ import { Footer } from "@/components/layout/Footer";
 import { TaxCalculatorModal } from "@/components/shared/TaxCalculatorModal";
 import { Tracker } from "@/components/analytics/Tracker";
 import { ScrollToTop } from "@/components/shared/ScrollToTop";
+import { SitePreloader } from "@/components/shared/SitePreloader";
 
 export default function SiteLayout({
   children,
@@ -12,6 +13,7 @@ export default function SiteLayout({
 }) {
   return (
     <>
+      <SitePreloader />
       <Suspense fallback={null}>
         <Tracker />
       </Suspense>

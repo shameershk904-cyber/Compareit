@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
+import { TopLoader } from "@/components/shared/TopLoader";
 
 const poppins = Poppins({
   variable: "--font-poppins",
@@ -43,8 +44,14 @@ export default function RootLayout({
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&family=Poppins:wght@300;400;500;600;700;800;900&display=swap"
         />
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9249290010477279"
+          crossOrigin="anonymous"
+        />
       </head>
       <body className={`${poppins.className} antialiased`}>
+        <TopLoader />
         {children}
       </body>
     </html>
