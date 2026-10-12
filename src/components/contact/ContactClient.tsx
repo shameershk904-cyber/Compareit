@@ -288,11 +288,11 @@ export function ContactClient() {
             <h3 className="text-base font-bold text-gray-900">Other ways to reach us</h3>
             {[
               {
-                icon: "📞",
-                title: "Phone & WhatsApp",
+                icon: "💬",
+                title: "WhatsApp Only",
                 value: "+92 324 4737777",
-                sub: "Call or message us directly",
-                href: "tel:+923244737777",
+                sub: "Messages only (No calls)",
+                href: "https://wa.me/923244737777",
               },
               {
                 icon: "📧",
@@ -319,6 +319,8 @@ export function ContactClient() {
               <a
                 key={c.title}
                 href={c.href}
+                target={c.href.startsWith("http") ? "_blank" : undefined}
+                rel={c.href.startsWith("http") ? "noopener noreferrer" : undefined}
                 className="flex items-start gap-3.5 p-3.5 rounded-xl border border-gray-100 hover:border-orange-200 hover:bg-orange-50 transition-all group"
               >
                 <span className="text-2xl">{c.icon}</span>
@@ -344,10 +346,12 @@ export function ContactClient() {
               to all inquiries within 24 hours on business days.
             </p>
             <a
-              href="tel:+923244737777"
+              href="https://wa.me/923244737777"
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 hover:text-emerald-950 transition-colors"
             >
-              <span>📞 Call / WhatsApp: +92 324 4737777</span>
+              <span>💬 WhatsApp Only: +92 324 4737777</span>
             </a>
           </div>
 

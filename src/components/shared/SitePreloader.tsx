@@ -71,72 +71,56 @@ export function SitePreloader() {
           textAlign: "center",
         }}
       >
-        {/* Brand Icon Badge */}
+        {/* Compare It Logo with Soft Ambient Pulse */}
         <div
           style={{
             position: "relative",
-            width: "68px",
-            height: "68px",
-            borderRadius: "20px",
-            background: "linear-gradient(135deg, #09090b 0%, #18181b 100%)",
-            boxShadow: "0 10px 25px -5px rgba(244, 120, 32, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.1)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
+            padding: "0.5rem 0",
           }}
         >
+          {/* Subtle Ambient Pulse Glow */}
           <div
             style={{
               position: "absolute",
-              inset: "-4px",
-              borderRadius: "24px",
-              border: "2px solid rgba(244, 120, 32, 0.4)",
+              inset: "-20px",
+              borderRadius: "50%",
+              background: "radial-gradient(circle, rgba(244, 120, 32, 0.22) 0%, transparent 70%)",
               animation: "preloader-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+              pointerEvents: "none",
             }}
           />
 
-          <svg
-            width="32"
-            height="32"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="#f47820"
-            strokeWidth="2.2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <rect width="14" height="20" x="5" y="2" rx="2" ry="2" />
-            <path d="M12 18h.01" />
-          </svg>
+          <img
+            src="/logo.png"
+            alt="Compare It"
+            width={190}
+            height={50}
+            style={{
+              height: "48px",
+              width: "auto",
+              objectFit: "contain",
+              display: "block",
+              position: "relative",
+              filter: "drop-shadow(0 2px 8px rgba(0, 0, 0, 0.06))",
+            }}
+          />
         </div>
 
-        {/* Brand Title */}
-        <div>
-          <div
-            style={{
-              fontSize: "1.5rem",
-              fontWeight: 800,
-              letterSpacing: "-0.03em",
-              color: "#09090b",
-              lineHeight: 1.2,
-            }}
-          >
-            Compare<span style={{ color: "#f47820" }}>It</span>
-            <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "#71717a", marginLeft: "2px" }}>.pk</span>
-          </div>
-          <p
-            style={{
-              fontSize: "0.75rem",
-              fontWeight: 500,
-              color: "#71717a",
-              marginTop: "0.25rem",
-              letterSpacing: "0.04em",
-              textTransform: "uppercase",
-            }}
-          >
-            Find • Compare • Decide
-          </p>
-        </div>
+        <p
+          style={{
+            fontSize: "0.75rem",
+            fontWeight: 500,
+            color: "#71717a",
+            marginTop: "-0.5rem",
+            letterSpacing: "0.06em",
+            textTransform: "uppercase",
+          }}
+        >
+          Find • Compare • Decide
+        </p>
 
         {/* Progress track */}
         <div
