@@ -176,7 +176,7 @@ function HomeClientInner({ initialPhones }: HomeClientProps) {
     scored.sort((a, b) => b.score - a.score);
 
     const winner = scored[0].phone;
-    const rivals = scored.slice(1, 4).map(s => s.phone);
+    const rivals = scored.slice(1).map(s => s.phone);
 
     let rationale = "";
     if (advisorPriority === 'gaming') {

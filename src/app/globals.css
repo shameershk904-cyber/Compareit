@@ -1353,6 +1353,14 @@ button {
   position: relative;
 }
 
+@media (min-width: 900px) {
+  .rec-winner-card {
+    align-self: start;
+    position: sticky;
+    top: 90px;
+  }
+}
+
 .rec-badge-winner {
   display: inline-flex;
   align-items: center;
