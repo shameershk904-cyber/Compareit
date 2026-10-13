@@ -8,11 +8,19 @@ export const dynamic = "force-dynamic";
 
 const linkUrlSchema = z
   .string()
-  .min(1)
+  .max(500)
   .refine(
-    (v) => v.startsWith("/") || /^https?:\/\//i.test(v),
-    "Must be a full URL (https://…) or a site path (/phones/…)"
-  );
+    (v) =>
+      !v.trim() ||
+      v.trim() === "#" ||
+      v.startsWith("/") ||
+      /^https?:\/\//i.test(v),
+    "Must be empty (not clickable), #, a site path (/phone/…), or a full URL"
+  )
+  .transform((v) => {
+    const t = v.trim();
+    return !t || t === "#" ? "#" : t;
+  });
 
 const updateBannerSchema = z.object({
   title: z.string().min(1).max(120).optional(),

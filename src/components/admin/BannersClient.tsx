@@ -51,10 +51,20 @@ function toDateInput(value?: string | null) {
   }
 }
 
-export function BannersClient({ initialBanners }: { initialBanners: BannerRecord[] }) {
+export function BannersClient({
+  initialBanners,
+  liveFallbackSidebar,
+}: {
+  initialBanners: BannerRecord[];
+  /** Legacy homepage advisor image shown until a SIDEBAR banner is published */
+  liveFallbackSidebar?: string;
+}) {
   const [banners, setBanners] = useState<BannerRecord[]>(initialBanners);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingBanner, setEditingBanner] = useState<BannerRecord | null>(null);
+
+  const hasSidebarBanner = banners.some((b) => b.placement === "SIDEBAR" && b.isActive);
+  const showLiveFallback = Boolean(liveFallbackSidebar) && !hasSidebarBanner;
 
   const [title, setTitle] = useState("");
   const [linkUrl, setLinkUrl] = useState("");
@@ -87,8 +97,23 @@ export function BannersClient({ initialBanners }: { initialBanners: BannerRecord
     setFormSuccess("");
   };
 
-  const openCreateModal = () => {
+  const openCreateModal = (preferredPlacement: Placement = "HERO") => {
     resetForm();
+    setPlacement(preferredPlacement);
+    setLinkUrl(""); // display-only by default
+    setIsModalOpen(true);
+  };
+
+  const openReplaceLiveFallback = () => {
+    resetForm();
+    setTitle("Homepage Advisor Banner");
+    setPlacement("SIDEBAR");
+    setPriority(20);
+    setLinkUrl("");
+    setAltText("Homepage advertisement banner");
+    if (liveFallbackSidebar) {
+      setPreviewUrl(liveFallbackSidebar);
+    }
     setIsModalOpen(true);
   };
 
@@ -133,7 +158,15 @@ export function BannersClient({ initialBanners }: { initialBanners: BannerRecord
     setFormError("");
     setFormSuccess("");
 
-    if (!editingBanner && !selectedFile) {
+    // New banner needs a file OR (SIDEBAR replace using existing live fallback image)
+    const canUseFallbackImage =
+      !editingBanner &&
+      !selectedFile &&
+      placement === "SIDEBAR" &&
+      Boolean(liveFallbackSidebar) &&
+      previewUrl === liveFallbackSidebar;
+
+    if (!editingBanner && !selectedFile && !canUseFallbackImage) {
       setFormError("Please select a banner image (JPG, PNG, or WEBP under 2 MB).");
       return;
     }
@@ -143,10 +176,7 @@ export function BannersClient({ initialBanners }: { initialBanners: BannerRecord
       return;
     }
 
-    if (!linkUrl.trim()) {
-      setFormError("Destination link URL is required.");
-      return;
-    }
+    // linkUrl optional — empty means display-only (not clickable)
 
     setUploading(true);
     try {
@@ -169,11 +199,22 @@ export function BannersClient({ initialBanners }: { initialBanners: BannerRecord
         desktopImageUrl = uploadData.url;
       }
 
+      // When replacing the live fallback using the existing image URL (no new file)
+      if (!desktopImageUrl && liveFallbackSidebar && placement === "SIDEBAR") {
+        desktopImageUrl = liveFallbackSidebar;
+      }
+
+      if (!desktopImageUrl) {
+        setFormError("Please select a banner image.");
+        setUploading(false);
+        return;
+      }
+
       const payload = {
         title: title.trim(),
         desktopImage: desktopImageUrl,
         altText: altText.trim() || null,
-        linkUrl: linkUrl.trim(),
+        linkUrl: linkUrl.trim() || "#",
         placement,
         priority: Number(priority),
         isActive,
@@ -271,7 +312,7 @@ export function BannersClient({ initialBanners }: { initialBanners: BannerRecord
         </div>
 
         <button
-          onClick={openCreateModal}
+          onClick={() => openCreateModal("SIDEBAR")}
           className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-deal-orange hover:bg-deal-orange/90 text-on-primary font-bold text-label-md shadow-md shadow-deal-orange/20 transition-all cursor-pointer self-start sm:self-auto"
         >
           <Plus className="w-4 h-4" />
@@ -343,15 +384,19 @@ export function BannersClient({ initialBanners }: { initialBanners: BannerRecord
                   <p className="text-[11px] text-outline mt-0.5">
                     {PLACEMENT_LABELS[banner.placement]}
                   </p>
-                  <a
-                    href={banner.linkUrl}
-                    target={banner.linkUrl.startsWith("http") ? "_blank" : undefined}
-                    rel="noreferrer"
-                    className="text-body-sm font-body-sm text-outline hover:text-deal-orange flex items-center gap-1 mt-1 truncate"
-                  >
-                    <span className="truncate">{banner.linkUrl}</span>
-                    <ExternalLink className="w-3 h-3 shrink-0" />
-                  </a>
+                  {!banner.linkUrl || banner.linkUrl === "#" ? (
+                    <span className="text-body-sm text-outline mt-1 block">Display only · not clickable</span>
+                  ) : (
+                    <a
+                      href={banner.linkUrl}
+                      target={banner.linkUrl.startsWith("http") ? "_blank" : undefined}
+                      rel="noreferrer"
+                      className="text-body-sm font-body-sm text-outline hover:text-deal-orange flex items-center gap-1 mt-1 truncate"
+                    >
+                      <span className="truncate">{banner.linkUrl}</span>
+                      <ExternalLink className="w-3 h-3 shrink-0" />
+                    </a>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-3 gap-2 p-2.5 rounded-lg bg-surface-subtle border border-border-hairline text-center">
@@ -406,15 +451,54 @@ export function BannersClient({ initialBanners }: { initialBanners: BannerRecord
           );
         })}
 
-        {banners.length === 0 && (
+        {showLiveFallback && liveFallbackSidebar && (
+          <div className="rounded-xl bg-surface-container-lowest border-2 border-dashed border-deal-orange/40 overflow-hidden flex flex-col justify-between shadow-[0_1px_3px_rgba(15,23,42,0.04)]">
+            <div className="relative aspect-video w-full bg-primary-container overflow-hidden border-b border-border-hairline">
+              <img
+                src={liveFallbackSidebar}
+                alt="Live homepage advisor banner"
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute top-3 left-3 flex items-center gap-1.5">
+                <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-deal-orange text-on-primary shadow-sm">
+                  SIDEBAR
+                </span>
+                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-white/90 text-zinc-800">
+                  Live on homepage
+                </span>
+              </div>
+            </div>
+            <div className="p-space-md space-y-3">
+              <div>
+                <h3 className="text-headline-sm font-headline-sm text-on-surface">
+                  Current Homepage Advisor Banner
+                </h3>
+                <p className="text-body-sm text-outline mt-1">
+                  This is the creative already showing beside Smart Phone Advisor. It is not in the database yet — click Replace to manage it from here (upload a new image anytime).
+                </p>
+                <p className="text-[11px] text-outline mt-1">Display only · not clickable on the site</p>
+              </div>
+              <button
+                type="button"
+                onClick={openReplaceLiveFallback}
+                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-deal-orange hover:bg-deal-orange/90 text-on-primary font-bold text-label-md cursor-pointer"
+              >
+                <Pencil className="w-4 h-4" />
+                Replace / Take Over This Banner
+              </button>
+            </div>
+          </div>
+        )}
+
+        {banners.length === 0 && !showLiveFallback && (
           <div className="col-span-full p-12 text-center rounded-xl bg-surface-container-lowest border border-border-hairline shadow-sm">
             <Megaphone className="w-8 h-8 text-outline mx-auto mb-3" />
             <h3 className="text-headline-sm font-headline-sm text-on-surface">No Banners Published Yet</h3>
             <p className="text-body-sm font-body-sm text-outline mt-1 max-w-sm mx-auto">
-              Upload your iPhone / campaign creative as a HERO or SIDEBAR banner to control it from this dashboard.
+              Upload a HERO or SIDEBAR creative to control homepage ads from this dashboard.
             </p>
             <button
-              onClick={openCreateModal}
+              onClick={() => openCreateModal("SIDEBAR")}
               className="mt-4 px-4 py-2 rounded-lg bg-deal-orange text-on-primary font-bold text-label-md cursor-pointer hover:bg-deal-orange/90 transition-all shadow-sm"
             >
               Add First Banner
@@ -467,9 +551,10 @@ export function BannersClient({ initialBanners }: { initialBanners: BannerRecord
               <div>
                 <label className="block text-label-sm font-label-sm text-outline uppercase mb-2">
                   Banner Image (Max 2 MB &bull; JPG, PNG, WEBP)
-                  {editingBanner && !selectedFile && (
+                  {(editingBanner || (liveFallbackSidebar && previewUrl === liveFallbackSidebar)) &&
+                    !selectedFile && (
                     <span className="normal-case text-outline font-normal ml-1">
-                      — leave as-is or upload a replacement
+                      — upload a new file to replace the image
                     </span>
                   )}
                 </label>
@@ -488,7 +573,7 @@ export function BannersClient({ initialBanners }: { initialBanners: BannerRecord
                         className="max-h-36 mx-auto rounded-lg object-contain shadow-sm"
                       />
                       <div className="text-label-sm font-label-sm text-deal-orange font-bold">
-                        Click or drag to {editingBanner ? "replace" : "change"} image
+                        Click or drag to replace image
                       </div>
                     </div>
                   ) : (
@@ -534,16 +619,18 @@ export function BannersClient({ initialBanners }: { initialBanners: BannerRecord
 
               <div>
                 <label className="block text-label-sm font-label-sm text-outline uppercase mb-1">
-                  Destination URL
+                  Destination URL <span className="normal-case font-normal">(optional)</span>
                 </label>
                 <input
                   type="text"
-                  required
-                  placeholder="https://compareit.pk/phones/apple or /phones/apple"
-                  value={linkUrl}
+                  placeholder="Leave empty = not clickable · or /phone/iphone-16-pro"
+                  value={linkUrl === "#" ? "" : linkUrl}
                   onChange={(e) => setLinkUrl(e.target.value)}
                   className="w-full px-3.5 py-2 rounded-lg bg-surface-subtle border border-border-hairline text-body-sm text-on-surface focus:outline-none focus:border-deal-orange"
                 />
+                <p className="text-[10px] text-outline mt-1">
+                  Leave blank so the homepage banner is display-only (recommended).
+                </p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">

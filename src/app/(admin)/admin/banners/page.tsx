@@ -2,6 +2,7 @@ import { verifyServerSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { BannersClient, type BannerRecord } from "@/components/admin/BannersClient";
+import { getSupabaseImageUrl } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -38,9 +39,15 @@ export default async function AdminBannersPage() {
     console.error("Failed to load banners:", error);
   }
 
+  // Legacy homepage advisor creative until a SIDEBAR banner is published
+  const liveFallbackSidebar = getSupabaseImageUrl("banner.jpg");
+
   return (
     <div className="max-w-7xl mx-auto">
-      <BannersClient initialBanners={banners} />
+      <BannersClient
+        initialBanners={banners}
+        liveFallbackSidebar={liveFallbackSidebar}
+      />
     </div>
   );
 }

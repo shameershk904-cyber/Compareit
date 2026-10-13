@@ -455,7 +455,6 @@ function HomeClientInner({ initialPhones }: HomeClientProps) {
                 className="banner-image"
                 fallbackSrc={getSupabaseImageUrl("banner.jpg")}
                 fallbackAlt="Advertisement Banner"
-                fallbackHref="/phones"
               />
             </div>
           </div>

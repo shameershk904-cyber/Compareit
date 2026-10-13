@@ -6,20 +6,29 @@ import { z } from "zod";
 
 export const dynamic = "force-dynamic";
 
+/** Empty / "#" = display-only (not clickable on the public site) */
 const linkUrlSchema = z
   .string()
-  .min(1, "Destination link URL is required")
+  .max(500)
   .refine(
-    (v) => v.startsWith("/") || /^https?:\/\//i.test(v),
-    "Must be a full URL (https://…) or a site path (/phones/…)"
-  );
+    (v) =>
+      !v.trim() ||
+      v.trim() === "#" ||
+      v.startsWith("/") ||
+      /^https?:\/\//i.test(v),
+    "Must be empty (not clickable), #, a site path (/phone/…), or a full URL"
+  )
+  .transform((v) => {
+    const t = v.trim();
+    return !t || t === "#" ? "#" : t;
+  });
 
 const bannerSchema = z.object({
   title: z.string().min(1, "Title is required").max(120),
   desktopImage: z.string().url("Valid desktop image URL is required"),
   mobileImage: z.string().url().optional().nullable(),
   altText: z.string().max(150).optional().nullable(),
-  linkUrl: linkUrlSchema,
+  linkUrl: linkUrlSchema.default("#"),
   placement: z.nativeEnum(BannerPlacement).default(BannerPlacement.HERO),
   priority: z.number().int().default(0),
   isActive: z.boolean().default(true),
