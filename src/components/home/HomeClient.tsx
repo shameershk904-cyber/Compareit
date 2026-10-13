@@ -350,7 +350,7 @@ function HomeClientInner({ initialPhones }: HomeClientProps) {
   const comparePhones = compareList.map(id => initialPhones.find(p => p.id === id)).filter(Boolean) as Phone[];
 
   return (
-    <div id="catalog-view" className="view-container">
+    <div id="catalog-view" className="w-full max-w-[100vw] overflow-x-clip">
       {/* SMART RECOMMENDATION ADVISOR WIDGET */}
       <section id="smart-advisor-section" className="advisor-section">
         <div className="container advisor-layout-grid">

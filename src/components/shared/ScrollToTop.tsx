@@ -15,9 +15,11 @@ export function ScrollToTop() {
       const scrolled = window.scrollY > 300;
       setIsVisible(scrolled);
 
-      // Check if compare dock is present and active
+      // Raise above home/catalog compare dock or product compare tray
       const dock = document.getElementById("compare-dock");
-      const isDockActive = !!dock && !dock.classList.contains("hidden");
+      const productTray = document.getElementById("compare-bar");
+      const isDockActive =
+        (!!dock && !dock.classList.contains("hidden")) || !!productTray;
       setHasDock(isDockActive);
 
       ticking = false;
