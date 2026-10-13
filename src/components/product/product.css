@@ -50,3 +50,24 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* Spec accordion panels — clean rounded cards, thin black stroke */
+.spec-accordion-panel {
+  background: #ffffff;
+  border: 1px solid #000000;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: none !important;
+  filter: none !important;
+  outline: none;
+}
+
+/* Kill UA "outset" button border (causes the dark bottom/right boxy edge) */
+.spec-accordion-panel > button {
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: none !important;
+  appearance: none;
+  -webkit-appearance: none;
+  background-clip: padding-box;
+}

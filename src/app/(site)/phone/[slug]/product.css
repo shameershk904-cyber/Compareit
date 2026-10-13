@@ -282,6 +282,9 @@
 .border-y { border-top-width: 1px; border-bottom-width: 1px; border-style: solid; }
 .border-l-4 { border-left-width: 4px; border-left-style: solid; }
 .border-deal-orange { border-color: var(--deal-orange) !important; }
+.border-black { border-color: #000000 !important; }
+.border-gray-200 { border-color: #e5e7eb !important; }
+.border-gray-100 { border-color: #f3f4f6 !important; }
 
 .divide-y > * + * {
   border-top-width: 1px;

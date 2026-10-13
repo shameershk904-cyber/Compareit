@@ -61,8 +61,8 @@ export function AdvisorResults({
   const cameraDisplay = `${winner.camera?.main_mp || 50} MP ${hasOis ? 'OIS' : ''}`.trim();
 
   const batteryDisplay = winner.battery?.capacity_mah
-    ? `${winner.battery.capacity_mah} mAh${winner.battery.charging_watt ? ` (${winner.battery.charging_watt}W)` : ''}`
-    : '5000 mAh';
+    ? `${winner.battery.capacity_mah}mAh${winner.battery.charging_watt ? ` · ${winner.battery.charging_watt}W` : ''}`
+    : '5000mAh';
 
   const visibleRivals = rivals.slice(0, visibleCount);
   const hasMore = rivals.length > visibleCount;

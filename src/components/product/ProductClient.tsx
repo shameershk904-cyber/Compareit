@@ -89,11 +89,11 @@ function SpecTable({
   onToggle: () => void;
 }) {
   return (
-    <div className="rounded-xl border border-gray-200 overflow-hidden bg-white shadow-xs">
+    <div className="spec-accordion-panel">
       <button
         type="button"
         onClick={onToggle}
-        className="w-full px-4 py-3 bg-gray-50/75 hover:bg-gray-100/75 flex items-center justify-between transition-colors text-left"
+        className="w-full px-4 py-3 border-0 bg-gray-50 hover:bg-gray-100 flex items-center justify-between transition-colors text-left appearance-none"
       >
         <div className="flex items-center gap-2.5">
           <span className="text-sm font-semibold text-gray-900">{category.title}</span>

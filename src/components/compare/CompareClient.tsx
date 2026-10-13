@@ -90,8 +90,9 @@ export function CompareClient({ initialPhones, initialCompareSlugs }: CompareCli
   const [highlightDiff, setHighlightDiff] = useState(true);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // Track scroll direction to seamlessly pin the table header at top: 0 (when site header hides) or top: 56px (when visible)
+  // Pin compare phone bar below the site header (or at top:0 when the site header hides on scroll)
   const [headerVisible, setHeaderVisible] = useState(true);
+  const [siteHeaderHeight, setSiteHeaderHeight] = useState(64);
 
   useEffect(() => {
     let lastY = typeof window !== "undefined" ? window.scrollY : 0;
@@ -118,6 +119,26 @@ export function CompareClient({ initialPhones, initialCompareSlugs }: CompareCli
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  useEffect(() => {
+    const el = document.querySelector(".site-header");
+    if (!el) return;
+
+    const updateHeight = () => {
+      setSiteHeaderHeight(Math.round(el.getBoundingClientRect().height) || 64);
+    };
+
+    updateHeight();
+    const ro = new ResizeObserver(updateHeight);
+    ro.observe(el);
+    window.addEventListener("resize", updateHeight);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", updateHeight);
+    };
+  }, []);
+
+  const stickyTop = headerVisible ? siteHeaderHeight : 0;
 
   // Search state for each slot (0, 1, 2)
   const [slotQueries, setSlotQueries] = useState<string[]>(["", "", ""]);
@@ -441,8 +462,17 @@ export function CompareClient({ initialPhones, initialCompareSlugs }: CompareCli
         {
           label: "Official Brand Warranty",
           getValue: (p) => (
-            <span className="text-gray-800 text-[11px] sm:text-xs whitespace-nowrap">
-              {p.warranty ? `${p.warranty.provider} (${p.warranty.duration_months}M)` : "1-Year Official"}
+            <span className="text-gray-800 text-[11px] sm:text-xs leading-snug break-words hyphens-auto block max-w-full px-0.5">
+              {p.warranty
+                ? (
+                  <>
+                    <span className="block">{p.warranty.provider}</span>
+                    <span className="block text-gray-500 font-medium">
+                      ({p.warranty.duration_months}M)
+                    </span>
+                  </>
+                )
+                : "1-Year Official"}
             </span>
           ),
           getRawValue: (p) => p.warranty?.provider || "Official",
@@ -794,7 +824,7 @@ export function CompareClient({ initialPhones, initialCompareSlugs }: CompareCli
   }, [visibleCompareList, SPEC_SECTIONS]);
 
   return (
-    <div className="w-full max-w-full [overflow-x:clip] bg-[#f8f9fa] min-h-screen text-gray-900 antialiased">
+    <div className="w-full max-w-full bg-[#f8f9fa] min-h-screen text-gray-900 antialiased">
       {/* Toast Notification */}
       {toastMessage && (
         <div className="fixed top-20 right-6 z-[9999] bg-gray-900 text-white px-4 py-3 rounded-xl shadow-2xl border border-gray-800 flex items-center gap-2.5 text-xs font-semibold animate-in fade-in slide-in-from-top-2 duration-200">
@@ -804,7 +834,7 @@ export function CompareClient({ initialPhones, initialCompareSlugs }: CompareCli
       )}
 
       {/* Main Container */}
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6 w-full min-w-0 [overflow-x:clip]">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6 w-full min-w-0">
 
         {/* Breadcrumb Navigation */}
         <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-gray-500 w-full min-w-0">
@@ -1155,92 +1185,90 @@ export function CompareClient({ initialPhones, initialCompareSlugs }: CompareCli
                 </span>
               </div>
 
-              {/* Table Container */}
-              <div className="w-full border border-gray-200 rounded-2xl bg-white shadow-xs [overflow-x:clip]">
-                <table className="w-full text-left border-separate border-spacing-0 table-fixed">
-                  {/* Sticky Table Header */}
-                  <thead
-                    className={`sticky ${
-                      headerVisible ? "top-[56px] sm:top-[64px]" : "top-0"
-                    } z-30 bg-white shadow-xs transition-[top] duration-200`}
+              {/* Table Container — no overflow clipping so sticky phone bar can pin to viewport */}
+              <div className="w-full border border-gray-200 rounded-2xl bg-white shadow-xs">
+                {/* Sticky phone names (div-based — reliable on mobile Safari unlike sticky thead) */}
+                <div
+                  className="sticky z-30 bg-white border-b-2 border-gray-200 shadow-xs transition-[top] duration-200 rounded-t-2xl"
+                  style={{ top: stickyTop }}
+                >
+                  <div
+                    className={`grid w-full ${
+                      isDesktop ? "grid-cols-[170px_repeat(3,minmax(0,1fr))]" : "grid-cols-2"
+                    }`}
                   >
-                    <tr>
-                      {isDesktop && (
-                        <th
-                          className={`py-2.5 sm:py-3 px-2 sm:px-3.5 font-bold text-xs uppercase tracking-wider text-gray-500 w-[170px] min-w-[170px] align-middle sticky ${
-                            headerVisible ? "top-[56px] sm:top-[64px]" : "top-0"
-                          } z-30 bg-gray-50 border-r border-b-2 border-gray-200 transition-[top] duration-200`}
+                    {isDesktop && (
+                      <div className="py-2.5 sm:py-3 px-2 sm:px-3.5 font-bold text-xs uppercase tracking-wider text-gray-500 bg-gray-50 border-r border-gray-200 flex items-center">
+                        Specs
+                      </div>
+                    )}
+                    {visibleSlotIndices.map((slotIdx, colIdx) => {
+                      const phone = slots[slotIdx];
+                      return (
+                        <div
+                          key={slotIdx}
+                          className={`py-2 sm:py-3 px-2 sm:px-4 bg-white min-w-0 ${
+                            colIdx > 0 ? "border-l border-gray-200" : ""
+                          }`}
                         >
-                          Specs
-                        </th>
-                      )}
-                      {visibleSlotIndices.map((slotIdx, colIdx) => {
-                        const phone = slots[slotIdx];
-                        return (
-                          <th
-                            key={slotIdx}
-                            className={`py-2 sm:py-3 px-2 sm:px-4 align-middle bg-white sticky ${
-                              headerVisible ? "top-[56px] sm:top-[64px]" : "top-0"
-                            } z-30 border-b-2 border-gray-200 transition-[top] duration-200 ${
-                              isDesktop ? "w-1/3" : "w-1/2"
-                            } ${colIdx > 0 ? "border-l border-gray-200" : ""}`}
-                          >
-                            <div className="flex items-center justify-between gap-1.5 sm:gap-2">
-                              <div className="flex items-center gap-1.5 sm:gap-2.5 min-w-0">
-                                {phone ? (
-                                  <>
-                                    <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg bg-gray-50 p-0.5 shrink-0 flex items-center justify-center overflow-hidden border border-gray-200">
-                                      <img
-                                        src={getPhoneImg(phone)}
-                                        alt={phone.model}
-                                        className="max-h-6 sm:max-h-8 max-w-full object-contain"
-                                      />
+                          <div className="flex items-center justify-between gap-1.5 sm:gap-2">
+                            <div className="flex items-center gap-1.5 sm:gap-2.5 min-w-0">
+                              {phone ? (
+                                <>
+                                  <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg bg-gray-50 p-0.5 shrink-0 flex items-center justify-center overflow-hidden border border-gray-200">
+                                    <img
+                                      src={getPhoneImg(phone)}
+                                      alt={phone.model}
+                                      className="max-h-6 sm:max-h-8 max-w-full object-contain"
+                                    />
+                                  </div>
+                                  <div className="min-w-0">
+                                    <div className="font-bold text-[11px] sm:text-xs text-gray-900 truncate">
+                                      {phone.model}
                                     </div>
-                                    <div className="min-w-0">
-                                      <div className="font-bold text-[11px] sm:text-xs text-gray-900 truncate">
-                                        {phone.model}
-                                      </div>
-                                      <div className="text-[10px] sm:text-[11px] font-bold text-[#ea580c] whitespace-nowrap">
-                                        {(phone.lowest_verified_price ?? phone.price_pkr ?? 0) > 0 && phone.status !== "Discontinued"
-                                          ? formatPKR(phone.lowest_verified_price ?? phone.price_pkr!)
-                                          : "Price N/A"}
-                                      </div>
+                                    <div className="text-[10px] sm:text-[11px] font-bold text-[#ea580c] whitespace-nowrap">
+                                      {(phone.lowest_verified_price ?? phone.price_pkr ?? 0) > 0 &&
+                                      phone.status !== "Discontinued"
+                                        ? formatPKR(phone.lowest_verified_price ?? phone.price_pkr!)
+                                        : "Price N/A"}
                                     </div>
-                                  </>
-                                ) : (
-                                  <button
-                                    type="button"
-                                    onClick={() => {
-                                      if (!isDesktop) {
-                                        setMobileSearchSlot(slotIdx);
-                                        setMobileSearchQuery("");
-                                      } else {
-                                        setActiveSlotSearch(slotIdx);
-                                      }
-                                    }}
-                                    className="text-[10px] sm:text-xs font-semibold text-[#ea580c] hover:underline whitespace-nowrap"
-                                  >
-                                    + Add Slot {slotIdx + 1}
-                                  </button>
-                                )}
-                              </div>
-                              {phone && (
+                                  </div>
+                                </>
+                              ) : (
                                 <button
                                   type="button"
-                                  onClick={() => handleRemoveSlot(slotIdx)}
-                                  className="text-gray-400 hover:text-red-600 p-1 text-xs shrink-0 rounded-md hover:bg-red-50 transition-colors"
-                                  title={`Remove Slot ${slotIdx + 1}`}
+                                  onClick={() => {
+                                    if (!isDesktop) {
+                                      setMobileSearchSlot(slotIdx);
+                                      setMobileSearchQuery("");
+                                    } else {
+                                      setActiveSlotSearch(slotIdx);
+                                    }
+                                  }}
+                                  className="text-[10px] sm:text-xs font-semibold text-[#ea580c] hover:underline whitespace-nowrap"
                                 >
-                                  ✕
+                                  + Add Slot {slotIdx + 1}
                                 </button>
                               )}
                             </div>
-                          </th>
-                        );
-                      })}
-                    </tr>
-                  </thead>
+                            {phone && (
+                              <button
+                                type="button"
+                                onClick={() => handleRemoveSlot(slotIdx)}
+                                className="text-gray-400 hover:text-red-600 p-1 text-xs shrink-0 rounded-md hover:bg-red-50 transition-colors"
+                                title={`Remove Slot ${slotIdx + 1}`}
+                              >
+                                ✕
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
 
+                <table className="w-full text-left border-separate border-spacing-0 table-fixed">
                   {/* Table Body: Grouped Categories & Rows */}
                   <tbody className="divide-y divide-gray-100">
                     {SPEC_SECTIONS.map((section, sIdx) => {
@@ -1325,13 +1353,13 @@ export function CompareClient({ initialPhones, initialCompareSlugs }: CompareCli
                                       return (
                                         <td
                                           key={slotIdx}
-                                          className={`w-1/2 py-2 px-2.5 text-[11px] text-gray-900 align-middle text-center ${
+                                          className={`w-1/2 min-w-0 py-2 px-1.5 sm:px-2.5 text-[11px] text-gray-900 align-middle text-center overflow-hidden ${
                                             colIdx > 0 ? "border-l border-gray-200" : ""
                                           } ${isDifferent && highlightDiff ? "bg-orange-50/15" : ""}`}
                                         >
                                           {phone ? (
-                                            <div className="flex flex-col items-center justify-center gap-0.5 max-w-full">
-                                              <div className="leading-snug break-words max-w-full">
+                                            <div className="flex flex-col items-center justify-center gap-0.5 max-w-full min-w-0">
+                                              <div className="leading-snug break-words max-w-full min-w-0 overflow-hidden">
                                                 {row.getValue(phone)}
                                               </div>
                                               {advantage && (
