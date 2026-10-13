@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import Link from "next/link";
 import { ZoomIn } from "lucide-react";
 import { type Phone } from "@/types";
 import { formatPKR, getSupabaseImageUrl } from "@/lib/utils";
 import { getPhoneDetailedSpecs, type SpecCategory } from "@/lib/specs";
+import { matchPhoneSearch } from "@/lib/search";
 import { Banner } from "@/components/shared/Banner";
 
 function getVariantDotColor(colorName: string): string {
@@ -29,6 +30,24 @@ function getVariantDotColor(colorName: string): string {
 interface ProductClientProps {
   phone: Phone;
   competitors: Phone[];
+}
+
+type TrayItem = {
+  id: string;
+  slug: string;
+  brand: string;
+  model: string;
+  image: string;
+};
+
+function toTrayItem(p: Pick<Phone, "id" | "slug" | "brand" | "model" | "image" | "images">): TrayItem {
+  return {
+    id: p.id,
+    slug: p.slug,
+    brand: p.brand,
+    model: p.model,
+    image: p.image || (p.images && p.images[0]) || "",
+  };
 }
 
 function formatPhoneName(brand?: string, model?: string): string {
@@ -159,9 +178,15 @@ export function ProductClient({ phone, competitors }: ProductClientProps) {
   const [alertSubmitted, setAlertSubmitted] = useState(false);
 
   // Compare tray state
-  const [trayItems, setTrayItems] = useState<string[]>([phone.model]);
+  const [trayItems, setTrayItems] = useState<TrayItem[]>([toTrayItem(phone)]);
   const [isTrayVisible, setIsTrayVisible] = useState(true);
-  const [isInCompareTray, setIsInCompareTray] = useState(false);
+  const [isAddPickerOpen, setIsAddPickerOpen] = useState(false);
+  const [traySearchQuery, setTraySearchQuery] = useState("");
+  const [catalogPhones, setCatalogPhones] = useState<Phone[]>([]);
+  const [catalogLoading, setCatalogLoading] = useState(false);
+  const addPickerRef = useRef<HTMLDivElement | null>(null);
+  const addSearchInputRef = useRef<HTMLInputElement | null>(null);
+  const isInCompareTray = trayItems.some((item) => item.id === phone.id);
 
   // Quick differences vs Full Specs toggle
   const [diffOnly, setDiffOnly] = useState(false);
@@ -285,23 +310,137 @@ export function ProductClient({ phone, competitors }: ProductClientProps) {
   };
 
   const handleToggleCompare = () => {
-    setIsInCompareTray(true);
     setIsTrayVisible(true);
-    if (!trayItems.includes(phone.model)) {
-      setTrayItems((prev) => [...prev, phone.model]);
+    setTrayItems((prev) => {
+      if (prev.some((item) => item.id === phone.id)) return prev;
+      if (prev.length >= 3) {
+        alert("Comparison tray is full (Maximum 3 devices).");
+        return prev;
+      }
+      return [...prev, toTrayItem(phone)];
+    });
+  };
+
+  const handleAddRivalToTray = (rival: Pick<Phone, "id" | "slug" | "brand" | "model" | "image" | "images">) => {
+    if (trayItems.some((item) => item.id === rival.id)) {
+      setIsTrayVisible(true);
+      return;
+    }
+    if (trayItems.length >= 3) {
+      alert("Comparison tray is full (Maximum 3 devices).");
+      return;
+    }
+    setTrayItems((prev) => [...prev, toTrayItem(rival)]);
+    setIsTrayVisible(true);
+    setIsAddPickerOpen(false);
+    setTraySearchQuery("");
+  };
+
+  const handleRemoveFromTray = (id: string) => {
+    const next = trayItems.filter((item) => item.id !== id);
+    setTrayItems(next);
+    if (next.length === 0) {
+      setIsTrayVisible(false);
+      setIsAddPickerOpen(false);
+      setTraySearchQuery("");
     }
   };
 
-  const handleAddRivalToTray = (rivalName: string) => {
-    if (trayItems.length < 3) {
-      if (!trayItems.includes(rivalName)) {
-        setTrayItems((prev) => [...prev, rivalName]);
-      }
-      setIsTrayVisible(true);
-    } else {
+  const openAddPicker = () => {
+    if (trayItems.length >= 3) {
       alert("Comparison tray is full (Maximum 3 devices).");
+      return;
     }
+    setIsAddPickerOpen(true);
+    setIsTrayVisible(true);
   };
+
+  const closeAddPicker = () => {
+    setIsAddPickerOpen(false);
+    setTraySearchQuery("");
+  };
+
+  useEffect(() => {
+    if (!isAddPickerOpen || catalogPhones.length > 0) return;
+    let cancelled = false;
+    setCatalogLoading(true);
+    fetch("/api/phones")
+      .then((res) => {
+        if (!res.ok) throw new Error("API failed");
+        return res.json();
+      })
+      .then((data: Phone[]) => {
+        if (!cancelled) setCatalogPhones(Array.isArray(data) ? data : []);
+      })
+      .catch(() =>
+        fetch("/data/phones.json")
+          .then((res) => res.json())
+          .then((data: Phone[]) => {
+            if (!cancelled) setCatalogPhones(Array.isArray(data) ? data : []);
+          })
+          .catch(() => {
+            if (!cancelled) setCatalogPhones([]);
+          })
+      )
+      .finally(() => {
+        if (!cancelled) setCatalogLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [isAddPickerOpen, catalogPhones.length]);
+
+  useEffect(() => {
+    if (!isAddPickerOpen) return;
+    const focusTimer = window.setTimeout(() => addSearchInputRef.current?.focus(), 40);
+    const onPointerDown = (event: MouseEvent) => {
+      if (!addPickerRef.current?.contains(event.target as Node)) {
+        closeAddPicker();
+      }
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") closeAddPicker();
+    };
+    document.addEventListener("mousedown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      window.clearTimeout(focusTimer);
+      document.removeEventListener("mousedown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [isAddPickerOpen]);
+
+  const trayIdSet = useMemo(() => new Set(trayItems.map((item) => item.id)), [trayItems]);
+
+  const traySuggestions = useMemo(() => {
+    const available = (list: Phone[]) => list.filter((p) => p?.id && !trayIdSet.has(p.id));
+    const q = traySearchQuery.trim();
+
+    if (q) {
+      return catalogPhones
+        .map((p) => ({ phone: p, ...matchPhoneSearch(p, q) }))
+        .filter((res) => res.matches && !trayIdSet.has(res.phone.id))
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 6)
+        .map((res) => res.phone);
+    }
+
+    const suggestions = available(competitors);
+    if (suggestions.length < 3) {
+      for (const p of available(catalogPhones)) {
+        if (suggestions.some((s) => s.id === p.id)) continue;
+        suggestions.push(p);
+        if (suggestions.length >= 3) break;
+      }
+    }
+    return suggestions.slice(0, 3);
+  }, [traySearchQuery, catalogPhones, competitors, trayIdSet]);
+
+  const emptySlotCount = Math.max(0, 3 - trayItems.length);
+  const canCompare = trayItems.length >= 2;
+  const compareHref = `/compare?phones=${trayItems
+    .map((item) => item.slug)
+    .join(",")}&from=${encodeURIComponent(`/phone/${phone.slug}`)}`;
 
   const activeVariant = useMemo(() => {
     if (!phone.color_variants || phone.color_variants.length === 0) return null;
@@ -923,10 +1062,14 @@ export function ProductClient({ phone, competitors }: ProductClientProps) {
               <div className="mt-4 pt-3 border-t border-gray-100">
                 <button
                   type="button"
-                  onClick={() => handleAddRivalToTray(comp1.model)}
-                  className="w-full h-8 text-xs font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg transition-colors"
+                  onClick={() => handleAddRivalToTray(comp1)}
+                  className={`w-full h-8 text-xs font-medium rounded-lg border transition-colors ${
+                    trayItems.some((item) => item.id === comp1.id)
+                      ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                      : "text-gray-700 bg-gray-50 hover:bg-gray-100 border-gray-200"
+                  }`}
                 >
-                  + Add to Compare
+                  {trayItems.some((item) => item.id === comp1.id) ? "In Compare Tray" : "+ Add to Compare"}
                 </button>
               </div>
             </div>
@@ -963,10 +1106,14 @@ export function ProductClient({ phone, competitors }: ProductClientProps) {
               <div className="mt-4 pt-3 border-t border-gray-100">
                 <button
                   type="button"
-                  onClick={() => handleAddRivalToTray(comp2.model)}
-                  className="w-full h-8 text-xs font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg transition-colors"
+                  onClick={() => handleAddRivalToTray(comp2)}
+                  className={`w-full h-8 text-xs font-medium rounded-lg border transition-colors ${
+                    trayItems.some((item) => item.id === comp2.id)
+                      ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                      : "text-gray-700 bg-gray-50 hover:bg-gray-100 border-gray-200"
+                  }`}
                 >
-                  + Add to Compare
+                  {trayItems.some((item) => item.id === comp2.id) ? "In Compare Tray" : "+ Add to Compare"}
                 </button>
               </div>
             </div>
@@ -1020,38 +1167,179 @@ export function ProductClient({ phone, competitors }: ProductClientProps) {
       </div>
 
       {/* ─── 9. FLOATING BOTTOM COMPARISON TRAY ─────────────────────────────────── */}
-      {isTrayVisible && (
+      {isTrayVisible && trayItems.length > 0 && (
         <div
-          className="fixed bottom-3 left-1/2 -translate-x-1/2 z-40 w-[94%] max-w-3xl bg-gray-900 text-white rounded-xl shadow-xl px-4 py-2.5 flex items-center justify-between gap-3 text-xs"
           id="compare-bar"
+          className="product-compare-tray"
+          role="region"
+          aria-label="Comparison tray"
+          ref={addPickerRef}
         >
-          <div className="flex items-center gap-2 overflow-hidden">
-            <span className="px-2 py-0.5 rounded-full bg-orange-600 text-white font-medium text-[11px]">
-              {trayItems.length}/3
-            </span>
-            <span className="font-normal text-gray-200 truncate">
-              Comparing: <strong className="font-medium text-white">{phone.brand} {phone.model}</strong>
-            </span>
-          </div>
+          {isAddPickerOpen && emptySlotCount > 0 && (
+            <div className="product-compare-picker" role="dialog" aria-label="Add phone to compare">
+              <div className="product-compare-picker__search">
+                <span className="material-symbols-outlined">search</span>
+                <input
+                  ref={addSearchInputRef}
+                  type="search"
+                  value={traySearchQuery}
+                  onChange={(e) => setTraySearchQuery(e.target.value)}
+                  placeholder="Search phones to compare..."
+                  aria-label="Search phones to compare"
+                />
+                {traySearchQuery && (
+                  <button
+                    type="button"
+                    className="product-compare-picker__clear"
+                    onClick={() => setTraySearchQuery("")}
+                    aria-label="Clear search"
+                  >
+                    <span className="material-symbols-outlined">close</span>
+                  </button>
+                )}
+              </div>
 
-          <div className="flex items-center gap-2 shrink-0">
-            <Link
-              href={`/compare?phones=${[phone.slug, comp1?.slug, comp2?.slug]
-                .filter(Boolean)
-                .slice(0, Math.min(3, trayItems.length))
-                .join(",")}&from=${encodeURIComponent(`/phone/${phone.slug}`)}`}
-              className="h-8 px-3.5 text-xs font-medium text-white bg-orange-600 hover:bg-orange-700 rounded-lg transition-colors inline-flex items-center gap-1"
-            >
-              Compare ({trayItems.length})
-            </Link>
-            <button
-              type="button"
-              onClick={() => setIsTrayVisible(false)}
-              className="p-1 text-gray-400 hover:text-white transition-colors"
-              title="Dismiss Tray"
-            >
-              <span className="material-symbols-outlined text-[18px]">close</span>
-            </button>
+              <div className="product-compare-picker__label">
+                {traySearchQuery.trim()
+                  ? `Results for “${traySearchQuery.trim()}”`
+                  : "Suggested phones"}
+              </div>
+
+              <div className="product-compare-picker__list">
+                {catalogLoading && traySuggestions.length === 0 ? (
+                  <div className="product-compare-picker__empty">Loading phones…</div>
+                ) : traySuggestions.length > 0 ? (
+                  traySuggestions.map((sug) => {
+                    const price = sug.lowest_verified_price || sug.price_pkr || 0;
+                    const img = sug.image || (sug.images && sug.images[0]) || "";
+                    return (
+                      <button
+                        key={sug.id}
+                        type="button"
+                        className="product-compare-picker__item"
+                        onClick={() => handleAddRivalToTray(sug)}
+                      >
+                        <span className="product-compare-picker__thumb">
+                          {img ? (
+                            <img src={getSupabaseImageUrl(img)} alt="" width={36} height={36} />
+                          ) : (
+                            <span className="material-symbols-outlined">smartphone</span>
+                          )}
+                        </span>
+                        <span className="product-compare-picker__meta">
+                          <span className="product-compare-picker__model">
+                            {formatPhoneName(sug.brand, sug.model)}
+                          </span>
+                          <span className="product-compare-picker__brand">{sug.brand}</span>
+                        </span>
+                        <span className="product-compare-picker__price">
+                          {price > 0 && sug.status !== "Discontinued" ? formatPKR(price) : "N/A"}
+                        </span>
+                      </button>
+                    );
+                  })
+                ) : (
+                  <div className="product-compare-picker__empty">
+                    {traySearchQuery.trim()
+                      ? `No phones found for “${traySearchQuery.trim()}”`
+                      : "No suggestions available"}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          <div className="product-compare-tray__inner">
+            <div className="product-compare-tray__slots" aria-live="polite">
+              {trayItems.map((item, index) => (
+                <div
+                  key={item.id}
+                  className="product-compare-tray__slot is-filled"
+                  style={{ animationDelay: `${index * 60}ms` }}
+                >
+                  <div className="product-compare-tray__thumb">
+                    {item.image ? (
+                      <img
+                        src={getSupabaseImageUrl(item.image)}
+                        alt=""
+                        width={44}
+                        height={44}
+                      />
+                    ) : (
+                      <span className="material-symbols-outlined product-compare-tray__thumb-fallback">
+                        smartphone
+                      </span>
+                    )}
+                  </div>
+                  <div className="product-compare-tray__meta">
+                    <span className="product-compare-tray__brand">{item.brand}</span>
+                    <span className="product-compare-tray__model">{item.model}</span>
+                  </div>
+                  <button
+                    type="button"
+                    className="product-compare-tray__remove"
+                    onClick={() => handleRemoveFromTray(item.id)}
+                    title={`Remove ${formatPhoneName(item.brand, item.model)}`}
+                    aria-label={`Remove ${formatPhoneName(item.brand, item.model)}`}
+                  >
+                    <span className="material-symbols-outlined">close</span>
+                  </button>
+                </div>
+              ))}
+
+              {Array.from({ length: emptySlotCount }).map((_, index) => (
+                <button
+                  key={`empty-${index}`}
+                  type="button"
+                  className={`product-compare-tray__slot is-empty${isAddPickerOpen ? " is-active" : ""}`}
+                  onClick={openAddPicker}
+                  aria-expanded={isAddPickerOpen}
+                  aria-label="Add phone to compare"
+                >
+                  <div className="product-compare-tray__thumb is-placeholder">
+                    <span className="material-symbols-outlined">add</span>
+                  </div>
+                  <span className="product-compare-tray__empty-label">Add phone</span>
+                </button>
+              ))}
+            </div>
+
+            <div className="product-compare-tray__status">
+              <span className="product-compare-tray__count">
+                {trayItems.length}
+                <span>/3</span>
+              </span>
+              <p className="product-compare-tray__hint">
+                {canCompare
+                  ? "Ready to compare side-by-side"
+                  : "Add one more phone to compare"}
+              </p>
+            </div>
+
+            <div className="product-compare-tray__actions">
+              {canCompare ? (
+                <Link href={compareHref} className="product-compare-tray__cta">
+                  Compare
+                  <span className="material-symbols-outlined">arrow_forward</span>
+                </Link>
+              ) : (
+                <button type="button" className="product-compare-tray__cta is-disabled" disabled>
+                  Compare
+                </button>
+              )}
+              <button
+                type="button"
+                className="product-compare-tray__dismiss"
+                onClick={() => {
+                  closeAddPicker();
+                  setIsTrayVisible(false);
+                }}
+                title="Dismiss tray"
+                aria-label="Dismiss comparison tray"
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
           </div>
         </div>
       )}

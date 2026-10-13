@@ -93,52 +93,68 @@ export function CompareClient({ initialPhones, initialCompareSlugs }: CompareCli
   // Pin compare phone bar below the site header (or at top:0 when the site header hides on scroll)
   const [headerVisible, setHeaderVisible] = useState(true);
   const [siteHeaderHeight, setSiteHeaderHeight] = useState(64);
-
-  useEffect(() => {
-    let lastY = typeof window !== "undefined" ? window.scrollY : 0;
-    let ticking = false;
-
-    const onScroll = () => {
-      if (ticking) return;
-      ticking = true;
-      window.requestAnimationFrame(() => {
-        const currentY = window.scrollY;
-        const delta = currentY - lastY;
-        if (currentY < 16) {
-          setHeaderVisible(true);
-        } else if (delta > 6 && currentY > 64) {
-          setHeaderVisible(false);
-        } else if (delta < -6) {
-          setHeaderVisible(true);
-        }
-        lastY = currentY;
-        ticking = false;
-      });
-    };
-
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  const phoneBarRef = useRef<HTMLDivElement | null>(null);
+  const phoneBarSentinelRef = useRef<HTMLDivElement | null>(null);
+  const [isPhoneBarPinned, setIsPhoneBarPinned] = useState(false);
+  const [phoneBarHeight, setPhoneBarHeight] = useState(0);
 
   useEffect(() => {
     const el = document.querySelector(".site-header");
     if (!el) return;
 
-    const updateHeight = () => {
-      setSiteHeaderHeight(Math.round(el.getBoundingClientRect().height) || 64);
+    const sync = () => {
+      setHeaderVisible(!el.classList.contains("is-hidden"));
+      // Use offsetHeight so transform-hidden header still reports true layout height
+      setSiteHeaderHeight(Math.round((el as HTMLElement).offsetHeight) || 64);
     };
 
-    updateHeight();
-    const ro = new ResizeObserver(updateHeight);
+    sync();
+    const ro = new ResizeObserver(sync);
     ro.observe(el);
-    window.addEventListener("resize", updateHeight);
+    const mo = new MutationObserver(sync);
+    mo.observe(el, { attributes: true, attributeFilter: ["class"] });
+    window.addEventListener("resize", sync);
     return () => {
       ro.disconnect();
-      window.removeEventListener("resize", updateHeight);
+      mo.disconnect();
+      window.removeEventListener("resize", sync);
     };
   }, []);
 
   const stickyTop = headerVisible ? siteHeaderHeight : 0;
+
+  // Mobile Safari often fails position:sticky under overflow ancestors — pin with fixed instead
+  useEffect(() => {
+    if (isDesktop || compareList.length === 0) {
+      setIsPhoneBarPinned(false);
+      return;
+    }
+    const sentinel = phoneBarSentinelRef.current;
+    if (!sentinel) return;
+
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        setIsPhoneBarPinned(!entry.isIntersecting);
+      },
+      {
+        root: null,
+        threshold: 0,
+        rootMargin: `-${Math.max(stickyTop, 0)}px 0px 0px 0px`,
+      }
+    );
+    io.observe(sentinel);
+    return () => io.disconnect();
+  }, [isDesktop, compareList.length, stickyTop]);
+
+  useEffect(() => {
+    const bar = phoneBarRef.current;
+    if (!bar) return;
+    const update = () => setPhoneBarHeight(Math.round(bar.getBoundingClientRect().height) || 0);
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(bar);
+    return () => ro.disconnect();
+  }, [compareList.length, isDesktop, isPhoneBarPinned]);
 
   // Search state for each slot (0, 1, 2)
   const [slotQueries, setSlotQueries] = useState<string[]>(["", "", ""]);
@@ -1185,86 +1201,107 @@ export function CompareClient({ initialPhones, initialCompareSlugs }: CompareCli
                 </span>
               </div>
 
-              {/* Table Container — no overflow clipping so sticky phone bar can pin to viewport */}
-              <div className="w-full border border-gray-200 rounded-2xl bg-white shadow-xs">
-                {/* Sticky phone names (div-based — reliable on mobile Safari unlike sticky thead) */}
+              {/* Sentinel marks where the phone bar naturally sits — used for mobile fixed pinning */}
+              <div ref={phoneBarSentinelRef} className="h-0 w-full" aria-hidden="true" />
+
+              {/* Table Container — overflow visible so sticky/fixed phone bar can pin */}
+              <div className="w-full border border-gray-200 rounded-2xl bg-white shadow-xs overflow-visible">
+                {/* Keep card height stable when the bar switches to position:fixed on mobile */}
+                {!isDesktop && isPhoneBarPinned && phoneBarHeight > 0 && (
+                  <div style={{ height: phoneBarHeight }} aria-hidden="true" />
+                )}
+
+                {/* Phone names bar: sticky on desktop, fixed when pinned on mobile */}
                 <div
-                  className="sticky z-30 bg-white border-b-2 border-gray-200 shadow-xs transition-[top] duration-200 rounded-t-2xl"
+                  ref={phoneBarRef}
+                  className={`z-40 bg-white border-b-2 border-gray-200 shadow-xs transition-[top] duration-200 ${
+                    !isDesktop && isPhoneBarPinned
+                      ? "fixed inset-x-0 border-t border-gray-200"
+                      : "sticky top-0 rounded-t-2xl"
+                  }`}
                   style={{ top: stickyTop }}
                 >
                   <div
-                    className={`grid w-full ${
-                      isDesktop ? "grid-cols-[170px_repeat(3,minmax(0,1fr))]" : "grid-cols-2"
+                    className={`mx-auto w-full ${
+                      !isDesktop && isPhoneBarPinned ? "max-w-7xl px-3 sm:px-6" : ""
                     }`}
                   >
-                    {isDesktop && (
-                      <div className="py-2.5 sm:py-3 px-2 sm:px-3.5 font-bold text-xs uppercase tracking-wider text-gray-500 bg-gray-50 border-r border-gray-200 flex items-center">
-                        Specs
-                      </div>
-                    )}
-                    {visibleSlotIndices.map((slotIdx, colIdx) => {
-                      const phone = slots[slotIdx];
-                      return (
-                        <div
-                          key={slotIdx}
-                          className={`py-2 sm:py-3 px-2 sm:px-4 bg-white min-w-0 ${
-                            colIdx > 0 ? "border-l border-gray-200" : ""
-                          }`}
-                        >
-                          <div className="flex items-center justify-between gap-1.5 sm:gap-2">
-                            <div className="flex items-center gap-1.5 sm:gap-2.5 min-w-0">
-                              {phone ? (
-                                <>
-                                  <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg bg-gray-50 p-0.5 shrink-0 flex items-center justify-center overflow-hidden border border-gray-200">
-                                    <img
-                                      src={getPhoneImg(phone)}
-                                      alt={phone.model}
-                                      className="max-h-6 sm:max-h-8 max-w-full object-contain"
-                                    />
-                                  </div>
-                                  <div className="min-w-0">
-                                    <div className="font-bold text-[11px] sm:text-xs text-gray-900 truncate">
-                                      {phone.model}
+                    <div
+                      className={`grid w-full bg-white ${
+                        !isDesktop && isPhoneBarPinned
+                          ? "border border-gray-200 rounded-xl overflow-hidden shadow-xs"
+                          : ""
+                      } ${isDesktop ? "grid-cols-[170px_repeat(3,minmax(0,1fr))]" : "grid-cols-2"}`}
+                    >
+                      {isDesktop && (
+                        <div className="py-2.5 sm:py-3 px-2 sm:px-3.5 font-bold text-xs uppercase tracking-wider text-gray-500 bg-gray-50 border-r border-gray-200 flex items-center">
+                          Specs
+                        </div>
+                      )}
+                      {visibleSlotIndices.map((slotIdx, colIdx) => {
+                        const phone = slots[slotIdx];
+                        return (
+                          <div
+                            key={slotIdx}
+                            className={`py-2 sm:py-3 px-2 sm:px-4 bg-white min-w-0 ${
+                              colIdx > 0 ? "border-l border-gray-200" : ""
+                            }`}
+                          >
+                            <div className="flex items-center justify-between gap-1.5 sm:gap-2">
+                              <div className="flex items-center gap-1.5 sm:gap-2.5 min-w-0">
+                                {phone ? (
+                                  <>
+                                    <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg bg-gray-50 p-0.5 shrink-0 flex items-center justify-center overflow-hidden border border-gray-200">
+                                      <img
+                                        src={getPhoneImg(phone)}
+                                        alt={phone.model}
+                                        className="max-h-6 sm:max-h-8 max-w-full object-contain"
+                                      />
                                     </div>
-                                    <div className="text-[10px] sm:text-[11px] font-bold text-[#ea580c] whitespace-nowrap">
-                                      {(phone.lowest_verified_price ?? phone.price_pkr ?? 0) > 0 &&
-                                      phone.status !== "Discontinued"
-                                        ? formatPKR(phone.lowest_verified_price ?? phone.price_pkr!)
-                                        : "Price N/A"}
+                                    <div className="min-w-0">
+                                      <div className="font-bold text-[11px] sm:text-xs text-gray-900 truncate">
+                                        {phone.model}
+                                      </div>
+                                      <div className="text-[10px] sm:text-[11px] font-bold text-[#ea580c] whitespace-nowrap">
+                                        {(phone.lowest_verified_price ?? phone.price_pkr ?? 0) > 0 &&
+                                        phone.status !== "Discontinued"
+                                          ? formatPKR(phone.lowest_verified_price ?? phone.price_pkr!)
+                                          : "Price N/A"}
+                                      </div>
                                     </div>
-                                  </div>
-                                </>
-                              ) : (
+                                  </>
+                                ) : (
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      if (!isDesktop) {
+                                        setMobileSearchSlot(slotIdx);
+                                        setMobileSearchQuery("");
+                                      } else {
+                                        setActiveSlotSearch(slotIdx);
+                                      }
+                                    }}
+                                    className="text-[10px] sm:text-xs font-semibold text-[#ea580c] hover:underline whitespace-nowrap"
+                                  >
+                                    + Add Slot {slotIdx + 1}
+                                  </button>
+                                )}
+                              </div>
+                              {phone && (
                                 <button
                                   type="button"
-                                  onClick={() => {
-                                    if (!isDesktop) {
-                                      setMobileSearchSlot(slotIdx);
-                                      setMobileSearchQuery("");
-                                    } else {
-                                      setActiveSlotSearch(slotIdx);
-                                    }
-                                  }}
-                                  className="text-[10px] sm:text-xs font-semibold text-[#ea580c] hover:underline whitespace-nowrap"
+                                  onClick={() => handleRemoveSlot(slotIdx)}
+                                  className="text-gray-400 hover:text-red-600 p-1 text-xs shrink-0 rounded-md hover:bg-red-50 transition-colors"
+                                  title={`Remove Slot ${slotIdx + 1}`}
                                 >
-                                  + Add Slot {slotIdx + 1}
+                                  ✕
                                 </button>
                               )}
                             </div>
-                            {phone && (
-                              <button
-                                type="button"
-                                onClick={() => handleRemoveSlot(slotIdx)}
-                                className="text-gray-400 hover:text-red-600 p-1 text-xs shrink-0 rounded-md hover:bg-red-50 transition-colors"
-                                title={`Remove Slot ${slotIdx + 1}`}
-                              >
-                                ✕
-                              </button>
-                            )}
                           </div>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
 

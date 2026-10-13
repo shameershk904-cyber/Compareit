@@ -4950,7 +4950,8 @@ body.modal-open > *:not(.modal-backdrop) {
   html,
   body {
     max-width: 100%;
-    overflow-x: hidden;
+    /* clip (not hidden) — overflow-x:hidden forces overflow-y:auto and breaks position:sticky on mobile */
+    overflow-x: clip;
   }
 
   .phones-grid,
