@@ -251,7 +251,7 @@ function PhoneCatalogViewInner({
   }, [compareList, phones]);
 
   return (
-    <div className="min-h-screen bg-[#f8f9fa] pb-24">
+    <div className="min-h-screen bg-[#f8f9fa] pb-24 w-full max-w-[100vw] overflow-x-clip">
       {/* ─── HEADER / HERO BANNER ─── */}
       {(title || badgeText) && (
         <section className="bg-white border-b border-[#e4e4e7] py-6 sm:py-8 mb-6">
@@ -322,8 +322,8 @@ function PhoneCatalogViewInner({
       </section>
 
       {/* ─── MAIN 2-COLUMN CATALOG LAYOUT ─── */}
-      <main className="container main-content" id="phones-section">
-        <div className="app-layout">
+      <main className="container main-content min-w-0 max-w-full" id="phones-section">
+        <div className="app-layout min-w-0 max-w-full">
           {/* MOBILE FILTER TOGGLE BAR (Visible on <1024px screens) */}
           <div className="mobile-filters-bar">
             <div className="mobile-filters-meta">
@@ -533,9 +533,9 @@ function PhoneCatalogViewInner({
           </aside>
 
           {/* RIGHT PRODUCTS SECTION */}
-          <section className="products-section" id="products-section">
+          <section className="products-section min-w-0 max-w-full" id="products-section">
             {/* Quick Brand Carousel Pills */}
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-2.5 mb-3 no-scrollbar touch-pan-x">
+            <div className="catalog-brand-scroll">
               <button
                 type="button"
                 onClick={() => {
