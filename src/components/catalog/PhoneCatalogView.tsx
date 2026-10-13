@@ -9,6 +9,11 @@ import { PhoneCard } from "@/components/home/PhoneCard";
 import { getSupabaseImageUrl } from "@/lib/utils";
 import { ScaleIcon } from "@/components/shared/ScaleIcon";
 import { matchPhoneSearch } from "@/lib/search";
+import {
+  PRICE_RANGES,
+  DEFAULT_MAX_PRICE,
+  type PriceRangeId,
+} from "@/lib/priceRanges";
 
 const BRAND_POPULARITY_RANK: Record<string, number> = {
   Samsung: 100,
@@ -92,7 +97,9 @@ function PhoneCatalogViewInner({
   }, [searchParams]);
 
   // Filter states matching homepage HomeClient
-  const [maxPrice, setMaxPrice] = useState<number>(600000);
+  const [minPrice, setMinPrice] = useState<number>(0);
+  const [maxPrice, setMaxPrice] = useState<number>(DEFAULT_MAX_PRICE);
+  const [selectedPriceRange, setSelectedPriceRange] = useState<PriceRangeId | null>(null);
   const [selectedBrands, setSelectedBrands] = useState<Set<string>>(new Set());
   const [ram, setRam] = useState<string>("all");
   const [battery, setBattery] = useState<string>("all");
@@ -102,20 +109,46 @@ function PhoneCatalogViewInner({
   const [compareList, setCompareList] = useState<string[]>([]);
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState<boolean>(false);
 
+  const hasPriceFilter = minPrice > 0 || maxPrice < DEFAULT_MAX_PRICE;
+
   // Active filter count
   const activeFilterCount =
-    (maxPrice < 600000 ? 1 : 0) +
+    (hasPriceFilter ? 1 : 0) +
     selectedBrands.size +
     (ram !== "all" ? 1 : 0) +
     (battery !== "all" ? 1 : 0) +
     (charging !== "all" ? 1 : 0);
 
   const resetAllFilters = () => {
-    setMaxPrice(600000);
+    setMinPrice(0);
+    setMaxPrice(DEFAULT_MAX_PRICE);
+    setSelectedPriceRange(null);
     setSelectedBrands(new Set());
     setRam("all");
     setBattery("all");
     setCharging("all");
+    setVisibleCount(24);
+  };
+
+  const applyPriceCeiling = (ceiling: number) => {
+    setMinPrice(0);
+    setMaxPrice(ceiling);
+    setSelectedPriceRange(null);
+    setVisibleCount(24);
+  };
+
+  const applyPriceRange = (id: PriceRangeId) => {
+    const range = PRICE_RANGES.find((r) => r.id === id);
+    if (!range) return;
+    if (selectedPriceRange === id) {
+      setMinPrice(0);
+      setMaxPrice(DEFAULT_MAX_PRICE);
+      setSelectedPriceRange(null);
+    } else {
+      setMinPrice(range.min);
+      setMaxPrice(range.max);
+      setSelectedPriceRange(id);
+    }
     setVisibleCount(24);
   };
 
@@ -168,9 +201,10 @@ function PhoneCatalogViewInner({
           ? phone.price_pkr
           : 0;
 
-      // Budget filter
-      if (maxPrice < 500000 && !query.trim() && price === 0) continue;
+      // Budget / price-range filter
+      if (hasPriceFilter && !query.trim() && price === 0) continue;
       if (price > maxPrice) continue;
+      if (minPrice > 0 && (price === 0 || price < minPrice)) continue;
 
       // Brand filter
       if (selectedBrands.size > 0 && !selectedBrands.has(phone.brand)) continue;
@@ -227,7 +261,7 @@ function PhoneCatalogViewInner({
     });
 
     return result.map((item) => item.phone);
-  }, [phones, query, maxPrice, selectedBrands, ram, battery, charging, sortBy]);
+  }, [phones, query, minPrice, maxPrice, hasPriceFilter, selectedBrands, ram, battery, charging, sortBy]);
 
   const visiblePhones = useMemo(() => {
     return filteredPhones.slice(0, visibleCount);
@@ -282,38 +316,26 @@ function PhoneCatalogViewInner({
           <div className="quick-title">Quick Budget:</div>
           <div className="quick-pills">
             <button
-              className={`quick-pill ${maxPrice === 600000 ? "active" : ""}`}
-              onClick={() => {
-                setMaxPrice(600000);
-                setVisibleCount(24);
-              }}
+              className={`quick-pill ${!hasPriceFilter ? "active" : ""}`}
+              onClick={() => applyPriceCeiling(DEFAULT_MAX_PRICE)}
             >
               All Phones
             </button>
             <button
-              className={`quick-pill ${maxPrice === 30000 ? "active" : ""}`}
-              onClick={() => {
-                setMaxPrice(30000);
-                setVisibleCount(24);
-              }}
+              className={`quick-pill ${!selectedPriceRange && maxPrice === 30000 ? "active" : ""}`}
+              onClick={() => applyPriceCeiling(30000)}
             >
               Under 30k
             </button>
             <button
-              className={`quick-pill ${maxPrice === 60000 ? "active" : ""}`}
-              onClick={() => {
-                setMaxPrice(60000);
-                setVisibleCount(24);
-              }}
+              className={`quick-pill ${!selectedPriceRange && maxPrice === 60000 ? "active" : ""}`}
+              onClick={() => applyPriceCeiling(60000)}
             >
               Under 60k
             </button>
             <button
-              className={`quick-pill ${maxPrice === 120000 ? "active" : ""}`}
-              onClick={() => {
-                setMaxPrice(120000);
-                setVisibleCount(24);
-              }}
+              className={`quick-pill ${!selectedPriceRange && maxPrice === 120000 ? "active" : ""}`}
+              onClick={() => applyPriceCeiling(120000)}
             >
               Under 120k
             </button>
@@ -369,7 +391,11 @@ function PhoneCatalogViewInner({
             <div className="filter-group">
               <label className="filter-label">
                 <span>Budget (PKR)</span>
-                <span className="filter-val-badge">Max: Rs. {maxPrice.toLocaleString()}</span>
+                <span className="filter-val-badge">
+                  {selectedPriceRange && minPrice > 0
+                    ? `Rs. ${minPrice.toLocaleString()} – ${maxPrice.toLocaleString()}`
+                    : `Max: Rs. ${maxPrice.toLocaleString()}`}
+                </span>
               </label>
               <div className="slider-container">
                 <input
@@ -379,6 +405,8 @@ function PhoneCatalogViewInner({
                   step="1000"
                   value={maxPrice}
                   onChange={(e) => {
+                    setMinPrice(0);
+                    setSelectedPriceRange(null);
                     setMaxPrice(Number(e.target.value));
                     setVisibleCount(24);
                   }}
@@ -394,7 +422,7 @@ function PhoneCatalogViewInner({
                   <button
                     type="button"
                     onClick={() => setSelectedBrands(new Set())}
-                    className="text-[11px] text-[#f47820] hover:underline font-semibold"
+                    className="border-0 bg-transparent p-0 text-[11px] text-[#f47820] hover:underline font-semibold cursor-pointer appearance-none"
                   >
                     Clear ({selectedBrands.size})
                   </button>
@@ -416,6 +444,34 @@ function PhoneCatalogViewInner({
                       ({count})
                     </span>
                   </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Search By Prices — discrete bands */}
+            <div className="filter-group">
+              <label className="filter-label">
+                <span>Search By Prices</span>
+                {selectedPriceRange && (
+                  <button
+                    type="button"
+                    onClick={() => applyPriceCeiling(DEFAULT_MAX_PRICE)}
+                    className="border-0 bg-transparent p-0 text-[11px] text-[#f47820] hover:underline font-semibold cursor-pointer appearance-none"
+                  >
+                    Clear
+                  </button>
+                )}
+              </label>
+              <div className="price-range-list">
+                {PRICE_RANGES.map((range) => (
+                  <button
+                    key={range.id}
+                    type="button"
+                    className={`price-range-btn ${selectedPriceRange === range.id ? "active" : ""}`}
+                    onClick={() => applyPriceRange(range.id)}
+                  >
+                    {range.label}
+                  </button>
                 ))}
               </div>
             </div>

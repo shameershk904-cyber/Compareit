@@ -11,6 +11,11 @@ import { AdvisorResults } from "./AdvisorResults";
 import { matchPhoneSearch } from "@/lib/search";
 import { ScaleIcon } from "@/components/shared/ScaleIcon";
 import { Banner } from "@/components/shared/Banner";
+import {
+  PRICE_RANGES,
+  DEFAULT_MAX_PRICE,
+  type PriceRangeId,
+} from "@/lib/priceRanges";
 
 const BRAND_POPULARITY_RANK: Record<string, number> = {
   Samsung: 100,
@@ -89,7 +94,9 @@ function HomeClientInner({ initialPhones }: HomeClientProps) {
     }
   }, [searchParams]);
 
-  const [maxPrice, setMaxPrice] = useState(600000);
+  const [minPrice, setMinPrice] = useState(0);
+  const [maxPrice, setMaxPrice] = useState(DEFAULT_MAX_PRICE);
+  const [selectedPriceRange, setSelectedPriceRange] = useState<PriceRangeId | null>(null);
   const [selectedBrands, setSelectedBrands] = useState<Set<string>>(new Set());
   const [compareList, setCompareList] = useState<string[]>([]);
   const [isCompareModalOpen, setIsCompareModalOpen] = useState(false);
@@ -100,11 +107,46 @@ function HomeClientInner({ initialPhones }: HomeClientProps) {
   const [sortBy, setSortBy] = useState("popularity");
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
 
-  const activeFilterCount = (maxPrice < 600000 ? 1 : 0) +
+  const hasPriceFilter = minPrice > 0 || maxPrice < DEFAULT_MAX_PRICE;
+
+  const activeFilterCount = (hasPriceFilter ? 1 : 0) +
     selectedBrands.size +
     (ram !== "all" ? 1 : 0) +
     (battery !== "all" ? 1 : 0) +
     (charging !== "all" ? 1 : 0);
+
+  const applyPriceCeiling = (ceiling: number) => {
+    setMinPrice(0);
+    setMaxPrice(ceiling);
+    setSelectedPriceRange(null);
+    setVisibleCount(24);
+  };
+
+  const applyPriceRange = (id: PriceRangeId) => {
+    const range = PRICE_RANGES.find((r) => r.id === id);
+    if (!range) return;
+    if (selectedPriceRange === id) {
+      setMinPrice(0);
+      setMaxPrice(DEFAULT_MAX_PRICE);
+      setSelectedPriceRange(null);
+    } else {
+      setMinPrice(range.min);
+      setMaxPrice(range.max);
+      setSelectedPriceRange(id);
+    }
+    setVisibleCount(24);
+  };
+
+  const resetAllFilters = () => {
+    setMinPrice(0);
+    setMaxPrice(DEFAULT_MAX_PRICE);
+    setSelectedPriceRange(null);
+    setSelectedBrands(new Set());
+    setRam("all");
+    setBattery("all");
+    setCharging("all");
+    setVisibleCount(24);
+  };
 
   const [advisorMinBudget, setAdvisorMinBudget] = useState(35000);
   const [advisorMaxBudget, setAdvisorMaxBudget] = useState(75000);
@@ -265,9 +307,10 @@ function HomeClientInner({ initialPhones }: HomeClientProps) {
       ? phone.lowest_verified_price
       : (phone.price_pkr && phone.price_pkr > 0 ? phone.price_pkr : 0);
 
-    // If user filtered by a budget ceiling (maxPrice < 500000) and hasn't explicitly searched for this phone, exclude unpriced/discontinued phones
-    if (maxPrice < 500000 && !query.trim() && price === 0) continue;
+    // If user filtered by budget / price range and hasn't searched, exclude unpriced phones
+    if (hasPriceFilter && !query.trim() && price === 0) continue;
     if (price > maxPrice) continue;
+    if (minPrice > 0 && (price === 0 || price < minPrice)) continue;
     if (selectedBrands.size > 0 && !selectedBrands.has(phone.brand)) continue;
     if (ram !== "all" && phone.memory.ram_gb < parseInt(ram, 10)) continue;
     if (battery !== "all" && phone.battery.capacity_mah < parseInt(battery, 10)) continue;
@@ -484,10 +527,10 @@ function HomeClientInner({ initialPhones }: HomeClientProps) {
         <div className="container quick-nav-inner">
           <div className="quick-title">Quick Budget:</div>
           <div className="quick-pills">
-            <button className={`quick-pill ${maxPrice === 600000 ? 'active' : ''}`} onClick={() => setMaxPrice(600000)}>All Phones</button>
-            <button className={`quick-pill ${maxPrice === 30000 ? 'active' : ''}`} onClick={() => setMaxPrice(30000)}>Under 30k</button>
-            <button className={`quick-pill ${maxPrice === 60000 ? 'active' : ''}`} onClick={() => setMaxPrice(60000)}>Under 60k</button>
-            <button className={`quick-pill ${maxPrice === 120000 ? 'active' : ''}`} onClick={() => setMaxPrice(120000)}>Under 120k</button>
+            <button className={`quick-pill ${!hasPriceFilter ? 'active' : ''}`} onClick={() => applyPriceCeiling(DEFAULT_MAX_PRICE)}>All Phones</button>
+            <button className={`quick-pill ${!selectedPriceRange && maxPrice === 30000 ? 'active' : ''}`} onClick={() => applyPriceCeiling(30000)}>Under 30k</button>
+            <button className={`quick-pill ${!selectedPriceRange && maxPrice === 60000 ? 'active' : ''}`} onClick={() => applyPriceCeiling(60000)}>Under 60k</button>
+            <button className={`quick-pill ${!selectedPriceRange && maxPrice === 120000 ? 'active' : ''}`} onClick={() => applyPriceCeiling(120000)}>Under 120k</button>
           </div>
         </div>
       </section>
@@ -509,13 +552,7 @@ function HomeClientInner({ initialPhones }: HomeClientProps) {
               {activeFilterCount > 0 && (
                 <button
                   type="button"
-                  onClick={() => {
-                    setMaxPrice(600000);
-                    setSelectedBrands(new Set());
-                    setRam("all");
-                    setBattery("all");
-                    setCharging("all");
-                  }}
+                  onClick={resetAllFilters}
                   className="mobile-filters-reset"
                 >
                   Reset
@@ -536,16 +573,31 @@ function HomeClientInner({ initialPhones }: HomeClientProps) {
           <aside className={`filters-sidebar ${isMobileFiltersOpen ? 'mobile-open' : 'mobile-collapsed'}`}>
             <div className="filters-header">
               <h3>Filters & Range</h3>
-              <button className="btn-link" onClick={() => { setMaxPrice(600000); setSelectedBrands(new Set()); setRam("all"); setBattery("all"); setCharging("all"); }}>Reset All</button>
+              <button className="btn-link" onClick={resetAllFilters}>Reset All</button>
             </div>
 
             <div className="filter-group">
               <label className="filter-label">
                 <span>Budget (PKR)</span>
-                <span className="filter-val-badge">Max: Rs. {maxPrice.toLocaleString()}</span>
+                <span className="filter-val-badge">
+                  {selectedPriceRange && minPrice > 0
+                    ? `Rs. ${minPrice.toLocaleString()} – ${maxPrice.toLocaleString()}`
+                    : `Max: Rs. ${maxPrice.toLocaleString()}`}
+                </span>
               </label>
               <div className="slider-container">
-                <input type="range" min="2000" max="600000" step="1000" value={maxPrice} onChange={(e) => setMaxPrice(Number(e.target.value))} />
+                <input
+                  type="range"
+                  min="2000"
+                  max="600000"
+                  step="1000"
+                  value={maxPrice}
+                  onChange={(e) => {
+                    setMinPrice(0);
+                    setSelectedPriceRange(null);
+                    setMaxPrice(Number(e.target.value));
+                  }}
+                />
               </div>
             </div>
 
@@ -557,6 +609,33 @@ function HomeClientInner({ initialPhones }: HomeClientProps) {
                     <input type="checkbox" checked={selectedBrands.has(brand)} onChange={() => toggleBrand(brand)} />
                     <span>{brand}</span>
                   </label>
+                ))}
+              </div>
+            </div>
+
+            <div className="filter-group">
+              <label className="filter-label">
+                <span>Search By Prices</span>
+                {selectedPriceRange && (
+                  <button
+                    type="button"
+                    onClick={() => applyPriceCeiling(DEFAULT_MAX_PRICE)}
+                    className="border-0 bg-transparent p-0 text-[11px] text-[#f47820] hover:underline font-semibold cursor-pointer appearance-none"
+                  >
+                    Clear
+                  </button>
+                )}
+              </label>
+              <div className="price-range-list">
+                {PRICE_RANGES.map((range) => (
+                  <button
+                    key={range.id}
+                    type="button"
+                    className={`price-range-btn ${selectedPriceRange === range.id ? "active" : ""}`}
+                    onClick={() => applyPriceRange(range.id)}
+                  >
+                    {range.label}
+                  </button>
                 ))}
               </div>
             </div>
@@ -641,7 +720,7 @@ function HomeClientInner({ initialPhones }: HomeClientProps) {
                 <div className="empty-icon">🔍</div>
                 <h3>No smartphones match your exact filters</h3>
                 <p>Try widening your budget range or clearing specific filters like RAM or PTA status.</p>
-                <button className="primary-btn" onClick={() => setMaxPrice(600000)}>Reset All Filters</button>
+                <button className="primary-btn" onClick={resetAllFilters}>Reset All Filters</button>
               </div>
             )}
           </section>

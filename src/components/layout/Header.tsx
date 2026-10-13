@@ -125,6 +125,25 @@ export function Header() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Keep sticky page chrome (e.g. filters sidebar) clear of the header + nav bar
+  useEffect(() => {
+    const root = document.documentElement;
+    const gapPx = 16;
+
+    const syncStickyOffset = () => {
+      const headerEl = document.querySelector(".site-header") as HTMLElement | null;
+      const headerHeight = headerEl?.offsetHeight ?? 112;
+      const offset = isHeaderHidden ? gapPx : headerHeight + gapPx;
+      root.style.setProperty("--site-header-sticky-top", `${offset}px`);
+    };
+
+    syncStickyOffset();
+    window.addEventListener("resize", syncStickyOffset);
+    return () => {
+      window.removeEventListener("resize", syncStickyOffset);
+    };
+  }, [isHeaderHidden]);
+
   // Keep header visible while the mobile drawer is open
   useEffect(() => {
     if (isMobileMenuOpen) {

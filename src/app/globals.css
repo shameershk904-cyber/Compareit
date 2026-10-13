@@ -1685,9 +1685,26 @@ html.mobile-nav-open body {
   border-radius: 20px;
   padding: 1.5rem;
   height: fit-content;
+  align-self: start;
   position: sticky;
-  top: 90px;
+  /* --site-header-sticky-top is set by Header (logo + nav, or small gap when header is hidden) */
+  top: var(--site-header-sticky-top, 128px);
+  max-height: calc(100vh - var(--site-header-sticky-top, 128px) - 16px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
   box-shadow: var(--shadow-card);
+  transition: top 0.28s cubic-bezier(0.16, 1, 0.3, 1), max-height 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 20;
+}
+
+.filters-sidebar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.filters-sidebar::-webkit-scrollbar-thumb {
+  background: #d4d4d8;
+  border-radius: 3px;
 }
 
 .filters-header {
@@ -1947,6 +1964,45 @@ html.mobile-nav-open body {
   border: 1px solid var(--border-subtle);
 }
 
+/* Search By Prices — full-width discrete bands */
+.price-range-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.price-range-btn {
+  width: 100%;
+  text-align: center;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  padding: 0.55rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid var(--border-medium, #d4d4d8);
+  background: #ffffff;
+  color: var(--text-primary, #18181b);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s, transform 0.1s;
+}
+
+.price-range-btn:hover {
+  border-color: #a1a1aa;
+  background: #fafafa;
+}
+
+.price-range-btn.active {
+  background: #ffffff;
+  border-color: var(--accent-orange, #f47820);
+  color: var(--accent-orange, #f47820);
+  box-shadow: none;
+}
+
+.price-range-btn:active {
+  transform: scale(0.99);
+}
+
 /* Spec Pills (RAM, Battery, Charging) */
 .spec-pills {
   display: flex;
@@ -1956,7 +2012,7 @@ html.mobile-nav-open body {
 
 .spec-pill {
   background: #ffffff;
-  border: 1px solid var(--border-medium);
+  border: 1px solid var(--border-medium, #d4d4d8);
   color: var(--text-secondary);
   font-family: inherit;
   font-size: 0.76rem;
@@ -1964,19 +2020,19 @@ html.mobile-nav-open body {
   padding: 0.35rem 0.75rem;
   border-radius: var(--radius-full);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
 }
 
 .spec-pill:hover {
-  background: #f4f4f6;
-  border-color: #000000;
-  color: #000000;
+  background: #fafafa;
+  border-color: #a1a1aa;
+  color: var(--text-primary, #18181b);
 }
 
 .spec-pill.active {
-  background: #000000;
-  color: #ffffff;
-  border-color: #000000;
+  background: #ffffff;
+  color: var(--accent-orange, #f47820);
+  border-color: var(--accent-orange, #f47820);
   font-weight: 600;
 }
 
@@ -4157,6 +4213,8 @@ body.modal-open > *:not(.modal-backdrop) {
   }
   .filters-sidebar {
     position: static;
+    max-height: none;
+    overflow-y: visible;
   }
   .filters-sidebar.mobile-collapsed {
     display: none !important;
