@@ -1,38 +1,100 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 import { type BannerRecord } from "./BannersClient";
 import { PriceUpdatePanel } from "./PriceUpdatePanel";
 
-interface DashboardClientProps {
-  stats: {
-    pageViews: number;
-    searchLogs: number;
-    banners: number;
-    users: number;
-    activityLogs: number;
-    shootoutsCount?: number;
-    totalImpressions?: number;
-    totalClicks?: number;
-    devices?: {
-      desktop: number;
-      mobile: number;
-      tablet: number;
-    };
-    topSearches?: Array<{ query: string; count: number }>;
-    zeroResultCount?: number;
-    topPages?: Array<{ path: string; count: number }>;
+type DateFilter = "today" | "7d" | "30d" | "quarterly";
+
+interface DashboardStats {
+  pageViews: number;
+  uniqueVisitors?: number;
+  searchLogs: number;
+  banners: number;
+  activeBanners?: number;
+  placementSlots?: number;
+  users: number;
+  activityLogs: number;
+  shootoutsCount?: number;
+  totalImpressions?: number;
+  totalClicks?: number;
+  devices?: {
+    desktop: number;
+    mobile: number;
+    tablet: number;
   };
+  countries?: Array<{ country: string; count: number }>;
+  topSearches?: Array<{ query: string; count: number }>;
+  zeroResultCount?: number;
+  topPages?: Array<{ path: string; count: number }>;
+}
+
+interface DashboardClientProps {
+  stats: DashboardStats;
   liveBanners: BannerRecord[];
   error?: string | null;
 }
 
-export function DashboardClient({ stats, liveBanners, error }: DashboardClientProps) {
-  const [dateFilter, setDateFilter] = useState<"today" | "7d" | "30d" | "quarterly">("30d");
+export function DashboardClient({ stats: initialStats, liveBanners, error: initialError }: DashboardClientProps) {
+  const [dateFilter, setDateFilter] = useState<DateFilter>("30d");
   const [selectedPlacement, setSelectedPlacement] = useState<string>("all");
+  const [stats, setStats] = useState<DashboardStats>(initialStats);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(initialError ?? null);
 
-  const formattedVisitors = stats.pageViews.toLocaleString();
+  const fetchStats = useCallback(async (selectedRange: DateFilter) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/admin/dashboard/stats?range=${selectedRange}`);
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => null);
+        setError(errJson?.error || "Unable to load dashboard analytics for this range.");
+        return;
+      }
+      const json = await res.json();
+      setStats({
+        pageViews: json.pageViews ?? 0,
+        uniqueVisitors: json.uniqueVisitors ?? 0,
+        searchLogs: json.searchLogs ?? 0,
+        banners: json.banners ?? 0,
+        activeBanners: json.activeBanners ?? 0,
+        placementSlots: json.placementSlots ?? 4,
+        users: json.users ?? 0,
+        activityLogs: json.activityLogs ?? 0,
+        shootoutsCount: json.shootoutsCount ?? 0,
+        totalImpressions: json.totalImpressions ?? 0,
+        totalClicks: json.totalClicks ?? 0,
+        devices: json.devices ?? { desktop: 0, mobile: 0, tablet: 0 },
+        countries: json.countries ?? [],
+        topSearches: json.topSearches ?? [],
+        zeroResultCount: json.zeroResultCount ?? 0,
+        topPages: json.topPages ?? [],
+      });
+    } catch (err) {
+      console.error("Dashboard stats fetch error:", err);
+      setError("Network error while loading dashboard analytics.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const skipInitialFetch = useRef(true);
+  useEffect(() => {
+    // SSR already loaded Last 30 Days — skip duplicate fetch on mount
+    if (skipInitialFetch.current) {
+      skipInitialFetch.current = false;
+      return;
+    }
+    const timer = setTimeout(() => {
+      fetchStats(dateFilter);
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [dateFilter, fetchStats]);
+
+  const uniqueVisitors = stats.uniqueVisitors ?? stats.pageViews;
+  const formattedVisitors = uniqueVisitors.toLocaleString();
   const formattedSearches = stats.searchLogs.toLocaleString();
   const shootoutsCount = (stats.shootoutsCount ?? 0).toLocaleString();
   const totalImpressions = stats.totalImpressions ?? 0;
@@ -43,6 +105,11 @@ export function DashboardClient({ stats, liveBanners, error }: DashboardClientPr
   const desktopPct = totalDevices > 0 ? (((stats.devices?.desktop || 0) / totalDevices) * 100).toFixed(1) : "0";
   const mobilePct = totalDevices > 0 ? (((stats.devices?.mobile || 0) / totalDevices) * 100).toFixed(1) : "0";
   const tabletPct = totalDevices > 0 ? (((stats.devices?.tablet || 0) / totalDevices) * 100).toFixed(1) : "0";
+
+  const filteredBanners =
+    selectedPlacement === "all"
+      ? liveBanners
+      : liveBanners.filter((b) => b.placement === selectedPlacement);
 
   return (
     <div className="space-y-8">
@@ -84,7 +151,8 @@ export function DashboardClient({ stats, liveBanners, error }: DashboardClientPr
               <button
                 key={tab.id}
                 onClick={() => setDateFilter(tab.id)}
-                className={`px-3.5 py-1.5 text-xs rounded-lg transition-all cursor-pointer ${
+                disabled={loading}
+                className={`px-3.5 py-1.5 text-xs rounded-lg transition-all cursor-pointer disabled:opacity-60 ${
                   dateFilter === tab.id
                     ? "bg-white text-zinc-950 font-bold shadow-sm"
                     : "text-zinc-600 hover:text-zinc-900 font-medium"
@@ -94,11 +162,16 @@ export function DashboardClient({ stats, liveBanners, error }: DashboardClientPr
                 {tab.label}
               </button>
             ))}
+            {loading && (
+              <span className="material-symbols-outlined text-[16px] animate-spin text-zinc-500 mx-1.5">
+                progress_activity
+              </span>
+            )}
           </div>
 
           {/* Action Buttons */}
           <Link
-            href="/api/admin/activity?export=csv"
+            href={`/api/admin/analytics/export?range=${dateFilter}`}
             className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white hover:bg-zinc-50 text-zinc-700 text-xs font-semibold transition-all border border-zinc-200 shadow-sm"
           >
             <span className="material-symbols-outlined text-[17px]">download</span>
@@ -125,9 +198,9 @@ export function DashboardClient({ stats, liveBanners, error }: DashboardClientPr
           <div className="flex items-start justify-between">
             <div>
               <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">
-                Total Unique Visitors
+                Unique Sessions
               </span>
-              <div className="text-3xl sm:text-4xl font-extrabold text-zinc-950 mt-2 font-mono tracking-tight">
+              <div className={`text-3xl sm:text-4xl font-extrabold text-zinc-950 mt-2 font-mono tracking-tight ${loading ? "opacity-50" : ""}`}>
                 {formattedVisitors}
               </div>
             </div>
@@ -137,9 +210,9 @@ export function DashboardClient({ stats, liveBanners, error }: DashboardClientPr
           </div>
           <div className="mt-5 pt-4 border-t border-zinc-100 flex items-center justify-between">
             <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-orange-50 text-orange-700 text-[11px] font-bold">
-              <span className="w-1.5 h-1.5 rounded-full bg-orange-600"></span> Verified Hits
+              <span className="w-1.5 h-1.5 rounded-full bg-orange-600"></span> Session IDs
             </span>
-            <span className="text-xs text-zinc-400 font-medium">Recorded telemetry</span>
+            <span className="text-xs text-zinc-400 font-medium">{stats.pageViews.toLocaleString()} pageviews</span>
           </div>
         </Link>
 
@@ -153,7 +226,7 @@ export function DashboardClient({ stats, liveBanners, error }: DashboardClientPr
               <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">
                 Catalog Searches
               </span>
-              <div className="text-3xl sm:text-4xl font-extrabold text-zinc-950 mt-2 font-mono tracking-tight">
+              <div className={`text-3xl sm:text-4xl font-extrabold text-zinc-950 mt-2 font-mono tracking-tight ${loading ? "opacity-50" : ""}`}>
                 {formattedSearches}
               </div>
             </div>
@@ -179,7 +252,7 @@ export function DashboardClient({ stats, liveBanners, error }: DashboardClientPr
               <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider block">
                 Device Shootouts Run
               </span>
-              <div className="text-3xl sm:text-4xl font-extrabold text-zinc-950 mt-2 font-mono tracking-tight">
+              <div className={`text-3xl sm:text-4xl font-extrabold text-zinc-950 mt-2 font-mono tracking-tight ${loading ? "opacity-50" : ""}`}>
                 {shootoutsCount}
               </div>
             </div>
@@ -206,7 +279,10 @@ export function DashboardClient({ stats, liveBanners, error }: DashboardClientPr
                 Active Campaigns
               </span>
               <div className="text-3xl sm:text-4xl font-extrabold text-zinc-950 mt-2 font-mono tracking-tight">
-                {stats.banners} <span className="text-sm font-normal text-zinc-400">/ 14 slots</span>
+                {stats.activeBanners ?? 0}{" "}
+                <span className="text-sm font-normal text-zinc-400">
+                  / {stats.placementSlots ?? 4} slots
+                </span>
               </div>
             </div>
             <div className="w-11 h-11 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center shrink-0 shadow-sm group-hover:scale-105 transition-transform">
@@ -214,7 +290,9 @@ export function DashboardClient({ stats, liveBanners, error }: DashboardClientPr
             </div>
           </div>
           <div className="mt-5 pt-4 border-t border-zinc-100 flex items-center justify-between text-xs">
-            <span className="font-semibold text-zinc-900 font-mono">CTR: {ctrFormatted}</span>
+            <span className="font-semibold text-zinc-900 font-mono" title="Lifetime banner CTR (not filtered by date range)">
+              Lifetime CTR: {ctrFormatted}
+            </span>
             <span className="text-zinc-500 font-mono">{totalClicks.toLocaleString()} Clicks</span>
           </div>
         </Link>
@@ -370,6 +448,15 @@ export function DashboardClient({ stats, liveBanners, error }: DashboardClientPr
                       strokeDashoffset={`-${desktopPct}`}
                       strokeWidth="4.5"
                     ></path>
+                    <path
+                      className="text-zinc-400"
+                      d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeDasharray={`${tabletPct}, 100`}
+                      strokeDashoffset={`-${Number(desktopPct) + Number(mobilePct)}`}
+                      strokeWidth="4.5"
+                    ></path>
                   </svg>
                   <div className="absolute flex flex-col items-center justify-center">
                     <span className="text-base font-bold text-zinc-950 font-mono leading-none">
@@ -430,62 +517,61 @@ export function DashboardClient({ stats, liveBanners, error }: DashboardClientPr
         </div>
       </section>
 
-      {/* PAKISTANI REGIONAL DEMOGRAPHICS & SEARCH INTELLIGENCE ROW */}
+      {/* GEO + SEARCH INTELLIGENCE ROW */}
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Left Card: Pakistan Regional Network Telemetry */}
+        {/* Left Card: Country breakdown from page_views.country */}
         <div className="bg-white p-6 sm:p-7 rounded-2xl border border-zinc-200/80 shadow-[0_2px_12px_rgba(0,0,0,0.03)] flex flex-col justify-between space-y-6">
           <div>
             <div className="flex items-center justify-between mb-4">
               <div>
                 <span className="text-[10px] font-bold uppercase tracking-wider text-orange-600 block">
-                  Network Coverage
+                  Geo Telemetry
                 </span>
                 <h3 className="text-lg font-bold text-zinc-950 tracking-tight">
-                  Pakistan National Network Reach
+                  Traffic by Country
                 </h3>
               </div>
               <span className="px-2.5 py-1 rounded-full bg-emerald-50 text-[10px] font-bold text-emerald-800 border border-emerald-200">
-                Active Telemetry
+                From page_views
               </span>
             </div>
 
-            <div className="space-y-3">
-              <div className="p-4 bg-zinc-50/70 rounded-xl border border-zinc-200/60 flex items-start gap-3.5">
-                <span className="material-symbols-outlined text-orange-600 mt-0.5 text-[20px]">public</span>
-                <div>
-                  <div className="text-xs font-bold text-zinc-950">Country Code: PK (Pakistan)</div>
-                  <div className="text-xs text-zinc-500 mt-0.5 leading-relaxed">
-                    Traffic originates through PTCL, Nayatel, Jazz, Zong, and Telenor broadband networks.
-                  </div>
-                </div>
+            {stats.countries && stats.countries.length > 0 ? (
+              <div className="space-y-2">
+                {stats.countries.map((c) => {
+                  const pct =
+                    stats.pageViews > 0 ? Math.round((c.count / stats.pageViews) * 100) : 0;
+                  return (
+                    <div
+                      key={c.country}
+                      className="flex items-center justify-between p-3 rounded-xl bg-zinc-50/60 border border-zinc-200/60 text-xs"
+                    >
+                      <span className="font-bold text-zinc-950 font-mono">{c.country}</span>
+                      <div className="flex items-center gap-3">
+                        <span className="font-mono font-bold text-zinc-950">
+                          {c.count.toLocaleString()} views
+                        </span>
+                        <span className="text-zinc-400 font-mono w-10 text-right">{pct}%</span>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
+            ) : (
+              <div className="p-6 text-center text-zinc-500 text-xs bg-zinc-50 rounded-xl border border-zinc-200/60">
+                {error ? "Unable to load country data." : "No geo telemetry in this date range yet."}
+              </div>
+            )}
 
-              <div className="p-4 bg-zinc-50/70 rounded-xl border border-zinc-200/60 flex items-start gap-3.5">
-                <span className="material-symbols-outlined text-zinc-900 mt-0.5 text-[20px]">security</span>
-                <div>
-                  <div className="text-xs font-bold text-zinc-950">Privacy-Preserving Salted Hashes</div>
-                  <div className="text-xs text-zinc-500 mt-0.5 leading-relaxed">
-                    Client IPs are transformed daily into one-way cryptographic hashes. No raw PII or IP addresses are stored.
-                  </div>
-                </div>
-              </div>
-
-              <div className="p-4 bg-zinc-50/70 rounded-xl border border-zinc-200/60 flex items-start gap-3.5">
-                <span className="material-symbols-outlined text-blue-600 mt-0.5 text-[20px]">database</span>
-                <div>
-                  <div className="text-xs font-bold text-zinc-950">Verified Database Records</div>
-                  <div className="text-xs text-zinc-500 mt-0.5 leading-relaxed">
-                    {stats.pageViews.toLocaleString()} total pageview rows currently indexed in Supabase.
-                  </div>
-                </div>
-              </div>
+            <div className="mt-4 p-3.5 bg-zinc-50/80 rounded-xl border border-zinc-200/60 text-xs text-zinc-600 leading-relaxed">
+              Country is stored on each pageview (default <code>PK</code>). IPs are hashed before storage — no raw addresses are kept.
             </div>
           </div>
 
           <div className="pt-4 flex items-center justify-between text-xs text-zinc-500 border-t border-zinc-100">
-            <span>Verified via Supabase Postgres</span>
+            <span>{stats.pageViews.toLocaleString()} pageviews in selected range</span>
             <Link href="/admin/analytics" className="text-orange-600 font-semibold hover:underline">
-              Inspect Demographics &rarr;
+              Full Telemetry &rarr;
             </Link>
           </div>
         </div>
@@ -592,9 +678,9 @@ export function DashboardClient({ stats, liveBanners, error }: DashboardClientPr
                 onChange={(e) => setSelectedPlacement(e.target.value)}
                 className="appearance-none bg-zinc-50 text-zinc-900 text-xs font-semibold px-3.5 py-2 pr-8 rounded-xl border border-zinc-200 focus:outline-none cursor-pointer"
               >
-                <option value="all">All Placements (14 Slots)</option>
-                <option value="HERO">Homepage Hero Header (728x90 / 1200x300)</option>
-                <option value="SIDEBAR">Comparison Tray Sticky &amp; Sidebar</option>
+                <option value="all">All Placements</option>
+                <option value="HERO">Homepage Top Hero</option>
+                <option value="SIDEBAR">Homepage Advisor Sidebar</option>
                 <option value="TOP_BAR">Product Page Top Bar Ad</option>
                 <option value="POPUP">PTA Tax Calculator Modal</option>
               </select>
@@ -615,8 +701,8 @@ export function DashboardClient({ stats, liveBanners, error }: DashboardClientPr
 
         {/* Active Banners Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-          {liveBanners.length > 0 ? (
-            liveBanners.map((b) => (
+          {filteredBanners.length > 0 ? (
+            filteredBanners.map((b) => (
               <div
                 key={b.id}
                 className="bg-zinc-50/70 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between border border-zinc-200/70"
@@ -674,135 +760,17 @@ export function DashboardClient({ stats, liveBanners, error }: DashboardClientPr
                 </div>
               </div>
             ))
-          ) : null}
-
-          {/* Reference Banner 1 */}
-          <div className="bg-zinc-50/70 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between border border-zinc-200/70">
-            <div>
-              <div className="relative h-36 w-full bg-zinc-900 overflow-hidden flex items-center justify-center">
-                <img
-                  alt="Itel A50C Special Edition promotional banner display"
-                  className="w-full h-full object-cover object-center opacity-90 hover:scale-105 transition-transform duration-300"
-                  src="https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=600&auto=format&fit=crop&q=80"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/80 via-transparent to-transparent"></div>
-                <span className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-md bg-zinc-900/90 text-white text-[10px] font-bold tracking-wider uppercase backdrop-blur-sm">
-                  300x600 Sidebar
-                </span>
-                <span className="absolute top-2.5 right-2.5 flex items-center gap-1 px-2 py-0.5 rounded-md bg-zinc-900/90 text-white text-[10px] font-bold shadow-sm backdrop-blur-sm">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Live &amp; Active
-                </span>
-              </div>
-              <div className="p-4 space-y-2">
-                <h3 className="text-sm font-bold text-zinc-950 line-clamp-1">
-                  Itel A50C Special Edition Launch
-                </h3>
-                <p className="text-xs text-zinc-500">Placement: Product Sidebar &amp; Sponsor</p>
-                <div className="grid grid-cols-2 gap-2 pt-2 text-xs">
-                  <div className="bg-white p-2 rounded-xl border border-zinc-200/60">
-                    <span className="text-[10px] font-semibold text-zinc-400 block uppercase">Impressions</span>
-                    <span className="text-zinc-950 font-bold font-mono">418,900</span>
-                  </div>
-                  <div className="bg-white p-2 rounded-xl border border-zinc-200/60">
-                    <span className="text-[10px] font-semibold text-zinc-400 block uppercase">Clicks (CTR)</span>
-                    <span className="text-orange-600 font-bold font-mono">26.8k (6.4%)</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="p-4 pt-0 flex items-center justify-between border-t border-zinc-200/60 mt-2 text-xs">
-              <span className="text-orange-600 font-bold font-mono">Top ROI &bull; 6.4%</span>
-              <span className="text-zinc-400 font-medium">Ends: Nov 15</span>
-            </div>
-          </div>
-
-          {/* Reference Banner 2 */}
-          <div className="bg-zinc-50/70 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between border border-zinc-200/70">
-            <div>
-              <div className="relative h-36 w-full bg-zinc-900 overflow-hidden flex items-center justify-center">
-                <img
-                  alt="PTA Duty Calculator"
-                  className="w-full h-full object-cover opacity-85 hover:scale-105 transition-transform duration-300"
-                  src="https://images.unsplash.com/photo-1563986768609-322da13575f3?w=600&auto=format&fit=crop&q=80"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/80 via-transparent to-transparent"></div>
-                <span className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-md bg-zinc-900/90 text-white text-[10px] font-bold tracking-wider uppercase backdrop-blur-sm">
-                  Modal Banner 468x60
-                </span>
-                <span className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-md bg-blue-100 text-blue-800 text-[10px] font-bold shadow-sm">
-                  Scheduled
-                </span>
-              </div>
-              <div className="p-4 space-y-2">
-                <h3 className="text-sm font-bold text-zinc-950 line-clamp-1">
-                  DIRBS PTA Duty Free Calculator
-                </h3>
-                <p className="text-xs text-zinc-500">Placement: PTA Tax Modal Banner</p>
-                <div className="grid grid-cols-2 gap-2 pt-2 text-xs">
-                  <div className="bg-white p-2 rounded-xl border border-zinc-200/60">
-                    <span className="text-[10px] font-semibold text-zinc-400 block uppercase">Impressions</span>
-                    <span className="text-zinc-400 font-bold font-mono">—</span>
-                  </div>
-                  <div className="bg-white p-2 rounded-xl border border-zinc-200/60">
-                    <span className="text-[10px] font-semibold text-zinc-400 block uppercase">Status</span>
-                    <span className="text-blue-700 font-bold">Queued</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="p-4 pt-0 flex items-center justify-between border-t border-zinc-200/60 mt-2 text-xs">
-              <span className="text-zinc-400 font-mono">Priority: #5</span>
-              <Link
-                href="/admin/banners"
-                className="px-2.5 py-1 rounded-lg bg-zinc-900 text-white text-[11px] font-bold hover:bg-zinc-800"
-              >
-                Launch Now
+          ) : (
+            <div className="col-span-full p-8 text-center text-zinc-500 text-xs bg-zinc-50 rounded-xl border border-zinc-200/60">
+              No banners match this placement filter.{" "}
+              <Link href="/admin/banners" className="text-orange-600 font-semibold hover:underline">
+                Open Banner Manager
               </Link>
             </div>
-          </div>
-
-          {/* Reference Banner 3 */}
-          <div className="bg-zinc-50/70 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between border border-zinc-200/70">
-            <div>
-              <div className="relative h-36 w-full bg-zinc-900 overflow-hidden flex items-center justify-center">
-                <img
-                  alt="Price Drop Flash Deals"
-                  className="w-full h-full object-cover opacity-60 grayscale hover:grayscale-0 transition-all duration-300"
-                  src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&auto=format&fit=crop&q=80"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/80 via-transparent to-transparent"></div>
-                <span className="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-md bg-zinc-900/90 text-white text-[10px] font-bold tracking-wider uppercase backdrop-blur-sm">
-                  Mobile Footer Bar
-                </span>
-                <span className="absolute top-2.5 right-2.5 px-2 py-0.5 rounded-md bg-zinc-200 text-zinc-600 text-[10px] font-bold">
-                  Paused
-                </span>
-              </div>
-              <div className="p-4 space-y-2">
-                <h3 className="text-sm font-bold text-zinc-950 line-clamp-1">
-                  Price Drop Hafeez Centre Flash
-                </h3>
-                <p className="text-xs text-zinc-500">Placement: Mobile Sticky Footer Ad</p>
-                <div className="grid grid-cols-2 gap-2 pt-2 text-xs">
-                  <div className="bg-white p-2 rounded-xl border border-zinc-200/60">
-                    <span className="text-[10px] font-semibold text-zinc-400 block uppercase">Impressions</span>
-                    <span className="text-zinc-950 font-bold font-mono">210,400</span>
-                  </div>
-                  <div className="bg-white p-2 rounded-xl border border-zinc-200/60">
-                    <span className="text-[10px] font-semibold text-zinc-400 block uppercase">Clicks (CTR)</span>
-                    <span className="text-zinc-700 font-bold font-mono">7.8k (3.7%)</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="p-4 pt-0 flex items-center justify-between border-t border-zinc-200/60 mt-2 text-xs">
-              <span className="text-zinc-400 font-mono">Priority: #1</span>
-              <span className="text-zinc-400 font-medium">Paused by Admin</span>
-            </div>
-          </div>
+          )}
         </div>
 
-        {/* QUICK UPLOAD DROPZONE */}
+        {/* Manage banners CTA */}
         <Link
           href="/admin/banners"
           className="p-8 rounded-2xl bg-zinc-50/70 hover:bg-zinc-100/70 flex flex-col items-center justify-center text-center cursor-pointer transition-all group border border-dashed border-zinc-300 block"
@@ -811,21 +779,11 @@ export function DashboardClient({ stats, liveBanners, error }: DashboardClientPr
             <span className="material-symbols-outlined text-[28px]">cloud_upload</span>
           </div>
           <h3 className="text-base font-bold text-zinc-950">
-            Drag &amp; Drop New Banner Creative or Browse Assets
+            Open Banner Manager to Upload or Replace Creatives
           </h3>
           <p className="text-xs sm:text-sm text-zinc-500 max-w-xl mt-1.5 mx-auto leading-relaxed">
-            Supports PNG, JPG, WebP up to 2MB. Responsive image pipelines optimize and serve assets for Karachi, Lahore, and Islamabad networks.
+            Upload PNG, JPG, or WebP (max 2MB) for Homepage Hero, Advisor Sidebar, Product Top Bar, or PTA Tax Modal.
           </p>
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-            {["1200x300 Hero", "728x90 Leaderboard", "300x250 Medium Rect", "320x50 Mobile Sticky"].map((tag) => (
-              <span
-                key={tag}
-                className="px-3 py-1 rounded-lg bg-white text-xs font-semibold text-zinc-700 border border-zinc-200/80 shadow-2xs"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
         </Link>
       </section>
     </div>

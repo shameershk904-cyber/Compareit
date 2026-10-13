@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma";
 import { DashboardClient } from "@/components/admin/DashboardClient";
 import { ChangePasswordModal } from "@/components/admin/ChangePasswordModal";
 import { type BannerRecord } from "@/components/admin/BannersClient";
+import { resolveAnalyticsRange } from "@/lib/date-range";
 
 export const dynamic = "force-dynamic";
 
@@ -14,10 +15,14 @@ export default async function AdminDashboardPage() {
     redirect("/admin/login?error=AccessDenied");
   }
 
-  // Pre-fetch counts and banners from Prisma
+  // Match DashboardClient default filter (Last 30 Days)
+  const { startDate } = resolveAnalyticsRange("30d", "30d");
+
   let pageViews = 0;
+  let uniqueVisitors = 0;
   let searchLogs = 0;
   let bannersCount = 0;
+  let activeBannersCount = 0;
   let users = 1;
   let activityLogs = 0;
   let shootoutsCount = 0;
@@ -25,33 +30,53 @@ export default async function AdminDashboardPage() {
   let totalClicks = 0;
   let liveBanners: BannerRecord[] = [];
   let devices = { desktop: 0, mobile: 0, tablet: 0 };
+  let countries: Array<{ country: string; count: number }> = [];
   let topSearches: Array<{ query: string; count: number }> = [];
   let zeroResultCount = 0;
   let topPages: Array<{ path: string; count: number }> = [];
   let dbError: string | null = null;
 
+  const viewWhere = {
+    createdAt: { gte: startDate },
+    isBot: false,
+  };
+  const searchWhere = {
+    createdAt: { gte: startDate },
+  };
+
   try {
     const [
       pCount,
+      uniqueSessionGroups,
       sCount,
       bCount,
+      activeCount,
       uCount,
       aCount,
       compareCount,
       bannerAgg,
       rawBanners,
       deviceGroups,
+      countryGroups,
       searchGroups,
       zeroCount,
       pageGroups,
     ] = await Promise.all([
-      prisma.pageView.count(),
-      prisma.searchLog.count(),
+      prisma.pageView.count({ where: viewWhere }),
+      prisma.pageView.groupBy({
+        by: ["sessionId"],
+        where: viewWhere,
+      }),
+      prisma.searchLog.count({ where: searchWhere }),
       prisma.banner.count(),
+      prisma.banner.count({ where: { isActive: true } }),
       prisma.user.count(),
-      prisma.activityLog.count(),
+      prisma.activityLog.count({
+        where: { createdAt: { gte: startDate } },
+      }),
       prisma.pageView.count({
         where: {
+          ...viewWhere,
           path: { startsWith: "/compare" },
         },
       }),
@@ -67,19 +92,29 @@ export default async function AdminDashboardPage() {
       }),
       prisma.pageView.groupBy({
         by: ["device"],
+        where: viewWhere,
         _count: { id: true },
+      }).catch(() => []),
+      prisma.pageView.groupBy({
+        by: ["country"],
+        where: viewWhere,
+        _count: { id: true },
+        orderBy: { _count: { id: "desc" } },
+        take: 5,
       }).catch(() => []),
       prisma.searchLog.groupBy({
         by: ["query"],
+        where: searchWhere,
         _count: { id: true },
         orderBy: { _count: { id: "desc" } },
         take: 5,
       }).catch(() => []),
       prisma.searchLog.count({
-        where: { resultsCount: 0 },
+        where: { ...searchWhere, resultsCount: 0 },
       }).catch(() => 0),
       prisma.pageView.groupBy({
         by: ["path"],
+        where: viewWhere,
         _count: { id: true },
         orderBy: { _count: { id: "desc" } },
         take: 5,
@@ -87,8 +122,10 @@ export default async function AdminDashboardPage() {
     ]);
 
     pageViews = pCount;
+    uniqueVisitors = uniqueSessionGroups.length;
     searchLogs = sCount;
     bannersCount = bCount;
+    activeBannersCount = activeCount;
     users = uCount;
     activityLogs = aCount;
     shootoutsCount = compareCount;
@@ -102,6 +139,11 @@ export default async function AdminDashboardPage() {
         devices[dev] = d._count.id;
       }
     }
+
+    countries = countryGroups.map((c) => ({
+      country: c.country || "Unknown",
+      count: c._count.id,
+    }));
 
     topSearches = searchGroups.map((s) => ({
       query: s.query,
@@ -140,14 +182,18 @@ export default async function AdminDashboardPage() {
       <DashboardClient
         stats={{
           pageViews,
+          uniqueVisitors,
           searchLogs,
           banners: bannersCount,
+          activeBanners: activeBannersCount,
+          placementSlots: 4,
           users,
           activityLogs,
           shootoutsCount,
           totalImpressions,
           totalClicks,
           devices,
+          countries,
           topSearches,
           zeroResultCount,
           topPages,
@@ -158,4 +204,3 @@ export default async function AdminDashboardPage() {
     </>
   );
 }
-

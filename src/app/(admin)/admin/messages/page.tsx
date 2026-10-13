@@ -11,7 +11,7 @@ export const metadata = {
 };
 
 export default async function AdminMessagesPage() {
-  const { authenticated } = await verifyServerSession(["ADMIN", "EDITOR"]);
+  const { authenticated } = await verifyServerSession(["ADMIN", "EDITOR", "VIEWER"]);
 
   if (!authenticated) {
     redirect("/admin/login?error=AccessDenied");

@@ -254,6 +254,7 @@ export function Header() {
       window.history.replaceState(null, "", url);
     }
     
+    // Log only on intentional submit (Enter / search button) — not on keystrokes
     if (trimmed.length >= 2) {
       try {
         const sid = typeof window !== "undefined" ? window.sessionStorage?.getItem("compareit_session_id") : null;
@@ -288,6 +289,7 @@ export function Header() {
     }
     
     debounceTimerRef.current = setTimeout(() => {
+      // Update URL only — do not log keystrokes (inflates Search Intelligence)
       if (typeof window !== "undefined") {
         const currentParams = new URLSearchParams(window.location.search);
         if (val.trim()) {
@@ -298,18 +300,6 @@ export function Header() {
         const search = currentParams.toString();
         const url = search ? `/?${search}` : "/";
         window.history.replaceState(null, "", url);
-      }
-      
-      if (val.trim().length >= 2) {
-        try {
-          const sid = typeof window !== "undefined" ? window.sessionStorage?.getItem("compareit_session_id") : null;
-          fetch("/api/search/log", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ query: val.trim(), sessionId: sid }),
-            keepalive: true,
-          }).catch(() => {});
-        } catch {}
       }
     }, 250);
   };

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { type Phone } from "@/types";
 import { formatPKR } from "@/lib/utils";
+import { Banner } from "@/components/shared/Banner";
 
 function calculateCustomPTATax(usdPrice: number) {
   const USD_TO_PKR = 278.50;
@@ -122,6 +123,7 @@ export function TaxCalculatorModal() {
         </div>
         
         <div className="modal-body">
+          <Banner placement="POPUP" className="mb-3" />
           <div className="calc-tabs">
             <button 
               className={`calc-tab ${activeTab === "device" ? "active" : ""}`}

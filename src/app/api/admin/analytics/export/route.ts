@@ -1,28 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { verifyServerSession } from "@/lib/auth";
+import { resolveAnalyticsRange } from "@/lib/date-range";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
-  const { authenticated, user, error } = await verifyServerSession(["ADMIN", "EDITOR"]);
+  const { authenticated, user, error } = await verifyServerSession(["ADMIN", "EDITOR", "VIEWER"]);
   if (!authenticated || !user) {
     return NextResponse.json({ error: error || "Unauthorized" }, { status: 401 });
   }
 
-  const range = req.nextUrl.searchParams.get("range") || "30d";
-  const now = new Date();
-  let startDate = new Date();
-
-  if (range === "today") {
-    startDate.setHours(0, 0, 0, 0);
-  } else if (range === "7d") {
-    startDate.setDate(now.getDate() - 7);
-  } else if (range === "30d") {
-    startDate.setDate(now.getDate() - 30);
-  } else {
-    startDate = new Date(2025, 0, 1);
-  }
+  const { range, startDate } = resolveAnalyticsRange(
+    req.nextUrl.searchParams.get("range"),
+    "30d"
+  );
 
   try {
     const records = await prisma.pageView.findMany({

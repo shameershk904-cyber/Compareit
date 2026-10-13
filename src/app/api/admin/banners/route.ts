@@ -6,12 +6,20 @@ import { z } from "zod";
 
 export const dynamic = "force-dynamic";
 
+const linkUrlSchema = z
+  .string()
+  .min(1, "Destination link URL is required")
+  .refine(
+    (v) => v.startsWith("/") || /^https?:\/\//i.test(v),
+    "Must be a full URL (https://…) or a site path (/phones/…)"
+  );
+
 const bannerSchema = z.object({
   title: z.string().min(1, "Title is required").max(120),
   desktopImage: z.string().url("Valid desktop image URL is required"),
   mobileImage: z.string().url().optional().nullable(),
   altText: z.string().max(150).optional().nullable(),
-  linkUrl: z.string().url("Valid destination URL is required"),
+  linkUrl: linkUrlSchema,
   placement: z.nativeEnum(BannerPlacement).default(BannerPlacement.HERO),
   priority: z.number().int().default(0),
   isActive: z.boolean().default(true),
@@ -21,7 +29,7 @@ const bannerSchema = z.object({
 
 // GET: List all banners for admin
 export async function GET(req: NextRequest) {
-  const { authenticated, user, error } = await verifyServerSession(["ADMIN", "EDITOR"]);
+  const { authenticated, user, error } = await verifyServerSession(["ADMIN", "EDITOR", "VIEWER"]);
   if (!authenticated || !user) {
     return NextResponse.json({ error: error || "Unauthorized" }, { status: 401 });
   }

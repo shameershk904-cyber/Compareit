@@ -13,6 +13,7 @@ import {
   Loader2,
   AlertCircle,
   X,
+  Pencil,
 } from "lucide-react";
 
 export interface BannerRecord {
@@ -32,15 +33,34 @@ export interface BannerRecord {
   createdAt: string;
 }
 
+type Placement = BannerRecord["placement"];
+
+const PLACEMENT_LABELS: Record<Placement, string> = {
+  HERO: "Homepage Top Hero",
+  SIDEBAR: "Homepage Advisor Sidebar",
+  TOP_BAR: "Product Page Top Bar",
+  POPUP: "PTA Tax Calculator Modal",
+};
+
+function toDateInput(value?: string | null) {
+  if (!value) return "";
+  try {
+    return new Date(value).toISOString().slice(0, 10);
+  } catch {
+    return "";
+  }
+}
+
 export function BannersClient({ initialBanners }: { initialBanners: BannerRecord[] }) {
   const [banners, setBanners] = useState<BannerRecord[]>(initialBanners);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingBanner, setEditingBanner] = useState<BannerRecord | null>(null);
 
-  // Form state
   const [title, setTitle] = useState("");
   const [linkUrl, setLinkUrl] = useState("");
-  const [placement, setPlacement] = useState<"HERO" | "TOP_BAR" | "POPUP" | "SIDEBAR">("HERO");
-  const [priority, setPriority] = useState(0);
+  const [altText, setAltText] = useState("");
+  const [placement, setPlacement] = useState<Placement>("HERO");
+  const [priority, setPriority] = useState(10);
   const [isActive, setIsActive] = useState(true);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -50,6 +70,49 @@ export function BannersClient({ initialBanners }: { initialBanners: BannerRecord
   const [uploading, setUploading] = useState(false);
   const [formError, setFormError] = useState("");
   const [formSuccess, setFormSuccess] = useState("");
+
+  const resetForm = () => {
+    setTitle("");
+    setLinkUrl("");
+    setAltText("");
+    setPlacement("HERO");
+    setPriority(10);
+    setIsActive(true);
+    setStartDate("");
+    setEndDate("");
+    setSelectedFile(null);
+    setPreviewUrl("");
+    setEditingBanner(null);
+    setFormError("");
+    setFormSuccess("");
+  };
+
+  const openCreateModal = () => {
+    resetForm();
+    setIsModalOpen(true);
+  };
+
+  const openEditModal = (banner: BannerRecord) => {
+    setEditingBanner(banner);
+    setTitle(banner.title);
+    setLinkUrl(banner.linkUrl);
+    setAltText(banner.altText || "");
+    setPlacement(banner.placement);
+    setPriority(banner.priority);
+    setIsActive(banner.isActive);
+    setStartDate(toDateInput(banner.startDate));
+    setEndDate(toDateInput(banner.endDate));
+    setSelectedFile(null);
+    setPreviewUrl(banner.desktopImage);
+    setFormError("");
+    setFormSuccess("");
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    resetForm();
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -65,12 +128,12 @@ export function BannersClient({ initialBanners }: { initialBanners: BannerRecord
     setFormError("");
   };
 
-  const handleCreateBanner = async (e: React.FormEvent) => {
+  const handleSubmitBanner = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError("");
     setFormSuccess("");
 
-    if (!selectedFile) {
+    if (!editingBanner && !selectedFile) {
       setFormError("Please select a banner image (JPG, PNG, or WEBP under 2 MB).");
       return;
     }
@@ -87,56 +150,69 @@ export function BannersClient({ initialBanners }: { initialBanners: BannerRecord
 
     setUploading(true);
     try {
-      // 1. Upload file to Supabase Storage
-      const formData = new FormData();
-      formData.append("file", selectedFile);
+      let desktopImageUrl = editingBanner?.desktopImage || "";
 
-      const uploadRes = await fetch("/api/admin/banners/upload", {
-        method: "POST",
-        body: formData,
-      });
+      if (selectedFile) {
+        const formData = new FormData();
+        formData.append("file", selectedFile);
 
-      const uploadData = await uploadRes.json();
-      if (!uploadRes.ok) {
-        throw new Error(uploadData.error || "Failed to upload image to Supabase Storage");
+        const uploadRes = await fetch("/api/admin/banners/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        const uploadData = await uploadRes.json();
+        if (!uploadRes.ok) {
+          throw new Error(uploadData.error || "Failed to upload image to Supabase Storage");
+        }
+
+        desktopImageUrl = uploadData.url;
       }
 
-      const desktopImageUrl = uploadData.url;
+      const payload = {
+        title: title.trim(),
+        desktopImage: desktopImageUrl,
+        altText: altText.trim() || null,
+        linkUrl: linkUrl.trim(),
+        placement,
+        priority: Number(priority),
+        isActive,
+        startDate: startDate ? new Date(startDate).toISOString() : null,
+        endDate: endDate ? new Date(endDate).toISOString() : null,
+      };
 
-      // 2. Create banner record in database
-      const createRes = await fetch("/api/admin/banners", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: title.trim(),
-          desktopImage: desktopImageUrl,
-          linkUrl: linkUrl.trim(),
-          placement,
-          priority: Number(priority),
-          isActive,
-          startDate: startDate ? new Date(startDate).toISOString() : null,
-          endDate: endDate ? new Date(endDate).toISOString() : null,
-        }),
-      });
+      if (editingBanner) {
+        const updateRes = await fetch(`/api/admin/banners/${editingBanner.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const updateData = await updateRes.json();
+        if (!updateRes.ok) {
+          throw new Error(updateData.error || "Failed to update banner");
+        }
 
-      const createData = await createRes.json();
-      if (!createRes.ok) {
-        throw new Error(createData.error || "Failed to create banner record");
+        const updated = updateData.banner as BannerRecord;
+        setBanners(banners.map((b) => (b.id === editingBanner.id ? { ...b, ...updated } : b)));
+        setFormSuccess("Banner updated. Live site will refresh within ~1 minute.");
+      } else {
+        const createRes = await fetch("/api/admin/banners", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+        const createData = await createRes.json();
+        if (!createRes.ok) {
+          throw new Error(createData.error || "Failed to create banner record");
+        }
+
+        setBanners([createData.banner, ...banners]);
+        setFormSuccess("Banner published. It will appear on the live site shortly.");
       }
 
-      setFormSuccess("Banner successfully created and published!");
-      setBanners([createData.banner, ...banners]);
-
-      // Reset form
       setTimeout(() => {
-        setIsModalOpen(false);
-        setTitle("");
-        setLinkUrl("");
-        setSelectedFile(null);
-        setPreviewUrl("");
-        setPriority(0);
-        setFormSuccess("");
-      }, 1000);
+        closeModal();
+      }, 900);
     } catch (err: unknown) {
       setFormError(err instanceof Error ? err.message : "An error occurred");
     } finally {
@@ -177,7 +253,6 @@ export function BannersClient({ initialBanners }: { initialBanners: BannerRecord
 
   return (
     <div className="space-y-space-lg max-w-7xl mx-auto">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-surface-container-lowest p-space-lg rounded-xl shadow-[0_1px_3px_rgba(15,23,42,0.04)] border border-border-hairline">
         <div>
           <div className="flex items-center gap-2">
@@ -191,16 +266,12 @@ export function BannersClient({ initialBanners }: { initialBanners: BannerRecord
             <span>Banner &amp; Media Placement Manager</span>
           </h1>
           <p className="text-body-sm font-body-sm text-outline mt-0.5">
-            Publish campaigns, upload banners to Supabase Storage, and measure impressions &amp; CTR across Pakistan.
+            Upload, replace, and schedule homepage hero &amp; sidebar banners. Changes go live from this dashboard.
           </p>
         </div>
 
         <button
-          onClick={() => {
-            setIsModalOpen(true);
-            setFormError("");
-            setFormSuccess("");
-          }}
+          onClick={openCreateModal}
           className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-deal-orange hover:bg-deal-orange/90 text-on-primary font-bold text-label-md shadow-md shadow-deal-orange/20 transition-all cursor-pointer self-start sm:self-auto"
         >
           <Plus className="w-4 h-4" />
@@ -208,7 +279,21 @@ export function BannersClient({ initialBanners }: { initialBanners: BannerRecord
         </button>
       </div>
 
-      {/* Banners Grid / List */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-xl bg-orange-50/60 border border-orange-200/70 text-xs text-zinc-700">
+        <div>
+          <span className="font-bold text-orange-700 uppercase tracking-wider text-[10px] block mb-1">
+            Homepage Top Hero
+          </span>
+          Use placement <code className="font-mono bg-white px-1 rounded">HERO</code> for the wide banner above the homepage (e.g. iPhone launch creatives).
+        </div>
+        <div>
+          <span className="font-bold text-orange-700 uppercase tracking-wider text-[10px] block mb-1">
+            Advisor Sidebar
+          </span>
+          Use placement <code className="font-mono bg-white px-1 rounded">SIDEBAR</code> for the tall ad beside Smart Phone Advisor.
+        </div>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {banners.map((banner) => {
           const ctr =
@@ -221,14 +306,13 @@ export function BannersClient({ initialBanners }: { initialBanners: BannerRecord
               key={banner.id}
               className="rounded-xl bg-surface-container-lowest border border-border-hairline overflow-hidden flex flex-col justify-between hover:shadow-md transition-all shadow-[0_1px_3px_rgba(15,23,42,0.04)]"
             >
-              {/* Image Preview */}
               <div className="relative aspect-video w-full bg-primary-container overflow-hidden border-b border-border-hairline">
                 <img
                   src={banner.desktopImage}
                   alt={banner.title}
                   className="w-full h-full object-cover"
                 />
-                <div className="absolute top-3 left-3 flex items-center gap-1.5">
+                <div className="absolute top-3 left-3 flex items-center gap-1.5 flex-wrap max-w-[70%]">
                   <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-primary-container text-on-primary shadow-sm">
                     {banner.placement}
                   </span>
@@ -251,15 +335,17 @@ export function BannersClient({ initialBanners }: { initialBanners: BannerRecord
                 </div>
               </div>
 
-              {/* Body */}
               <div className="p-space-md flex-1 flex flex-col justify-between space-y-4">
                 <div>
                   <h3 className="text-headline-sm font-headline-sm text-on-surface line-clamp-1">
                     {banner.title}
                   </h3>
+                  <p className="text-[11px] text-outline mt-0.5">
+                    {PLACEMENT_LABELS[banner.placement]}
+                  </p>
                   <a
                     href={banner.linkUrl}
-                    target="_blank"
+                    target={banner.linkUrl.startsWith("http") ? "_blank" : undefined}
                     rel="noreferrer"
                     className="text-body-sm font-body-sm text-outline hover:text-deal-orange flex items-center gap-1 mt-1 truncate"
                   >
@@ -268,7 +354,6 @@ export function BannersClient({ initialBanners }: { initialBanners: BannerRecord
                   </a>
                 </div>
 
-                {/* Performance Stats */}
                 <div className="grid grid-cols-3 gap-2 p-2.5 rounded-lg bg-surface-subtle border border-border-hairline text-center">
                   <div>
                     <div className="text-[10px] text-outline font-semibold uppercase flex items-center justify-center gap-1">
@@ -294,19 +379,27 @@ export function BannersClient({ initialBanners }: { initialBanners: BannerRecord
                   </div>
                 </div>
 
-                {/* Footer Controls */}
                 <div className="flex items-center justify-between pt-2 border-t border-border-hairline text-body-sm">
                   <span className="text-label-sm font-label-sm text-outline font-mono">
                     {new Date(banner.createdAt).toLocaleDateString()}
                   </span>
 
-                  <button
-                    onClick={() => handleDeleteBanner(banner.id)}
-                    className="p-1.5 rounded-lg text-outline hover:text-rose-600 hover:bg-surface-subtle transition-all cursor-pointer"
-                    title="Delete banner"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => openEditModal(banner)}
+                      className="p-1.5 rounded-lg text-outline hover:text-deal-orange hover:bg-surface-subtle transition-all cursor-pointer"
+                      title="Edit / replace banner"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteBanner(banner.id)}
+                      className="p-1.5 rounded-lg text-outline hover:text-rose-600 hover:bg-surface-subtle transition-all cursor-pointer"
+                      title="Delete banner"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -318,10 +411,10 @@ export function BannersClient({ initialBanners }: { initialBanners: BannerRecord
             <Megaphone className="w-8 h-8 text-outline mx-auto mb-3" />
             <h3 className="text-headline-sm font-headline-sm text-on-surface">No Banners Published Yet</h3>
             <p className="text-body-sm font-body-sm text-outline mt-1 max-w-sm mx-auto">
-              Create your first promotional or sponsor banner to display on the public consumer site.
+              Upload your iPhone / campaign creative as a HERO or SIDEBAR banner to control it from this dashboard.
             </p>
             <button
-              onClick={() => setIsModalOpen(true)}
+              onClick={openCreateModal}
               className="mt-4 px-4 py-2 rounded-lg bg-deal-orange text-on-primary font-bold text-label-md cursor-pointer hover:bg-deal-orange/90 transition-all shadow-sm"
             >
               Add First Banner
@@ -330,12 +423,11 @@ export function BannersClient({ initialBanners }: { initialBanners: BannerRecord
         )}
       </div>
 
-      {/* Create Banner Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 bg-primary/40 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
           <div className="w-full max-w-lg rounded-xl bg-surface-container-lowest border border-border-hairline p-6 shadow-2xl relative my-8 text-on-surface">
             <button
-              onClick={() => setIsModalOpen(false)}
+              onClick={closeModal}
               className="absolute top-4 right-4 p-1.5 rounded-lg text-outline hover:text-on-surface hover:bg-surface-subtle transition-all cursor-pointer"
             >
               <X className="w-5 h-5" />
@@ -346,9 +438,13 @@ export function BannersClient({ initialBanners }: { initialBanners: BannerRecord
                 <Megaphone className="w-5 h-5" />
               </div>
               <div>
-                <h2 className="text-headline-sm font-headline-sm text-on-surface">Publish New Banner</h2>
+                <h2 className="text-headline-sm font-headline-sm text-on-surface">
+                  {editingBanner ? "Update Banner" : "Publish New Banner"}
+                </h2>
                 <p className="text-body-sm font-body-sm text-outline">
-                  Upload image to Supabase Storage &amp; configure placement
+                  {editingBanner
+                    ? "Replace the image or edit title, link, placement, and schedule"
+                    : "Upload image to Supabase Storage & configure placement"}
                 </p>
               </div>
             </div>
@@ -367,11 +463,15 @@ export function BannersClient({ initialBanners }: { initialBanners: BannerRecord
               </div>
             )}
 
-            <form onSubmit={handleCreateBanner} className="space-y-4">
-              {/* Image Upload Area */}
+            <form onSubmit={handleSubmitBanner} className="space-y-4">
               <div>
                 <label className="block text-label-sm font-label-sm text-outline uppercase mb-2">
                   Banner Image (Max 2 MB &bull; JPG, PNG, WEBP)
+                  {editingBanner && !selectedFile && (
+                    <span className="normal-case text-outline font-normal ml-1">
+                      — leave as-is or upload a replacement
+                    </span>
+                  )}
                 </label>
                 <div className="border-2 border-dashed border-border-hairline hover:border-deal-orange rounded-xl p-4 text-center cursor-pointer transition-colors relative bg-surface-subtle">
                   <input
@@ -388,7 +488,7 @@ export function BannersClient({ initialBanners }: { initialBanners: BannerRecord
                         className="max-h-36 mx-auto rounded-lg object-contain shadow-sm"
                       />
                       <div className="text-label-sm font-label-sm text-deal-orange font-bold">
-                        Click or drag to change image
+                        Click or drag to {editingBanner ? "replace" : "change"} image
                       </div>
                     </div>
                   ) : (
@@ -405,7 +505,6 @@ export function BannersClient({ initialBanners }: { initialBanners: BannerRecord
                 </div>
               </div>
 
-              {/* Title */}
               <div>
                 <label className="block text-label-sm font-label-sm text-outline uppercase mb-1">
                   Campaign Title
@@ -413,14 +512,26 @@ export function BannersClient({ initialBanners }: { initialBanners: BannerRecord
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Ramadan Mobile Mega Sale 2026"
+                  placeholder="e.g. Introducing iPhone 18 Pro"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   className="w-full px-3.5 py-2 rounded-lg bg-surface-subtle border border-border-hairline text-body-sm text-on-surface focus:outline-none focus:border-deal-orange"
                 />
               </div>
 
-              {/* Destination URL */}
+              <div>
+                <label className="block text-label-sm font-label-sm text-outline uppercase mb-1">
+                  Alt Text (Accessibility)
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. iPhone 18 Pro promotional banner"
+                  value={altText}
+                  onChange={(e) => setAltText(e.target.value)}
+                  className="w-full px-3.5 py-2 rounded-lg bg-surface-subtle border border-border-hairline text-body-sm text-on-surface focus:outline-none focus:border-deal-orange"
+                />
+              </div>
+
               <div>
                 <label className="block text-label-sm font-label-sm text-outline uppercase mb-1">
                   Destination URL
@@ -428,14 +539,13 @@ export function BannersClient({ initialBanners }: { initialBanners: BannerRecord
                 <input
                   type="text"
                   required
-                  placeholder="https://compareit.pk/compare?phones=..."
+                  placeholder="https://compareit.pk/phones/apple or /phones/apple"
                   value={linkUrl}
                   onChange={(e) => setLinkUrl(e.target.value)}
                   className="w-full px-3.5 py-2 rounded-lg bg-surface-subtle border border-border-hairline text-body-sm text-on-surface focus:outline-none focus:border-deal-orange"
                 />
               </div>
 
-              {/* Grid: Placement & Priority */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-label-sm font-label-sm text-outline uppercase mb-1">
@@ -443,14 +553,12 @@ export function BannersClient({ initialBanners }: { initialBanners: BannerRecord
                   </label>
                   <select
                     value={placement}
-                    onChange={(e) =>
-                      setPlacement(e.target.value as "HERO" | "TOP_BAR" | "POPUP" | "SIDEBAR")
-                    }
+                    onChange={(e) => setPlacement(e.target.value as Placement)}
                     className="w-full px-3 py-2 rounded-lg bg-surface-subtle border border-border-hairline text-body-sm text-on-surface focus:outline-none focus:border-deal-orange"
                   >
-                    <option value="HERO">Homepage Hero (728x90 / 1200x300)</option>
+                    <option value="HERO">Homepage Top Hero (wide)</option>
+                    <option value="SIDEBAR">Homepage Advisor Sidebar</option>
                     <option value="TOP_BAR">Product Page Top Bar</option>
-                    <option value="SIDEBAR">Comparison Sticky Sidebar</option>
                     <option value="POPUP">PTA Tax Calculator Modal</option>
                   </select>
                 </div>
@@ -465,10 +573,10 @@ export function BannersClient({ initialBanners }: { initialBanners: BannerRecord
                     onChange={(e) => setPriority(parseInt(e.target.value) || 0)}
                     className="w-full px-3.5 py-2 rounded-lg bg-surface-subtle border border-border-hairline text-body-sm text-on-surface focus:outline-none focus:border-deal-orange"
                   />
+                  <p className="text-[10px] text-outline mt-1">Higher priority wins if multiple are live.</p>
                 </div>
               </div>
 
-              {/* Schedule Dates */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-label-sm font-label-sm text-outline uppercase mb-1">
@@ -495,10 +603,20 @@ export function BannersClient({ initialBanners }: { initialBanners: BannerRecord
                 </div>
               </div>
 
+              <label className="flex items-center gap-2 text-body-sm text-on-surface cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={isActive}
+                  onChange={(e) => setIsActive(e.target.checked)}
+                  className="rounded border-border-hairline"
+                />
+                Publish as Live &amp; Active immediately
+              </label>
+
               <div className="flex items-center justify-end gap-3 pt-3 border-t border-border-hairline">
                 <button
                   type="button"
-                  onClick={() => setIsModalOpen(false)}
+                  onClick={closeModal}
                   className="px-4 py-2 rounded-lg bg-surface-subtle hover:bg-surface-container text-on-surface text-label-md font-semibold"
                 >
                   Cancel
@@ -509,7 +627,15 @@ export function BannersClient({ initialBanners }: { initialBanners: BannerRecord
                   className="px-5 py-2 rounded-lg bg-deal-orange hover:bg-deal-orange/90 text-on-primary text-label-md font-bold transition-all shadow-md shadow-deal-orange/20 flex items-center gap-2 disabled:opacity-50"
                 >
                   {uploading && <Loader2 className="w-4 h-4 animate-spin" />}
-                  <span>{uploading ? "Uploading to Storage..." : "Deploy Campaign"}</span>
+                  <span>
+                    {uploading
+                      ? selectedFile
+                        ? "Uploading…"
+                        : "Saving…"
+                      : editingBanner
+                        ? "Save Changes"
+                        : "Deploy Campaign"}
+                  </span>
                 </button>
               </div>
             </form>

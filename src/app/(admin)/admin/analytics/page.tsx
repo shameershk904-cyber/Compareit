@@ -11,7 +11,7 @@ export const metadata = {
 };
 
 export default async function AnalyticsPage() {
-  const { authenticated, user } = await verifyServerSession(["ADMIN", "EDITOR"]);
+  const { authenticated, user } = await verifyServerSession(["ADMIN", "EDITOR", "VIEWER"]);
   if (!authenticated || !user) {
     redirect("/admin/login?error=AccessDenied");
   }
@@ -43,8 +43,8 @@ export default async function AnalyticsPage() {
     });
 
     const totalPageViews = views.length;
-    const uniqueVisitors = new Set(views.map((v) => v.ipHash)).size;
-    const totalSessions = new Set(views.map((v) => v.sessionId)).size;
+    const uniqueVisitors = new Set(views.map((v) => v.sessionId)).size;
+    const totalSessions = uniqueVisitors;
     const viewsPerSession =
       totalSessions > 0 ? (totalPageViews / totalSessions).toFixed(1) : "0";
 
@@ -60,7 +60,7 @@ export default async function AnalyticsPage() {
       const label = new Date(v.createdAt).toISOString().slice(5, 10);
       if (timeMap[label]) {
         timeMap[label].pageviews++;
-        timeMap[label].visitors.add(v.ipHash);
+        timeMap[label].visitors.add(v.sessionId);
       }
     }
 

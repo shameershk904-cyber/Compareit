@@ -10,6 +10,7 @@ import { useSearchParams } from "next/navigation";
 import { AdvisorResults } from "./AdvisorResults";
 import { matchPhoneSearch } from "@/lib/search";
 import { ScaleIcon } from "@/components/shared/ScaleIcon";
+import { Banner } from "@/components/shared/Banner";
 
 const BRAND_POPULARITY_RANK: Record<string, number> = {
   Samsung: 100,
@@ -446,16 +447,15 @@ function HomeClientInner({ initialPhones }: HomeClientProps) {
             </div>
           </div>
 
-          {/* RIGHT SIDE BANNER */}
+          {/* RIGHT SIDE BANNER — managed via Admin → Banner Manager (SIDEBAR placement) */}
           <div className="advisor-banner-ad">
             <div className="banner-placeholder">
-              <Image 
-                src={getSupabaseImageUrl("banner.jpg")} 
-                alt="Advertisement Banner" 
+              <Banner
+                placement="SIDEBAR"
                 className="banner-image"
-                width={300}
-                height={600}
-                unoptimized
+                fallbackSrc={getSupabaseImageUrl("banner.jpg")}
+                fallbackAlt="Advertisement Banner"
+                fallbackHref="/phones"
               />
             </div>
           </div>

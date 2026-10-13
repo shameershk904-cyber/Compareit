@@ -33,6 +33,7 @@ export async function GET(req: NextRequest) {
       where.OR = [
         { action: { contains: search, mode: "insensitive" } },
         { entity: { contains: search, mode: "insensitive" } },
+        { entityId: { contains: search, mode: "insensitive" } },
         { userEmail: { contains: search, mode: "insensitive" } },
       ];
     }

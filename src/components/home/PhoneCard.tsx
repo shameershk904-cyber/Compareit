@@ -101,6 +101,27 @@ export function PhoneCard({ phone, isCompared, toggleCompare }: { phone: Phone; 
 
   const productUrl = `/phone/${phone.slug || phone.id}`;
 
+  const trackSearchClick = () => {
+    try {
+      const sid =
+        typeof window !== "undefined"
+          ? window.sessionStorage?.getItem("compareit_session_id")
+          : null;
+      if (!sid) return;
+      fetch("/api/search/log", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sessionId: sid,
+          clickedResult: phone.slug || `${phone.brand} ${phone.model}`,
+        }),
+        keepalive: true,
+      }).catch(() => {});
+    } catch {
+      /* ignore */
+    }
+  };
+
   const displayType = (phone.display?.type || '').split(',')[0].trim();
   const refreshRate = (phone.display?.type || '').match(/(\d+Hz)/i)?.[1];
   const displayDisplay = phone.display?.size
@@ -124,6 +145,7 @@ export function PhoneCard({ phone, isCompared, toggleCompare }: { phone: Phone; 
       <Link 
         href={productUrl} 
         className="card-top" 
+        onClick={trackSearchClick}
         style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
         title={`View details for ${phone.brand} ${phone.model}`}
       >
@@ -143,6 +165,7 @@ export function PhoneCard({ phone, isCompared, toggleCompare }: { phone: Phone; 
         <Link 
           href={productUrl} 
           className="card-title-link-wrapper"
+          onClick={trackSearchClick}
           style={{ textDecoration: 'none', color: 'inherit', display: 'flex', flexDirection: 'column', gap: '0.2rem' }}
           title={`View details for ${phone.brand} ${phone.model}`}
         >

@@ -228,7 +228,7 @@ export function AnalyticsClient({ initialData }: { initialData: AnalyticsData | 
 
         <div className="p-space-md rounded-xl bg-surface-container-lowest border border-border-hairline shadow-[0_1px_3px_rgba(15,23,42,0.04)]">
           <div className="flex items-center justify-between text-outline mb-3">
-            <span className="text-label-sm font-label-sm uppercase tracking-wider">Unique Visitors</span>
+            <span className="text-label-sm font-label-sm uppercase tracking-wider">Unique Sessions</span>
             <div className="p-2 rounded-lg bg-primary-container text-on-primary">
               <Users className="w-4 h-4" />
             </div>
@@ -319,7 +319,7 @@ export function AnalyticsClient({ initialData }: { initialData: AnalyticsData | 
                 <Area
                   type="monotone"
                   dataKey="visitors"
-                  name="Unique Visitors"
+                  name="Unique Sessions"
                   stroke="#131b2e"
                   strokeWidth={2}
                   fillOpacity={1}

@@ -6,6 +6,7 @@ import { ZoomIn } from "lucide-react";
 import { type Phone } from "@/types";
 import { formatPKR, getSupabaseImageUrl } from "@/lib/utils";
 import { getPhoneDetailedSpecs, type SpecCategory } from "@/lib/specs";
+import { Banner } from "@/components/shared/Banner";
 
 function getVariantDotColor(colorName: string): string {
   const c = colorName.toLowerCase();
@@ -345,6 +346,7 @@ export function ProductClient({ phone, competitors }: ProductClientProps) {
   return (
     <main className="w-full bg-[#f8f9fa] min-h-screen text-gray-900 antialiased py-4">
       <div className="max-w-[1140px] mx-auto px-4 sm:px-6 space-y-4">
+        <Banner placement="TOP_BAR" className="mb-1" />
 
         {/* ─── 1. BREADCRUMBS & TOP META ────────────────────────────────────────── */}
         <div className="flex flex-wrap items-center justify-between gap-2 text-[13px] text-gray-500">

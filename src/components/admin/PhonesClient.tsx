@@ -1,8 +1,9 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
   Smartphone,
   Search,
@@ -70,6 +71,7 @@ export function PhonesClient({
   initialTotal,
   initialBrands,
 }: PhonesClientProps) {
+  const searchParams = useSearchParams();
   const [phones, setPhones] = useState<PhoneListItem[]>(initialPhones);
   const [total, setTotal] = useState(initialTotal);
   const [page, setPage] = useState(1);
@@ -77,9 +79,10 @@ export function PhonesClient({
   const totalPages = Math.ceil(total / pageSize) || 1;
 
   // Filters
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(() => searchParams.get("q") || "");
   const [selectedBrand, setSelectedBrand] = useState("all");
   const [selectedStatus, setSelectedStatus] = useState<"all" | "active" | "inactive">("all");
+  const [urlQueryApplied, setUrlQueryApplied] = useState(false);
 
   const [isPending, startTransition] = useTransition();
   const [actionMessage, setActionMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
@@ -142,6 +145,18 @@ export function PhonesClient({
       }
     });
   };
+
+  // Apply ?q= from navbar / deep links once on mount
+  useEffect(() => {
+    if (urlQueryApplied) return;
+    const q = searchParams.get("q");
+    if (q) {
+      setSearch(q);
+      reloadPhones(1, q, selectedBrand, selectedStatus);
+    }
+    setUrlQueryApplied(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional one-shot from URL
+  }, [searchParams, urlQueryApplied]);
 
   // Search submit
   const handleSearchSubmit = (e: React.FormEvent) => {

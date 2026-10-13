@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { verifyServerSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { fetchAdminPhonesAction, fetchBrandsAction } from "./actions";
@@ -27,11 +28,13 @@ export default async function AdminPhonesPage() {
 
   return (
     <div className="max-w-7xl mx-auto w-full">
-      <PhonesClient
-        initialPhones={initialPhones}
-        initialTotal={initialTotal}
-        initialBrands={initialBrands}
-      />
+      <Suspense fallback={<div className="p-8 text-sm text-zinc-500">Loading catalog…</div>}>
+        <PhonesClient
+          initialPhones={initialPhones}
+          initialTotal={initialTotal}
+          initialBrands={initialBrands}
+        />
+      </Suspense>
     </div>
   );
 }

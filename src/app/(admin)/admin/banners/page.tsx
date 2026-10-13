@@ -6,7 +6,7 @@ import { BannersClient, type BannerRecord } from "@/components/admin/BannersClie
 export const dynamic = "force-dynamic";
 
 export default async function AdminBannersPage() {
-  const { authenticated } = await verifyServerSession(["ADMIN", "EDITOR"]);
+  const { authenticated } = await verifyServerSession(["ADMIN", "EDITOR", "VIEWER"]);
 
   if (!authenticated) {
     redirect("/admin/login?error=AccessDenied");

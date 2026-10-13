@@ -6,7 +6,7 @@ import { supabaseAdmin } from "@/lib/storage";
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
-  const { authenticated, user, error } = await verifyServerSession(["ADMIN", "EDITOR"]);
+  const { authenticated, user, error } = await verifyServerSession(["ADMIN", "EDITOR", "VIEWER"]);
   if (!authenticated || !user) {
     return NextResponse.json({ error: error || "Unauthorized" }, { status: 401 });
   }

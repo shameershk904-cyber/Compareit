@@ -6,12 +6,20 @@ import { z } from "zod";
 
 export const dynamic = "force-dynamic";
 
+const linkUrlSchema = z
+  .string()
+  .min(1)
+  .refine(
+    (v) => v.startsWith("/") || /^https?:\/\//i.test(v),
+    "Must be a full URL (https://…) or a site path (/phones/…)"
+  );
+
 const updateBannerSchema = z.object({
   title: z.string().min(1).max(120).optional(),
   desktopImage: z.string().url().optional(),
   mobileImage: z.string().url().optional().nullable(),
   altText: z.string().max(150).optional().nullable(),
-  linkUrl: z.string().url().optional(),
+  linkUrl: linkUrlSchema.optional(),
   placement: z.nativeEnum(BannerPlacement).optional(),
   priority: z.number().int().optional(),
   isActive: z.boolean().optional(),

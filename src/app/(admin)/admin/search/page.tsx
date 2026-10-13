@@ -11,7 +11,7 @@ export const metadata = {
 };
 
 export default async function SearchMonitoringPage() {
-  const { authenticated, user } = await verifyServerSession(["ADMIN", "EDITOR"]);
+  const { authenticated, user } = await verifyServerSession(["ADMIN", "EDITOR", "VIEWER"]);
   if (!authenticated || !user) {
     redirect("/admin/login?error=AccessDenied");
   }
@@ -57,7 +57,15 @@ export default async function SearchMonitoringPage() {
         };
       }
       keywordMap[norm].count++;
+      keywordMap[norm].resultsCount = Math.min(
+        keywordMap[norm].resultsCount,
+        log.resultsCount
+      );
       if (log.clickedResult) keywordMap[norm].clicks++;
+      if (log.createdAt.toISOString() > keywordMap[norm].lastSearched) {
+        keywordMap[norm].lastSearched = log.createdAt.toISOString();
+        keywordMap[norm].query = log.query;
+      }
     }
 
     const allKeywords = Object.values(keywordMap);

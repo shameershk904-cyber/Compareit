@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "next-auth/react";
@@ -17,6 +18,25 @@ export function AdminSidebar({ user, userRole }: AdminSidebarProps) {
   const pathname = usePathname();
   const effectiveRole = user?.role || userRole || "ADMIN";
   const displayName = user?.name || user?.email?.split("@")[0] || "Admin";
+  const [dbConnected, setDbConnected] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    fetch("/api/admin/diagnostics")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!isMounted || !data) return;
+        setDbConnected(data.services?.database?.status === "healthy");
+      })
+      .catch(() => {
+        if (isMounted) setDbConnected(false);
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  const isViewer = effectiveRole === "VIEWER";
 
   const navItems = [
     {
@@ -54,11 +74,15 @@ export function AdminSidebar({ user, userRole }: AdminSidebarProps) {
       href: "/admin/activity",
       icon: "history",
     },
-    {
-      title: "System Settings",
-      href: "/admin/settings",
-      icon: "settings",
-    },
+    ...(!isViewer
+      ? [
+          {
+            title: "System Settings",
+            href: "/admin/settings",
+            icon: "settings",
+          },
+        ]
+      : []),
   ];
 
   const handleLogout = async () => {
@@ -126,13 +150,41 @@ export function AdminSidebar({ user, userRole }: AdminSidebarProps) {
       {/* Bottom Status & Admin Profile */}
       <div className="p-3 bg-white border-t border-zinc-200/80 space-y-2.5">
         {/* Live Sync Status */}
-        <div className="px-3 py-2 rounded-xl bg-emerald-50/60 border border-emerald-200/50 flex items-center justify-between">
+        <div
+          className={`px-3 py-2 rounded-xl border flex items-center justify-between ${
+            dbConnected === false
+              ? "bg-rose-50/60 border-rose-200/50"
+              : "bg-emerald-50/60 border-emerald-200/50"
+          }`}
+        >
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span className="text-[11px] font-medium text-emerald-800">Database Engine</span>
+            <span
+              className={`w-2 h-2 rounded-full ${
+                dbConnected === false
+                  ? "bg-rose-500"
+                  : dbConnected === null
+                    ? "bg-zinc-400"
+                    : "bg-emerald-500 animate-pulse"
+              }`}
+            ></span>
+            <span
+              className={`text-[11px] font-medium ${
+                dbConnected === false ? "text-rose-800" : "text-emerald-800"
+              }`}
+            >
+              Database Engine
+            </span>
           </div>
-          <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700 bg-emerald-100 px-1.5 py-0.5 rounded">
-            Connected
+          <span
+            className={`text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${
+              dbConnected === false
+                ? "text-rose-700 bg-rose-100"
+                : dbConnected === null
+                  ? "text-zinc-600 bg-zinc-100"
+                  : "text-emerald-700 bg-emerald-100"
+            }`}
+          >
+            {dbConnected === null ? "Checking" : dbConnected ? "Connected" : "Offline"}
           </span>
         </div>
 

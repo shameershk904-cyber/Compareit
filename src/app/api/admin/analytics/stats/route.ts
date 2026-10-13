@@ -1,31 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { verifyServerSession } from "@/lib/auth";
+import { resolveAnalyticsRange } from "@/lib/date-range";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
-  const { authenticated, user, error } = await verifyServerSession(["ADMIN", "EDITOR"]);
+  const { authenticated, user, error } = await verifyServerSession(["ADMIN", "EDITOR", "VIEWER"]);
   if (!authenticated || !user) {
     return NextResponse.json({ error: error || "Unauthorized" }, { status: 401 });
   }
 
-  const searchParams = req.nextUrl.searchParams;
-  const range = searchParams.get("range") || "7d";
-
-  const now = new Date();
-  let startDate = new Date();
-
-  if (range === "today") {
-    startDate.setHours(0, 0, 0, 0);
-  } else if (range === "30d") {
-    startDate.setDate(now.getDate() - 30);
-  } else if (range === "all") {
-    startDate = new Date(2025, 0, 1);
-  } else {
-    // Default 7 days
-    startDate.setDate(now.getDate() - 7);
-  }
+  const { range, startDate } = resolveAnalyticsRange(
+    req.nextUrl.searchParams.get("range"),
+    "7d"
+  );
 
   try {
     // 1. Fetch raw views within date range
@@ -50,14 +39,15 @@ export async function GET(req: NextRequest) {
     });
 
     const totalPageViews = views.length;
-    const uniqueVisitors = new Set(views.map((v) => v.ipHash)).size;
-    const totalSessions = new Set(views.map((v) => v.sessionId)).size;
+    // Prefer sessionId for uniqueness — ipHash rotates daily and inflates multi-day counts
+    const uniqueVisitors = new Set(views.map((v) => v.sessionId)).size;
+    const totalSessions = uniqueVisitors;
     const viewsPerSession =
       totalSessions > 0 ? (totalPageViews / totalSessions).toFixed(1) : "0";
 
     // 2. Aggregate Time Series
     // If today: group by hour (00:00 to 23:00)
-    // If multi-day: group by YYYY-MM-DD
+    // If multi-day: group by YYYY-MM-DD (or YYYY-MM for long "all" spans)
     const timeMap: Record<string, { pageviews: number; visitors: Set<string> }> = {};
 
     if (range === "today") {
@@ -70,13 +60,22 @@ export async function GET(req: NextRequest) {
         const label = `${d.getHours().toString().padStart(2, "0")}:00`;
         if (timeMap[label]) {
           timeMap[label].pageviews++;
-          timeMap[label].visitors.add(v.ipHash);
+          timeMap[label].visitors.add(v.sessionId);
         }
       }
+    } else if (range === "all") {
+      // Monthly buckets so chart covers full history (not just last 90 days)
+      for (const v of views) {
+        const label = new Date(v.createdAt).toISOString().slice(0, 7); // YYYY-MM
+        if (!timeMap[label]) {
+          timeMap[label] = { pageviews: 0, visitors: new Set() };
+        }
+        timeMap[label].pageviews++;
+        timeMap[label].visitors.add(v.sessionId);
+      }
     } else {
-      // Initialize past N days
-      const daysCount = range === "30d" ? 30 : 7;
-      for (let i = daysCount; i >= 0; i--) {
+      const daysCount = range === "30d" ? 30 : range === "quarterly" ? 90 : 7;
+      for (let i = daysCount - 1; i >= 0; i--) {
         const d = new Date();
         d.setDate(d.getDate() - i);
         const label = d.toISOString().slice(5, 10); // MM-DD
@@ -86,7 +85,7 @@ export async function GET(req: NextRequest) {
         const label = new Date(v.createdAt).toISOString().slice(5, 10);
         if (timeMap[label]) {
           timeMap[label].pageviews++;
-          timeMap[label].visitors.add(v.ipHash);
+          timeMap[label].visitors.add(v.sessionId);
         }
       }
     }

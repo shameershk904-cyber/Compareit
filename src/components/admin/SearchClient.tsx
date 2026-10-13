@@ -45,17 +45,23 @@ export function SearchClient({ initialData }: { initialData: SearchStats | null 
   const [data, setData] = useState<SearchStats | null>(initialData);
   const [activeTab, setActiveTab] = useState<"top" | "zero" | "recent">("top");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchStats = useCallback(async (selectedRange: string) => {
     setLoading(true);
+    setError(null);
     try {
       const res = await fetch(`/api/admin/search/stats?range=${selectedRange}`);
       if (res.ok) {
         const json = await res.json();
         setData(json);
+      } else {
+        const errJson = await res.json().catch(() => null);
+        setError(errJson?.error || "Unable to load search intelligence.");
       }
     } catch (err) {
       console.error("Search fetch error:", err);
+      setError("Network error while loading search intelligence.");
     } finally {
       setLoading(false);
     }
@@ -124,6 +130,13 @@ export function SearchClient({ initialData }: { initialData: SearchStats | null 
           </button>
         </div>
       </div>
+
+      {error && (
+        <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-body-sm flex items-center gap-3">
+          <AlertCircle className="w-5 h-5 shrink-0 text-rose-600" />
+          <span className="font-medium">{error}</span>
+        </div>
+      )}
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md">

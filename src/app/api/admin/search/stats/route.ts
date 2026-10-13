@@ -1,28 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { verifyServerSession } from "@/lib/auth";
+import { resolveAnalyticsRange } from "@/lib/date-range";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
-  const { authenticated, user, error } = await verifyServerSession(["ADMIN", "EDITOR"]);
+  const { authenticated, user, error } = await verifyServerSession(["ADMIN", "EDITOR", "VIEWER"]);
   if (!authenticated || !user) {
     return NextResponse.json({ error: error || "Unauthorized" }, { status: 401 });
   }
 
-  const range = req.nextUrl.searchParams.get("range") || "7d";
-  const now = new Date();
-  let startDate = new Date();
-
-  if (range === "today") {
-    startDate.setHours(0, 0, 0, 0);
-  } else if (range === "30d") {
-    startDate.setDate(now.getDate() - 30);
-  } else if (range === "all") {
-    startDate = new Date(2025, 0, 1);
-  } else {
-    startDate.setDate(now.getDate() - 7);
-  }
+  const { range, startDate } = resolveAnalyticsRange(
+    req.nextUrl.searchParams.get("range"),
+    "7d"
+  );
 
   try {
     const logs = await prisma.searchLog.findMany({
@@ -62,9 +54,15 @@ export async function GET(req: NextRequest) {
         };
       }
       keywordMap[norm].count++;
+      // Keep the minimum resultsCount so any zero-result occurrence surfaces
+      keywordMap[norm].resultsCount = Math.min(
+        keywordMap[norm].resultsCount,
+        log.resultsCount
+      );
       if (log.clickedResult) keywordMap[norm].clicks++;
       if (log.createdAt > keywordMap[norm].lastSearched) {
         keywordMap[norm].lastSearched = log.createdAt;
+        keywordMap[norm].query = log.query;
       }
     }
 
