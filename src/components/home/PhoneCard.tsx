@@ -10,10 +10,12 @@ export function ScrollableSpecCell({
   icon,
   text,
   title,
+  className = "",
 }: {
   icon: string;
   text: string;
   title: string;
+  className?: string;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLSpanElement>(null);
@@ -45,7 +47,7 @@ export function ScrollableSpecCell({
 
   return (
     <div
-      className={`spec-cell ${isHovered && scrollDistance > 0 ? "is-scrolling" : ""}`}
+      className={`spec-cell ${className} ${isHovered && scrollDistance > 0 ? "is-scrolling" : ""}`.trim()}
       title={title}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
@@ -151,7 +153,7 @@ export function PhoneCard({ phone, isCompared, toggleCompare }: { phone: Phone; 
         <div className="card-pricing">
           {isUnreleased ? (
             <>
-              <span className="price-lowest-badge" style={{ color: 'var(--brand-primary, #2563eb)', fontWeight: 600 }}>Expected Price:</span>
+              <span className="price-lowest-badge hide-on-mobile" style={{ color: 'var(--brand-primary, #2563eb)', fontWeight: 600 }}>Expected Price:</span>
               <div className="price-pkr-official" style={{ color: 'var(--brand-primary, #2563eb)' }}>
                 {(phone.expected_price_pkr && phone.expected_price_pkr > 0)
                   ? formatPKR(phone.expected_price_pkr)
@@ -167,22 +169,22 @@ export function PhoneCard({ phone, isCompared, toggleCompare }: { phone: Phone; 
             </>
           ) : isAvailableWithPrice ? (
             <>
-              <span className="price-lowest-badge">{storeCount > 0 ? "Estimated Market Price:" : "Price in Pakistan:"}</span>
+              <span className="price-lowest-badge hide-on-mobile">{storeCount > 0 ? "Estimated Market Price:" : "Price in Pakistan:"}</span>
               <div className="price-pkr-official">{formatPKR(lowestPrice)}</div>
               <div className="price-sub">
                 {phone.price_pkr && phone.price_pkr > lowestPrice && (
                   <span>List: <del>{formatPKR(phone.price_pkr)}</del></span>
                 )}
                 {storeCount > 0 ? (
-                  <span className="retailers-count-tag">{storeCount} Stores Tracked</span>
+                  <span className="retailers-count-tag hide-on-mobile">{storeCount} Stores Tracked</span>
                 ) : (
-                  <span className="retailers-count-tag">Estimated Market</span>
+                  <span className="retailers-count-tag hide-on-mobile">Estimated Market</span>
                 )}
               </div>
             </>
           ) : (
             <>
-              <span className="price-lowest-badge" style={{ color: 'var(--text-muted)' }}>Market Status:</span>
+              <span className="price-lowest-badge hide-on-mobile" style={{ color: 'var(--text-muted)' }}>Market Status:</span>
               <div className="price-pkr-official" style={{ fontSize: '1.2rem', color: '#64748b', fontWeight: 800 }}>
                 Price N/A
               </div>
@@ -203,6 +205,7 @@ export function PhoneCard({ phone, isCompared, toggleCompare }: { phone: Phone; 
             title="RAM & Storage"
           />
           <ScrollableSpecCell
+            className="hide-on-mobile"
             icon="📺"
             text={displayDisplay}
             title={`Display: ${phone.display.size}" ${phone.display.type || ''}`}
@@ -213,6 +216,7 @@ export function PhoneCard({ phone, isCompared, toggleCompare }: { phone: Phone; 
             title="Battery & Fast Charging"
           />
           <ScrollableSpecCell
+            className="hide-on-mobile"
             icon="📸"
             text={cameraDisplay}
             title="Main Camera"

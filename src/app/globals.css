@@ -4386,6 +4386,9 @@ body.modal-open > *:not(.modal-backdrop) {
   .price-sub {
     font-size: 0.65rem;
   }
+  .phone-card .hide-on-mobile {
+    display: none !important;
+  }
   .spec-matrix {
     gap: 0.3rem;
     margin: 0.15rem 0;
