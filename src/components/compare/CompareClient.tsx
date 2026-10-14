@@ -1092,7 +1092,7 @@ export function CompareClient({ initialPhones, initialCompareSlugs }: CompareCli
                     </div>
 
                     {/* Action buttons */}
-                    <div className="w-full grid grid-cols-2 gap-1.5 text-[10px] sm:text-xs font-semibold">
+                    <div className="w-full grid grid-cols-2 gap-1">
                       <button
                         type="button"
                         onClick={() => {
@@ -1103,13 +1103,13 @@ export function CompareClient({ initialPhones, initialCompareSlugs }: CompareCli
                             setActiveSlotSearch(slotIdx);
                           }
                         }}
-                        className="py-1.5 px-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 transition-colors text-center font-medium whitespace-nowrap truncate"
+                        className="h-7 sm:h-8 px-1.5 rounded-lg bg-white border border-gray-300 hover:bg-gray-50 text-gray-800 transition-colors text-center text-[10px] sm:text-[11px] font-medium leading-none whitespace-nowrap truncate"
                       >
-                        Switch ⇄
+                        Switch
                       </button>
                       <Link
                         href={`/phone/${phone.slug}#specs`}
-                        className="py-1.5 px-2 rounded-xl bg-black hover:bg-zinc-800 text-white transition-colors text-center font-semibold whitespace-nowrap truncate"
+                        className="h-7 sm:h-8 px-1.5 rounded-lg bg-black hover:bg-zinc-800 text-white transition-colors text-center text-[10px] sm:text-[11px] font-semibold leading-none whitespace-nowrap truncate inline-flex items-center justify-center"
                       >
                         Specs
                       </Link>

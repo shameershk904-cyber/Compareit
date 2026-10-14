@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect, Suspense } from "react";
+import { useState, useMemo, useEffect, Suspense, type CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -400,17 +400,28 @@ function PhoneCatalogViewInner({
               <div className="slider-container">
                 <input
                   type="range"
+                  className="budget-slider"
                   min="2000"
                   max="600000"
                   step="1000"
                   value={maxPrice}
+                  style={
+                    {
+                      "--slider-progress": `${((maxPrice - 2000) / (600000 - 2000)) * 100}%`,
+                    } as CSSProperties
+                  }
                   onChange={(e) => {
                     setMinPrice(0);
                     setSelectedPriceRange(null);
                     setMaxPrice(Number(e.target.value));
                     setVisibleCount(24);
                   }}
+                  aria-label="Maximum budget in PKR"
                 />
+                <div className="slider-ticks">
+                  <span>Rs. 2k</span>
+                  <span>Rs. 600k</span>
+                </div>
               </div>
             </div>
 

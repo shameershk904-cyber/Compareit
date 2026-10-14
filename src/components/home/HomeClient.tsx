@@ -1,12 +1,12 @@
 "use client";
 
-import { useState, useEffect, useMemo, Suspense } from "react";
+import { useState, useEffect, useMemo, Suspense, type CSSProperties } from "react";
 import Link from "next/link";
 import { type Phone } from "@/types";
 import { PhoneCard } from "./PhoneCard";
-import { formatPKR, getSupabaseImageUrl } from "@/lib/utils";
+import { getSupabaseImageUrl } from "@/lib/utils";
 import Image from "next/image";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { AdvisorResults } from "./AdvisorResults";
 import { matchPhoneSearch } from "@/lib/search";
 import { ScaleIcon } from "@/components/shared/ScaleIcon";
@@ -55,6 +55,7 @@ export function HomeClient({ initialPhones }: HomeClientProps) {
 }
 
 function HomeClientInner({ initialPhones }: HomeClientProps) {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const [query, setQuery] = useState(searchParams.get("q") || "");
 
@@ -99,7 +100,6 @@ function HomeClientInner({ initialPhones }: HomeClientProps) {
   const [selectedPriceRange, setSelectedPriceRange] = useState<PriceRangeId | null>(null);
   const [selectedBrands, setSelectedBrands] = useState<Set<string>>(new Set());
   const [compareList, setCompareList] = useState<string[]>([]);
-  const [isCompareModalOpen, setIsCompareModalOpen] = useState(false);
   const [visibleCount, setVisibleCount] = useState(24);
   const [ram, setRam] = useState("all");
   const [battery, setBattery] = useState("all");
@@ -257,17 +257,14 @@ function HomeClientInner({ initialPhones }: HomeClientProps) {
     }, 100);
   };
 
-  const toggleCompareTwo = (id1: string, id2: string) => {
-    setCompareList(prev => {
-      let next = [...prev];
-      if (!next.includes(id1)) next.push(id1);
-      if (!next.includes(id2)) next.push(id2);
-      if (next.length > 3) {
-        next = next.slice(next.length - 3);
-      }
-      return next;
-    });
-    setIsCompareModalOpen(true);
+  const compareTwo = (id1: string, id2: string) => {
+    const slugs = [id1, id2]
+      .map((id) => initialPhones.find((p) => p.id === id)?.slug)
+      .filter((slug): slug is string => Boolean(slug));
+
+    if (slugs.length >= 2) {
+      router.push(`/compare?phones=${slugs.join(",")}&from=/`);
+    }
   };
 
   const toggleCompare = (id: string) => {
@@ -517,7 +514,7 @@ function HomeClientInner({ initialPhones }: HomeClientProps) {
             budgetLabel={advisorResults.budgetLabel}
             onClose={() => setAdvisorResults(null)} 
             onToggleCompare={toggleCompare} 
-            onCompareTwo={toggleCompareTwo} 
+            onCompareTwo={compareTwo} 
           />
         </section>
       )}
@@ -588,16 +585,27 @@ function HomeClientInner({ initialPhones }: HomeClientProps) {
               <div className="slider-container">
                 <input
                   type="range"
+                  className="budget-slider"
                   min="2000"
                   max="600000"
                   step="1000"
                   value={maxPrice}
+                  style={
+                    {
+                      "--slider-progress": `${((maxPrice - 2000) / (600000 - 2000)) * 100}%`,
+                    } as CSSProperties
+                  }
                   onChange={(e) => {
                     setMinPrice(0);
                     setSelectedPriceRange(null);
                     setMaxPrice(Number(e.target.value));
                   }}
+                  aria-label="Maximum budget in PKR"
                 />
+                <div className="slider-ticks">
+                  <span>Rs. 2k</span>
+                  <span>Rs. 600k</span>
+                </div>
               </div>
             </div>
 
@@ -767,129 +775,6 @@ function HomeClientInner({ initialPhones }: HomeClientProps) {
         </div>
       )}
 
-      {/* MODAL: SIDE BY SIDE COMPARISON */}
-      {isCompareModalOpen && compareList.length > 0 && (
-        <div id="compare-modal" className="modal-backdrop">
-          <div className="modal-dialog compare-dialog">
-            <div className="modal-header">
-              <h2>Side-by-Side Comparison</h2>
-              <button id="close-compare-modal-btn" className="modal-close-btn" onClick={() => setIsCompareModalOpen(false)}>✕</button>
-            </div>
-            <div className="modal-body">
-              <div className="compare-table-wrapper" id="compare-table-container">
-                <div className="comp-table-wrapper">
-                  <table className="comp-data-table">
-                    <thead>
-                      <tr>
-                        <th className="comp-label-col empty"></th>
-                        {comparePhones.map(p => {
-                          const isComingSoon = p.release_date && (p.release_date.toLowerCase().includes('exp') || p.release_date.includes('2027') || p.release_date.includes('2028'));
-                          return (
-                            <th className="comp-item-col" key={p.id}>
-                              <button className="remove-comp-btn" onClick={() => toggleCompare(p.id)} title="Remove">✕</button>
-                              <div className="comp-img-wrapper">
-                                <Image src={getSupabaseImageUrl(p.image || (p.images && p.images[0]) || '')} alt={`${p.brand} ${p.model}`} width={100} height={100} unoptimized />
-                              </div>
-                              <div className="comp-title-area">
-                                <span className="comp-brand">{p.brand}</span>
-                                <h3 className="comp-model">{p.model}</h3>
-                                {isComingSoon && <span className="badge-trending" style={{ background: '#000', color: '#fff', display: 'inline-block', marginTop: '0.25rem' }}>Coming Soon</span>}
-                              </div>
-                              <div className="comp-price-highlight">
-                                <span className="comp-price-label">Lowest Price</span>
-                                <div className="comp-price-val">{(p.lowest_verified_price ?? 0) > 0 ? formatPKR(p.lowest_verified_price!) : 'N/A'}</div>
-                              </div>
-                            </th>
-                          );
-                        })}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr className="comp-section-row"><td colSpan={comparePhones.length + 1} className="comp-section-title">📱 Display & Design</td></tr>
-                      <tr>
-                        <td className="comp-label-col">Screen Size</td>
-                        {comparePhones.map(p => <td className="comp-item-val" key={p.id}><strong>{p.display?.size}&quot;</strong></td>)}
-                      </tr>
-                      <tr>
-                        <td className="comp-label-col">Panel Type</td>
-                        {comparePhones.map(p => <td className="comp-item-val" key={p.id}>{p.display?.type || 'N/A'}</td>)}
-                      </tr>
-                      <tr>
-                        <td className="comp-label-col">Resolution</td>
-                        {comparePhones.map(p => <td className="comp-item-val" key={p.id}>{p.display?.resolution || 'N/A'}</td>)}
-                      </tr>
-                      <tr>
-                        <td className="comp-label-col">Protection</td>
-                        {comparePhones.map(p => <td className="comp-item-val" key={p.id}>{p.display?.protection || 'N/A'}</td>)}
-                      </tr>
-
-                      <tr className="comp-section-row"><td colSpan={comparePhones.length + 1} className="comp-section-title">⚡ Performance & Core</td></tr>
-                      <tr>
-                        <td className="comp-label-col">Processor (SoC)</td>
-                        {comparePhones.map(p => <td className="comp-item-val" key={p.id}><strong>{p.platform?.chipset || 'N/A'}</strong></td>)}
-                      </tr>
-                      <tr>
-                        <td className="comp-label-col">RAM</td>
-                        {comparePhones.map(p => <td className="comp-item-val" key={p.id}><strong>{p.memory?.ram_gb} GB</strong></td>)}
-                      </tr>
-                      <tr>
-                        <td className="comp-label-col">Internal Storage</td>
-                        {comparePhones.map(p => <td className="comp-item-val" key={p.id}><strong>{p.memory?.storage_gb} GB</strong></td>)}
-                      </tr>
-                      <tr>
-                        <td className="comp-label-col">AnTuTu Score</td>
-                        {comparePhones.map(p => <td className="comp-item-val" key={p.id}>{p.platform?.antutu_score ? `~${p.platform.antutu_score.toLocaleString()} pts` : 'N/A'}</td>)}
-                      </tr>
-
-                      <tr className="comp-section-row"><td colSpan={comparePhones.length + 1} className="comp-section-title">📸 Cameras</td></tr>
-                      <tr>
-                        <td className="comp-label-col">Main Camera</td>
-                        {comparePhones.map(p => <td className="comp-item-val" key={p.id}><strong>{p.camera?.main_mp} MP</strong> <br/><span className="comp-subtext">{p.camera?.setup || ''}</span></td>)}
-                      </tr>
-                      <tr>
-                        <td className="comp-label-col">Selfie Camera</td>
-                        {comparePhones.map(p => <td className="comp-item-val" key={p.id}>{p.camera?.selfie_mp} MP</td>)}
-                      </tr>
-                      <tr>
-                        <td className="comp-label-col">Video Recording</td>
-                        {comparePhones.map(p => <td className="comp-item-val" key={p.id}>{p.camera?.video || 'N/A'}</td>)}
-                      </tr>
-
-                      <tr className="comp-section-row"><td colSpan={comparePhones.length + 1} className="comp-section-title">🔋 Battery & Charging</td></tr>
-                      <tr>
-                        <td className="comp-label-col">Capacity</td>
-                        {comparePhones.map(p => <td className="comp-item-val" key={p.id}><strong>{p.battery?.capacity_mah} mAh</strong></td>)}
-                      </tr>
-                      <tr>
-                        <td className="comp-label-col">Fast Charging</td>
-                        {comparePhones.map(p => <td className="comp-item-val" key={p.id}>{p.battery?.charging_watt ? `${p.battery.charging_watt}W` : 'N/A'}</td>)}
-                      </tr>
-                      <tr>
-                        <td className="comp-label-col">Wireless Charging</td>
-                        {comparePhones.map(p => <td className="comp-item-val" key={p.id}>{p.battery?.wireless_charging ? '✅ Yes' : '❌ No'}</td>)}
-                      </tr>
-
-                      <tr className="comp-section-row"><td colSpan={comparePhones.length + 1} className="comp-section-title">📦 Connectivity & Taxes</td></tr>
-                      <tr>
-                        <td className="comp-label-col">5G Support</td>
-                        {comparePhones.map(p => <td className="comp-item-val" key={p.id}>{p.connectivity?.five_g ? '✅ 5G Supported' : '❌ 4G Only'}</td>)}
-                      </tr>
-                      <tr>
-                        <td className="comp-label-col">PTA Tax (Passport)</td>
-                        {comparePhones.map(p => <td className="comp-item-val" key={p.id}><strong>{formatPKR(p.pta_tax?.passport || 0)}</strong></td>)}
-                      </tr>
-                      <tr>
-                        <td className="comp-label-col">PTA Tax (CNIC)</td>
-                        {comparePhones.map(p => <td className="comp-item-val" key={p.id}><strong>{formatPKR(p.pta_tax?.cnic || 0)}</strong></td>)}
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

@@ -5,7 +5,7 @@ import { ArrowUp } from "lucide-react";
 
 export function ScrollToTop() {
   const [isVisible, setIsVisible] = useState(false);
-  const [hasDock, setHasDock] = useState(false);
+  const [bottomOffset, setBottomOffset] = useState(24);
 
   useEffect(() => {
     let ticking = false;
@@ -15,12 +15,22 @@ export function ScrollToTop() {
       const scrolled = window.scrollY > 300;
       setIsVisible(scrolled);
 
-      // Raise above home/catalog compare dock or product compare tray
+      // Sit above home/catalog compare dock or product compare tray
       const dock = document.getElementById("compare-dock");
       const productTray = document.getElementById("compare-bar");
-      const isDockActive =
-        (!!dock && !dock.classList.contains("hidden")) || !!productTray;
-      setHasDock(isDockActive);
+      const activeEl =
+        dock && !dock.classList.contains("hidden")
+          ? dock
+          : productTray;
+
+      if (activeEl) {
+        const rect = activeEl.getBoundingClientRect();
+        const gapAbove = 12;
+        const fromBottom = window.innerHeight - rect.top + gapAbove;
+        setBottomOffset(Math.max(24, Math.ceil(fromBottom)));
+      } else {
+        setBottomOffset(24);
+      }
 
       ticking = false;
     };
@@ -33,7 +43,8 @@ export function ScrollToTop() {
     };
 
     window.addEventListener("scroll", onScroll, { passive: true });
-    // Also periodically check dock in case compare items changed without scrolling
+    window.addEventListener("resize", onScroll, { passive: true });
+    // Periodically check in case compare items changed without scrolling
     const dockInterval = setInterval(checkScrollAndDock, 500);
 
     // Initial check
@@ -41,6 +52,7 @@ export function ScrollToTop() {
 
     return () => {
       window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
       clearInterval(dockInterval);
     };
   }, []);
@@ -61,7 +73,7 @@ export function ScrollToTop() {
       style={{
         position: "fixed",
         right: "20px",
-        bottom: hasDock ? "96px" : "24px",
+        bottom: `${bottomOffset}px`,
         zIndex: 80,
         width: "44px",
         height: "44px",
