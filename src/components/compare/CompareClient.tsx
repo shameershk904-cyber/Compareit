@@ -1119,23 +1119,29 @@ export function CompareClient({ initialPhones, initialCompareSlugs }: CompareCli
               ) : (
                 <div
                   key={slotIdx}
+                  role="button"
+                  tabIndex={0}
                   onClick={() => {
-                    if (!isDesktop) {
+                    // Always open the search sheet/modal — empty slots have no inline search UI
+                    setMobileSearchSlot(slotIdx);
+                    setMobileSearchQuery("");
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
                       setMobileSearchSlot(slotIdx);
                       setMobileSearchQuery("");
-                    } else {
-                      setActiveSlotSearch(slotIdx);
                     }
                   }}
                   className="rounded-2xl p-3 sm:p-5 flex flex-col items-center justify-center text-center bg-white/70 border-2 border-dashed border-gray-300 hover:border-[#ea580c] hover:bg-orange-50/20 transition-all cursor-pointer min-h-[220px] sm:min-h-[280px] group shadow-2xs"
                 >
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-orange-50 text-[#ea580c] flex items-center justify-center mb-2 sm:mb-3 border border-orange-100 text-lg sm:text-xl font-bold group-hover:scale-110 transition-transform">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-orange-50 text-[#ea580c] flex items-center justify-center mb-2 sm:mb-3 border border-orange-100 text-lg sm:text-xl font-bold group-hover:scale-110 transition-transform pointer-events-none">
                     +
                   </div>
-                  <h4 className="font-extrabold text-gray-900 text-xs sm:text-sm mb-0.5 sm:mb-1">
+                  <h4 className="font-extrabold text-gray-900 text-xs sm:text-sm mb-0.5 sm:mb-1 pointer-events-none">
                     Add Smartphone
                   </h4>
-                  <p className="text-[10px] sm:text-xs text-gray-500 mb-2 sm:mb-3">
+                  <p className="text-[10px] sm:text-xs text-gray-500 mb-2 sm:mb-3 pointer-events-none">
                     Tap to select Slot {slotIdx + 1}
                   </p>
                   {/* Popular Quick Picks on Desktop */}
@@ -1274,12 +1280,8 @@ export function CompareClient({ initialPhones, initialCompareSlugs }: CompareCli
                                   <button
                                     type="button"
                                     onClick={() => {
-                                      if (!isDesktop) {
-                                        setMobileSearchSlot(slotIdx);
-                                        setMobileSearchQuery("");
-                                      } else {
-                                        setActiveSlotSearch(slotIdx);
-                                      }
+                                      setMobileSearchSlot(slotIdx);
+                                      setMobileSearchQuery("");
                                     }}
                                     className="text-[10px] sm:text-xs font-semibold text-[#ea580c] hover:underline whitespace-nowrap"
                                   >
