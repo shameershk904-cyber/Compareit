@@ -409,7 +409,7 @@ function HomeClientInner({ initialPhones }: HomeClientProps) {
                   {advisorMinBudget === 0 ? 'Under 35k' : advisorMinBudget === 35000 ? '35k - 75k' : advisorMinBudget === 75000 ? '75k - 130k' : '130k+'} PKR
                 </span>
                 <span className={`step-tag ${!advisorCollapsed ? 'hidden' : ''}`} id="selected-priority-tag">
-                  {advisorPriority === 'balanced' ? 'Best All-Rounder' : advisorPriority === 'camera' ? 'Camera & Video' : advisorPriority === 'gaming' ? 'Gaming 90fps' : 'Battery & Fast Charge'}
+                  {advisorPriority === 'balanced' ? 'Balanced' : advisorPriority === 'camera' ? 'Camera' : advisorPriority === 'gaming' ? 'Gaming' : 'Battery'}
                 </span>
                 <button 
                   id="toggle-advisor-btn" 
@@ -456,19 +456,19 @@ function HomeClientInner({ initialPhones }: HomeClientProps) {
                 <div className="advisor-pill-group" id="advisor-priority-cards">
                   <button type="button" className={`adv-card-tile ${advisorPriority === 'balanced' ? 'active' : ''}`} onClick={() => setAdvisorPriority('balanced')}>
                     <span className="adv-tile-icon"><ScaleIcon size={22} color="#f47820" /></span>
-                    <span className="adv-tile-name">All-Rounder</span>
+                    <span className="adv-tile-name">Balanced</span>
                   </button>
                   <button type="button" className={`adv-card-tile ${advisorPriority === 'camera' ? 'active' : ''}`} onClick={() => setAdvisorPriority('camera')}>
                     <span className="adv-tile-icon">📸</span>
-                    <span className="adv-tile-name">Camera & Video</span>
+                    <span className="adv-tile-name">Camera</span>
                   </button>
                   <button type="button" className={`adv-card-tile ${advisorPriority === 'gaming' ? 'active' : ''}`} onClick={() => setAdvisorPriority('gaming')}>
                     <span className="adv-tile-icon">🎮</span>
-                    <span className="adv-tile-name">Gaming 90fps</span>
+                    <span className="adv-tile-name">Gaming</span>
                   </button>
                   <button type="button" className={`adv-card-tile ${advisorPriority === 'battery' ? 'active' : ''}`} onClick={() => setAdvisorPriority('battery')}>
                     <span className="adv-tile-icon">🔋</span>
-                    <span className="adv-tile-name">Battery & Fast Charge</span>
+                    <span className="adv-tile-name">Battery</span>
                   </button>
                 </div>
               </div>
@@ -477,7 +477,7 @@ function HomeClientInner({ initialPhones }: HomeClientProps) {
               <div className="advisor-action-strip">
                 <div className="advisor-summary-badge">
                   <span className="summary-icon">✨</span>
-                  <span id="advisor-summary-text">Ready to Compare: <strong>{advisorMinBudget === 0 ? 'Under 35k' : advisorMinBudget === 35000 ? '35k - 75k' : advisorMinBudget === 75000 ? '75k - 130k' : '130k+'} PKR</strong> • <strong>{advisorPriority === 'balanced' ? 'Best All-Rounder' : advisorPriority === 'camera' ? 'Camera & Content' : advisorPriority === 'gaming' ? 'Gaming & PUBG 90fps' : 'Battery & Fast Charge'}</strong></span>
+                  <span id="advisor-summary-text">Ready to Compare: <strong>{advisorMinBudget === 0 ? 'Under 35k' : advisorMinBudget === 35000 ? '35k - 75k' : advisorMinBudget === 75000 ? '75k - 130k' : '130k+'} PKR</strong> • <strong>{advisorPriority === 'balanced' ? 'Balanced' : advisorPriority === 'camera' ? 'Camera' : advisorPriority === 'gaming' ? 'Gaming' : 'Battery'}</strong></span>
                 </div>
                 <button id="run-advisor-btn" className="advisor-cta-btn" type="button" onClick={runSmartAdvisor}>
                   <span>Find My Best Phone & Rivals</span>
