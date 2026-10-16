@@ -253,6 +253,17 @@ export function ProductClient({ phone, competitors }: ProductClientProps) {
   const savings = officialMsrp > lowestPrice ? officialMsrp - lowestPrice : 0;
   const savingsPercent = officialMsrp > 0 && savings > 0 ? Math.round((savings / officialMsrp) * 100) : 0;
   const hasVerifiedPricing = lowestPrice > 0 && phone.status !== "Discontinued";
+  const statusLower = (phone.status || "").toLowerCase();
+  const isComingSoon =
+    statusLower === "rumored / unreleased" ||
+    statusLower === "coming soon" ||
+    Boolean(
+      phone.release_date &&
+        (phone.release_date.toLowerCase().includes("exp") ||
+          /\b(2027|2028|2029)\b/.test(phone.release_date))
+    );
+  // Coming-soon / pre-release entries often have placeholder $0 USD — omit both fields
+  const hideReleaseAndMsrp = isComingSoon || !(phone.usd_price > 0);
 
   // PTA Tax values
   const tax = phone.pta_tax || {
@@ -615,7 +626,9 @@ export function ProductClient({ phone, competitors }: ProductClientProps) {
               {/* Title & Metadata */}
               <div>
                 <div className="text-xs text-gray-500 font-normal">
-                  {phone.brand} • Released {phone.release_date || "2024"} • Global MSRP: ${phone.usd_price}
+                  {hideReleaseAndMsrp
+                    ? phone.brand
+                    : `${phone.brand} • Released ${phone.release_date || "2024"} • Global MSRP: $${phone.usd_price}`}
                 </div>
                 <h1 className="text-xl sm:text-2xl font-semibold text-gray-900 tracking-tight mt-0.5">
                   {formatPhoneName(phone.brand, phone.model)}

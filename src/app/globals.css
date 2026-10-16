@@ -1059,10 +1059,10 @@ html.mobile-nav-open body {
 }
 
 .adv-card-tile.active {
-  background: #000000;
-  color: #ffffff;
-  border-color: #000000;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.16);
+  background: #ffffff;
+  color: #222222;
+  border-color: var(--accent-orange);
+  box-shadow: none;
 }
 
 .adv-tile-icon {
@@ -1085,8 +1085,8 @@ html.mobile-nav-open body {
 }
 
 .adv-card-tile.active .adv-tile-badge-inline {
-  background: #ffffff;
-  color: #000000;
+  background: var(--accent-orange-light);
+  color: var(--accent-orange);
 }
 
 /* Action Strip */
