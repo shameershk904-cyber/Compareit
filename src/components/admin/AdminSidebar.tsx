@@ -65,6 +65,11 @@ export function AdminSidebar({ user, userRole }: AdminSidebarProps) {
       icon: "perm_media",
     },
     {
+      title: "Blog Manager",
+      href: "/admin/blog",
+      icon: "article",
+    },
+    {
       title: "Inquiries & Messages",
       href: "/admin/messages",
       icon: "mail",

@@ -174,6 +174,9 @@ export function ActivityClient({ initialLogs, totalCount: initialTotal }: Activi
               { id: "CREATE_BANNER", label: "Create Banner" },
               { id: "UPDATE_BANNER", label: "Update Banner" },
               { id: "DELETE_BANNER", label: "Delete Banner" },
+              { id: "CREATE_BLOG", label: "Create Blog" },
+              { id: "UPDATE_BLOG", label: "Update Blog" },
+              { id: "DELETE_BLOG", label: "Delete Blog" },
               { id: "PASSWORD_CHANGED", label: "Password" },
               { id: "INVITE_USER", label: "User Invites" },
             ].map((chip) => (

@@ -91,6 +91,11 @@ export function Footer() {
           </Link>
         </li>
         <li className="menu-item">
+          <Link href="/blog" className="menu-link">
+            Blog
+          </Link>
+        </li>
+        <li className="menu-item">
           <Link href="/contact" className="menu-link">
             Contact
           </Link>
