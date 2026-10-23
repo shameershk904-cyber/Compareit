@@ -13,14 +13,31 @@ export async function generateMetadata(props: { params: Promise<{ slug: string }
     };
   }
 
-  const lowest = (phone.lowest_verified_price && phone.lowest_verified_price > 0)
+  const lowest = (phone.expected_price_pkr && phone.expected_price_pkr > 0)
+    ? phone.expected_price_pkr
+    : (phone.lowest_verified_price && phone.lowest_verified_price > 0)
     ? phone.lowest_verified_price
     : (phone.price_pkr && phone.price_pkr > 0 ? phone.price_pkr : 0);
-  const isAvailable = lowest > 0 && Array.isArray(phone.retailers) && phone.retailers.length > 0 && phone.status !== "Discontinued";
+  const statusLower = (phone.status || "").toLowerCase();
+  const isComingSoon =
+    statusLower === "rumored / unreleased" ||
+    statusLower === "coming soon" ||
+    Boolean(phone.release_date && phone.release_date.toLowerCase().includes("exp"));
+  const isAvailable = lowest > 0 && Array.isArray(phone.retailers) && phone.retailers.length > 0 && phone.status !== "Discontinued" && !isComingSoon;
+
+  const priceLabel = isComingSoon
+    ? lowest > 0
+      ? `Expected Price in Pakistan (Rs. ${lowest.toLocaleString()})`
+      : "Coming Soon in Pakistan"
+    : isAvailable
+    ? `Price in Pakistan (Rs. ${lowest.toLocaleString()})`
+    : "Price in Pakistan (Price N/A - Discontinued)";
 
   return {
-    title: `${phone.brand} ${phone.model} ${isAvailable ? `Price in Pakistan (Rs. ${lowest.toLocaleString()})` : "Price in Pakistan (Price N/A - Discontinued)"} & Specs | CompareIt.pk`,
-    description: isAvailable
+    title: `${phone.brand} ${phone.model} ${priceLabel} & Specs | CompareIt.pk`,
+    description: isComingSoon
+      ? `${phone.brand} ${phone.model} is coming soon in Pakistan${lowest > 0 ? ` with an expected price of Rs. ${lowest.toLocaleString()}` : ""}. View WhatMobile specs, expected launch details, and comparisons on CompareIt.pk.`
+      : isAvailable
       ? `Check latest estimated market price of ${phone.brand} ${phone.model} in Pakistan (Rs. ${lowest.toLocaleString()}). Approximate store prices, full specs, PTA DIRBS tax, and expert verdict.`
       : `${phone.brand} ${phone.model} price in Pakistan is unlisted/discontinued (Price N/A). View historical specs, release details, PTA DIRBS tax status, and comparisons on CompareIt.pk.`,
   };

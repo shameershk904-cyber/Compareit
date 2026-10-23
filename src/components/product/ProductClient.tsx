@@ -519,19 +519,23 @@ export function ProductClient({ phone, competitors }: ProductClientProps) {
           <div className="flex items-center gap-2 text-xs">
             <span
               className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-medium ${
-                phone.pta_status === "approved"
+                isComingSoon
+                  ? "bg-blue-50 text-blue-700 border border-blue-200"
+                  : phone.pta_status === "approved"
                   ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
                   : "bg-gray-100 text-gray-600 border border-gray-200"
               }`}
             >
               <span className="material-symbols-outlined text-[14px]">
-                {phone.pta_status === "approved" ? "verified" : "help_outline"}
+                {isComingSoon ? "schedule" : phone.pta_status === "approved" ? "verified" : "help_outline"}
               </span>
-              {phone.pta_status === "approved" ? "PTA Approved (DIRBS)" : "Non-PTA"}
+              {isComingSoon ? "Coming Soon" : phone.pta_status === "approved" ? "PTA Approved (DIRBS)" : "Non-PTA"}
             </span>
-            <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-600 border border-gray-200 font-normal">
-              1-Year Warranty
-            </span>
+            {!isComingSoon && (
+              <span className="hidden sm:inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-gray-100 text-gray-600 border border-gray-200 font-normal">
+                1-Year Warranty
+              </span>
+            )}
           </div>
         </div>
 
@@ -681,11 +685,23 @@ export function ProductClient({ phone, competitors }: ProductClientProps) {
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                   <div>
                     <div className="text-[11px] text-gray-500 font-normal uppercase tracking-wider">
-                      {hasVerifiedPricing ? "Estimated Market Price in Pakistan" : "Market Status"}
+                      {isComingSoon
+                        ? "Expected Price in Pakistan"
+                        : hasVerifiedPricing
+                        ? "Estimated Market Price in Pakistan"
+                        : "Market Status"}
                     </div>
                     <div className="flex items-baseline gap-2.5 mt-0.5 flex-wrap">
-                      <span className="text-2xl font-semibold text-orange-600">
-                        {hasVerifiedPricing ? formatPKR(lowestPrice) : "Price N/A"}
+                      <span className={`text-2xl font-semibold ${isComingSoon ? "text-blue-700" : "text-orange-600"}`}>
+                        {isComingSoon
+                          ? (phone.expected_price_pkr && phone.expected_price_pkr > 0)
+                            ? formatPKR(phone.expected_price_pkr)
+                            : lowestPrice > 0
+                            ? formatPKR(lowestPrice)
+                            : "Coming Soon"
+                          : hasVerifiedPricing
+                          ? formatPKR(lowestPrice)
+                          : "Price N/A"}
                       </span>
                       {hasVerifiedPricing && savings > 0 && (
                         <span className="text-xs text-gray-400 line-through">
@@ -709,7 +725,15 @@ export function ProductClient({ phone, competitors }: ProductClientProps) {
 
                 {/* Action Buttons */}
                 <div className="flex flex-wrap items-center gap-2 pt-1">
-                  {hasVerifiedPricing ? (
+                  {isComingSoon ? (
+                    <a
+                      href="#prices"
+                      className="h-9 px-4 text-xs font-medium text-white bg-blue-700 hover:bg-blue-800 rounded-lg transition-colors inline-flex items-center justify-center gap-1.5 shadow-xs"
+                    >
+                      <span className="material-symbols-outlined text-[16px]">schedule</span>
+                      Expected {phone.release_date || "soon"}
+                    </a>
+                  ) : hasVerifiedPricing ? (
                     <a
                       href="#prices"
                       className="h-9 px-4 text-xs font-medium text-white bg-orange-600 hover:bg-orange-700 rounded-lg transition-colors inline-flex items-center justify-center gap-1.5 shadow-xs"
@@ -925,9 +949,13 @@ export function ProductClient({ phone, competitors }: ProductClientProps) {
           ) : (
             <div className="py-8 px-4 rounded-lg bg-gray-50 border border-gray-200 text-center flex flex-col items-center">
               <span className="material-symbols-outlined text-gray-400 text-3xl mb-2">inventory_2</span>
-              <h3 className="text-sm font-semibold text-gray-900">No Active Online Store Listings</h3>
+              <h3 className="text-sm font-semibold text-gray-900">
+                {isComingSoon ? "Not on sale in Pakistan yet" : "No Active Online Store Listings"}
+              </h3>
               <p className="text-xs text-gray-500 max-w-md mt-1">
-                {phone.brand} {phone.model} is unlisted or discontinued. Certified merchants no longer carry brand-new inventory.
+                {isComingSoon
+                  ? `${phone.brand} ${phone.model} is listed as coming soon${phone.release_date ? `, expected ${phone.release_date}` : ""}. Store prices will appear here after launch.`
+                  : `${phone.brand} ${phone.model} is unlisted or discontinued. Certified merchants no longer carry brand-new inventory.`}
               </p>
             </div>
           )}

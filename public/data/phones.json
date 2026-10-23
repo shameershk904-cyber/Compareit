@@ -267100,5 +267100,272 @@
     },
     "retailers": [],
     "status": "Discontinued"
+  },
+  {
+    "id": "vivo-v80",
+    "slug": "vivo-v80",
+    "brand": "Vivo",
+    "model": "V80",
+    "release_date": "Aug 31, 2026",
+    "price_pkr": 184999,
+    "lowest_verified_price": 184999,
+    "expected_price_pkr": 184999,
+    "usd_price": 835,
+    "image": "https://www.whatmobile.com.pk/admin/images/Vivo/VivoV80-b.jpg",
+    "images": [
+      "https://www.whatmobile.com.pk/admin/images/Vivo/VivoV80-b.jpg"
+    ],
+    "popular": false,
+    "trending_rank": 0,
+    "status": "Rumored / Unreleased",
+    "pta_status": "",
+    "memory": {
+      "ram_gb": 8,
+      "storage_gb": 128,
+      "card_slot": false
+    },
+    "battery": {
+      "capacity_mah": 7200,
+      "charging_watt": 90,
+      "wireless_charging": false
+    },
+    "platform": {
+      "chipset": "Qualcomm SM7750-AB Snapdragon 7 Gen 4 (4 nm)",
+      "cpu": "Octa-core (1 x 2.8 GHz Cortex-720 + 4 x 2.4 GHz Cortex-720 + 3 x 1.8 GHz Cortex-520)",
+      "gpu": "Adreno 722",
+      "os": "Android 17, OriginOS 7",
+      "antutu_score": 0
+    },
+    "display": {
+      "size": 6.59,
+      "type": "AMOLED, 144Hz, HDR10+",
+      "resolution": "1260 x 2750 Pixels (~459 PPI)",
+      "protection": "Glass front"
+    },
+    "camera": {
+      "main_mp": 50,
+      "selfie_mp": 50,
+      "setup": "50 MP wide, OIS + 50 MP periscope telephoto 3x, OIS + 8 MP ultrawide",
+      "video": "4K@30/60fps, 1080p@30/60fps",
+      "features": "Zeiss optics, panorama, HDR, gyro-EIS, OIS"
+    },
+    "connectivity": {
+      "five_g": true,
+      "nfc": false,
+      "headphone_jack": false,
+      "fingerprint": "Under display, optical"
+    },
+    "expert_verdict": {
+      "verdict": "Expected in Pakistan around Rs. 184,999, with a launch date of Aug 31, 2026 on WhatMobile. The V80 pairs a 6.59-inch 144Hz AMOLED with Snapdragon 7 Gen 4, a 7,200mAh battery, 90W charging, and a Zeiss triple camera that includes a 50MP 3x periscope.",
+      "pros": [
+        "144Hz AMOLED with up to 5000 nits peak brightness",
+        "7200mAh battery and 90W wired charging",
+        "50MP main plus 50MP 3x periscope, Zeiss optics",
+        "IP68/IP69 in a 7.7mm aluminum frame"
+      ],
+      "cons": [
+        "Not on sale in Pakistan yet",
+        "No NFC and no wireless charging",
+        "128GB base model uses slower UFS 3.1 storage"
+      ]
+    },
+    "competitor_ids": [
+      "samsung-galaxy-a57"
+    ],
+    "color_variants": [
+      {
+        "name": "Sunrise Anthem",
+        "images": [
+          "https://www.whatmobile.com.pk/admin/images/Vivo/VivoV80-b.jpg"
+        ]
+      },
+      {
+        "name": "Horizon Blue",
+        "images": [
+          "https://www.whatmobile.com.pk/admin/images/Vivo/VivoV80-b.jpg"
+        ]
+      },
+      {
+        "name": "Stellar Black",
+        "images": [
+          "https://www.whatmobile.com.pk/admin/images/Vivo/VivoV80-b.jpg"
+        ]
+      }
+    ],
+    "banners": [],
+    "retailers": [],
+    "detailed_specs": {
+      "Build": [
+        {
+          "label": "OS",
+          "value": "Android 17 OS"
+        },
+        {
+          "label": "UI",
+          "value": "OriginOS 7"
+        },
+        {
+          "label": "Dimensions",
+          "value": "157.5 x 74.3 x 7.7 mm"
+        },
+        {
+          "label": "Weight",
+          "value": "203 g"
+        },
+        {
+          "label": "SIM",
+          "value": "Nano-SIM + Nano-SIM + eSIM (max 2 at a time)"
+        },
+        {
+          "label": "Colors",
+          "value": "Sunrise Anthem, Horizon Blue, Stellar Black"
+        }
+      ],
+      "Frequency": [
+        {
+          "label": "2G Band",
+          "value": "SIM1: GSM 850 / 900 / 1800 / 1900SIM2: GSM 850 / 900 / 1800 / 1900"
+        },
+        {
+          "label": "3G Band",
+          "value": "HSDPA 800 / 850 / 900 / 1700(AWS) / 1900 / 2100"
+        },
+        {
+          "label": "4G Band",
+          "value": "LTE"
+        },
+        {
+          "label": "5G Band",
+          "value": "SA/NSA"
+        }
+      ],
+      "Processor": [
+        {
+          "label": "CPU",
+          "value": "Octa-core (1 x 2.8 GHz Cortex-720 + 4 x 2.4 GHz Cortex-720 + 3 x 1.8 GHz Cortex-520)"
+        },
+        {
+          "label": "Chipset",
+          "value": "Qualcomm SM7750-AB Snapdragon 7 Gen 4 (4 nm)"
+        },
+        {
+          "label": "GPU",
+          "value": "Adreno 722"
+        }
+      ],
+      "Display": [
+        {
+          "label": "Technology",
+          "value": "AMOLED Capacitive Touchscreen, 1B Colors"
+        },
+        {
+          "label": "Size",
+          "value": "6.59 Inches"
+        },
+        {
+          "label": "Resolution",
+          "value": "1260 x 2750 Pixels (~459 PPI)"
+        },
+        {
+          "label": "Extra Features",
+          "value": "144Hz, HDR10+, 4320Hz PWM, 1800 nits (HBM), 5000 nits (peak)"
+        }
+      ],
+      "Memory": [
+        {
+          "label": "Built-in",
+          "value": "128/256/512GB Built-in, 8/12GB RAM, UFS 4.1, UFS 3.1 (128GB only)"
+        },
+        {
+          "label": "Card",
+          "value": "No"
+        }
+      ],
+      "Camera": [
+        {
+          "label": "Main",
+          "value": "Triple Camera: 50 MP, f/1.9, 23mm (wide), 1/1.56\", PDAF, OIS + 50 MP, f/2.7, 73mm (periscope telephoto), 1/1.95\", PDAF, OIS, 3x optical zoom + 8 MP, f/2.2, 15mm, (ultrawide), Ring-LED flash"
+        },
+        {
+          "label": "Features",
+          "value": "Zeiss optics, panorama, HDR, Video (4K@30/60fps, 1080p@30/60fps, gyro-EIS, OIS, HDR, LUT)"
+        },
+        {
+          "label": "Front",
+          "value": "50 MP, f/2.0, 21mm (wide), 1/2.76"
+        }
+      ],
+      "Connectivity": [
+        {
+          "label": "WLAN",
+          "value": "Wi-Fi 802.11 a/b/g/n/ac, dual-band"
+        },
+        {
+          "label": "Bluetooth",
+          "value": "v5.4 with A2DP, LE"
+        },
+        {
+          "label": "GPS",
+          "value": "Yes + A-GPS Support & GLONASS, GALILEO, BDS, QZSS, NavIC"
+        },
+        {
+          "label": "USB",
+          "value": "USB Type-C 2.0, OTG"
+        },
+        {
+          "label": "NFC",
+          "value": "No"
+        },
+        {
+          "label": "Infrared",
+          "value": "Yes"
+        },
+        {
+          "label": "Data",
+          "value": "2G GSM, 3G HSPA, 4G LTE, 5G Capable"
+        }
+      ],
+      "Features": [
+        {
+          "label": "Sensors",
+          "value": "Accelerometer, Compass, Fingerprint (under display, optical), Gyro, Proximity, Circle to Search"
+        },
+        {
+          "label": "Audio",
+          "value": "Speaker Phone"
+        },
+        {
+          "label": "Browser",
+          "value": "HTML5"
+        },
+        {
+          "label": "Messaging",
+          "value": "SMS(threaded view), MMS, Email, Push Mail, IM"
+        },
+        {
+          "label": "Games",
+          "value": "Built-in + Downloadable"
+        },
+        {
+          "label": "Torch",
+          "value": "Yes"
+        },
+        {
+          "label": "Extra",
+          "value": "IP68/IP69 dust tight and water resistant (high pressure water jets; immersible up to 1.5m for 30 min), Glass front, aluminum frame, glass back"
+        }
+      ],
+      "Battery": [
+        {
+          "label": "Capacity",
+          "value": "Li-ion Si-Ca 7200 mAh"
+        },
+        {
+          "label": "Charging",
+          "value": "Fast charging 90W wired, PD, 50% in 30 min, Reverse wired, Bypass charging"
+        }
+      ],
+      "expectedPricePkr": 184999
+    }
   }
 ]

@@ -105,6 +105,7 @@ export const WHATMOBILE_URL_MAP: Record<string, string> = {
   "itel-a70": "/itel_A70",
   "vivo-v30": "/Vivo_V30",
   "vivo-v30e": "/Vivo_V30e",
+  "vivo-v80": "/Vivo_V80",
   "vivo-y27s": "/Vivo_Y27s",
   "oppo-reno-11-f": "/Oppo_Reno-11F",
   "realme-12-plus": "/Realme_12-Plus",
