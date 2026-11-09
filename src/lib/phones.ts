@@ -243,12 +243,15 @@ export const getPhoneBySlug = (slug: string) =>
           },
           include: { retailers: true },
         });
-        return row ? dbPhoneToPhone(row) : null;
+        if (row) return dbPhoneToPhone(row);
       } catch (err) {
         console.error(`[lib/phones] getPhoneBySlug(${slug}) DB error, falling back to JSON:`, err);
-        const phones = readLocalPhones();
-        return phones.find((p) => p.slug === slug || p.id === slug) ?? null;
       }
+
+      // Fallback when DB misses a slug that still exists in the local catalog
+      // (e.g. incomplete pooler reads). Prevents soft homepage links from 404ing.
+      const phones = readLocalPhones();
+      return phones.find((p) => p.slug === slug || p.id === slug) ?? null;
     },
     [`getPhoneBySlug-${slug}`],
     { tags: [PHONES_TAG, phoneTag(slug)], revalidate: 60 }
