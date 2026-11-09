@@ -40,6 +40,7 @@ export async function generateMetadata(props: { params: Promise<{ slug: string }
       : isAvailable
       ? `Check latest estimated market price of ${phone.brand} ${phone.model} in Pakistan (Rs. ${lowest.toLocaleString()}). Approximate store prices, full specs, PTA DIRBS tax, and expert verdict.`
       : `${phone.brand} ${phone.model} price in Pakistan is unlisted/discontinued (Price N/A). View historical specs, release details, PTA DIRBS tax status, and comparisons on CompareIt.pk.`,
+    alternates: { canonical: `/phone/${phone.slug}` },
   };
 }
 
